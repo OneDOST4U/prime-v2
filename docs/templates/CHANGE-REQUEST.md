@@ -1,97 +1,75 @@
 # Change Request Log — PRIME v2
 
-**Purpose:** Any change to approved scope, requirements, design, or workflow must go through this log. This prevents "scope creep" — where small undocumented changes pile up and break the approved plan.
-
-**Rule:** If something was already decided/approved and you want to change it → file a change request first. Never change approved documents without a logged CR.
+File a change request before modifying any approved document, scope, or requirement. Never change approved content without a logged CR.
 
 ---
 
-## When to File a Change Request
+## When to File
 
-File a CR when you want to change:
-- Scope of the MVP (add or remove features)
+File a CR when changing:
+
+- MVP scope (add or remove features)
 - User roles or permissions
 - Workflow steps or proposal statuses
-- A form field or form structure
-- A previously approved document
-- The tech stack or architecture (requires Phase 4 re-approval)
-- The timeline
+- A form field or structure
+- Any previously approved document
+- Tech stack or architecture
+- Timeline
 
-Do NOT file a CR for:
-- Adding content to incomplete documents (those aren't "approved" yet)
-- Fixing a typo in a draft document
-- Creating new documents for the first time
+Do NOT file for: typos in drafts, new sections in incomplete documents, first-time document creation.
 
 ---
 
 ## Change Request Template
 
-Copy this block and fill it in:
+```text
+## CR-NNN — [Short title]
 
-```
-## CR-[NNN] — [Short title]
+Date: YYYY-MM-DD
+Submitted by: [Name / Role]
+Phase: [Phase when CR submitted]
+Status: Pending / Approved / Rejected / On Hold
 
-**Date submitted:** YYYY-MM-DD
-**Submitted by:** [Name / Role]
-**Phase:** [Current phase when CR is submitted]
-**Status:** [Pending / Approved / Rejected / On Hold]
+### What to change
+[Specific file, section, or rule to modify]
 
-### What do you want to change?
-[Describe the specific change. Be precise — what file, what section, what line, what rule.]
+### Current state
+[Quote the current approved text or describe current behavior]
 
-### Current state (what it says now)
-[Quote the current approved text or describe the current approved behavior]
+### Proposed state
+[New text or behavior]
 
-### Proposed state (what it should say instead)
-[Describe the new text or behavior]
+### Reason
+[Business rule change, supervisor instruction, discovered error, etc.]
 
-### Why is this change needed?
-[Explain the reason: new business rule, supervisor instruction, discovered error, changed requirement, etc.]
+### Impact
+- Documents affected:
+- Phases affected:
+- Roles affected:
 
-### Impact analysis
-- Documents affected: [list files]
-- Phases affected: [list phases]
-- Roles affected: [list user roles]
-- Forms affected: [list forms]
-- Risk of not making change: [describe]
-- Risk of making change: [describe]
+### Approver required
+[Role that must approve, e.g. Product Owner, Security Owner]
 
-### Approval required from
-[List the roles that must approve this change, e.g. Product Owner, Security Owner]
-
-### Approver decision
-**Decision:** [Approved / Rejected / Approved with conditions]
-**Decided by:** [Name / Role]
-**Date:** YYYY-MM-DD
-**Conditions (if any):** [Any conditions that must be met]
-**Notes:** [Any additional notes from approver]
+### Decision
+Approved / Rejected / Approved with conditions
+By: [Name]  Date: YYYY-MM-DD
+Conditions: [if any]
 ```
 
 ---
 
-## Change Request Log Table
+## Change Request Log
 
-| ID | Date | Phase | Title | Submitted by | Status | Approved by |
-|---|---|---|---|---|---|---|
-| CR-001 | YYYY-MM-DD | — | *(No change requests yet)* | — | — | — |
-
----
-
-## Change Request Status Definitions
-
-| Status | Meaning |
-|---|---|
-| **Pending** | Submitted, waiting for review |
-| **Approved** | Change is approved — update documents and log the decision in DECISION-LOG.md |
-| **Rejected** | Change will not be made — keep current approved state |
-| **On Hold** | Needs more information before decision |
+| ID   | Date       | Phase | Title                  | Submitted by | Status | Approved by |
+|------|------------|-------|------------------------|--------------|--------|-------------|
+| —    | —          | —     | No change requests yet | —            | —      | —           |
 
 ---
 
-## Process After a CR is Approved
+## After CR Approval
 
-1. Update the affected document(s)
-2. Add an entry to [DECISION-LOG.md](DECISION-LOG.md) referencing this CR number
-3. Update this table (set Status → Approved, fill in Approved by)
-4. Commit all changed files together with message: `docs: apply CR-[NNN] - [short title]`
-5. Notify all team members of the change
+1. Update affected document(s)
+2. Add entry to [DECISION-LOG.md](DECISION-LOG.md) referencing CR number
+3. Update this table (Status → Approved, fill Approved by)
+4. Commit with message: `docs: apply CR-NNN — [short title]`
+5. Notify team of change
