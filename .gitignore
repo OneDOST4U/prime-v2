@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+build/
+coverage/
+
+# Logs and OS
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE (keep .cursor rules/hooks — project config)
+.idea/
+*.swp
+
+# Local overrides
+PRIME_QA_PUSH_OK

@@ -1,0 +1,90 @@
+# PRIME v2 Phases Reference
+
+Validation of [README.md §24](../../README.md) phases against the [ObraTech AI SDLC Framework §2](../../README.md) and project status.
+
+## Verdict: Phases Are Correct
+
+The **21 phases (0–20)** are logically ordered, match the ObraTech framework, and enforce approval gates before coding.
+
+| Check | Result |
+|---|---|
+| Planning before code (Phases 0–4) | Correct — explicit "No coding allowed" through Phase 3; Phase 4 gate before Phase 6 |
+| UX before full build (Phase 5) | Correct — wireframes/prototype after architecture |
+| Incremental MVP build (Phases 6–13) | Correct — foundation → auth → forms → workflow → RTEC → financial → PDF |
+| Hardening before deploy (Phases 14–18) | Correct — security → QA → staging → UAT → production readiness |
+| Launch and sustain (Phases 19–20) | Correct — production deploy → hypercare |
+
+## ObraTech SDLC → Phase Mapping
+
+| ObraTech step (README §2) | PRIME phase(s) |
+|---|---|
+| 1. Understand business story | 0, 1 |
+| 2. Approve Project Brief | 1 |
+| 3. Define and approve MVP | 2 |
+| 4. Roles and permissions | 2 |
+| 5. User stories and acceptance criteria | 2 |
+| 6. Documentation structure | 0 |
+| 7. Assign AI agents | 0 (see [AGENTS.md](../../AGENTS.md)) |
+| 8. Development phases | README §24 (this reference) |
+| 9. Security, testing, deployment plans | 4, 14, 15, 16, 18 |
+| 10. Approve architecture | 4 (gate) |
+| 11. Begin implementation | 6–13 |
+| 12. Test and validate | 15 |
+| 13. Deploy to staging | 16 |
+| 14. UAT | 17 |
+| 15. Deploy to production | 19 |
+| 16. Monitor and maintain | 20 |
+
+## Phase Summary Table
+
+| Phase | Name | Code allowed? | Primary agents |
+|---|---|---|---|
+| 0 | Project Initialization | No | Product Manager, Architect |
+| 1 | Business Analysis / Project Brief | No | Product Manager |
+| 2 | MVP, Roles, User Stories | No | Product Manager, Security |
+| 3 | Form Conversion Specs | No (specs only) | Product Manager, Frontend, QA |
+| 4 | Architecture and Data Design | No (design only) | Architect, Database, Security, DevOps |
+| 5 | UX and Prototype | Mockups only | Frontend, Architect, QA |
+| 6 | Foundation Implementation | **Yes** | Architect, Backend, DevOps, QA |
+| 7 | Authentication and Users | Yes | Backend, Security, QA |
+| 8 | Dynamic Forms and Drafts | Yes | Frontend, Backend, Database, QA |
+| 9 | Submission, Versioning, Comments | Yes | Backend, Frontend, QA |
+| 10 | Workflow and Focal Review | Yes | Backend, Frontend, QA |
+| 11 | RTEC Review and Consolidation | Yes | Backend, Frontend, Security, QA |
+| 12 | Budget, Accounting, RD | Yes | Backend, Frontend, QA |
+| 13 | Document Generation / Reports | Yes | Backend, Frontend, QA |
+| 14 | Security Hardening | Yes (fixes) | Security, QA |
+| 15 | Quality Assurance | Test only | QA |
+| 16 | Staging Deployment | Deploy | DevOps, QA |
+| 17 | User Acceptance Testing | Fixes only | QA, Product Manager |
+| 18 | Production Readiness | Checklist | Production Readiness, Security, DevOps |
+| 19 | Production Deployment | Deploy | DevOps |
+| 20 | Hypercare and Improvement | Yes | All agents as needed |
+
+## Current Project Status (update as you progress)
+
+**You are here: Phase 0 → moving to Phase 1**
+
+| Phase 0 item | Status |
+|---|---|
+| Repository / folder structure | Done |
+| README and docs folders | Done |
+| Form folders + 27 source files | Done |
+| FORM-INVENTORY.md | Done |
+| Agent workflow (AGENTS.md, hooks, rules) | Done |
+| UI design standards | Done |
+| Issue templates | Not started |
+| Decision-log template | Not started |
+| Change-request template | Not started |
+| Stakeholder list | Not started |
+| Initial risk register | Not started |
+| Initial backlog | Not started |
+| Phase 0 approval gate | Pending |
+
+**Next:** Complete remaining Phase 0 items, get project owner sign-off, then start **Phase 1**.
+
+## One Rule
+
+> Do not vibe-code application features until **Phase 4** is approved (MVP, workflow, permissions, architecture). Phases 0–5 are documents, specs, and prototypes only.
+
+For step-by-step Cursor prompts, see [INTERN-VIBE-CODING-GUIDE.md](INTERN-VIBE-CODING-GUIDE.md).

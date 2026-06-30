@@ -1,0 +1,25 @@
+---
+description: PRIME v2 — QA gate before git push; tests and checklist required
+alwaysApply: true
+---
+
+# QA Before Push
+
+Before `git push`, complete [docs/agents/QA-PUSH-GATE.md](docs/agents/QA-PUSH-GATE.md).
+
+## As the AI assistant
+
+When the user asks to push or you run `git push`:
+
+1. Run relevant tests for changed areas (when test scripts exist).
+2. Walk through the QA checklist: scope, security, permissions, workflow, lint, no secrets.
+3. Refuse to push if critical checks fail unless user documents an approved waiver.
+
+## QA Agent responsibilities on push
+
+- Tests pass for changed behavior
+- Permission tests for new/changed endpoints
+- No secrets or `.env` in the commit
+- Docs updated if behavior changed
+
+If tests do not exist yet for new code, note the gap and add test tasks before recommending push.

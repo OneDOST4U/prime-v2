@@ -1,0 +1,33 @@
+---
+description: PRIME v2 ObraTech SDLC — mandatory agent consultation before development
+alwaysApply: true
+---
+
+# PRIME v2 Agent Workflow
+
+Before implementing any change, follow [docs/agents/DEVELOPMENT-FLOW.md](docs/agents/DEVELOPMENT-FLOW.md).
+
+**Intern / vibe coding:** state current phase and follow [INTERN-VIBE-CODING-GUIDE.md](docs/agents/INTERN-VIBE-CODING-GUIDE.md). No app code before Phase 4 approval.
+
+## Required consultations (do not skip)
+
+1. **Product Manager** — confirm scope, user story, acceptance criteria
+2. **Architect** — confirm design, modules, ADRs if needed
+3. **Security** — confirm RBAC, validation, secrets, audit impact
+4. **QA** — define tests before coding; run tests before push
+
+Route to domain lead: **Frontend** (UI), **Backend** (API/workflow), **Database** (schema), **DevOps** (deploy/CI).
+
+## When the user asks to code
+
+1. State which agents must approve the task.
+2. Ask clarifying questions if user story, permissions, or workflow status are missing.
+3. Do not implement until scope/design/security/tests are clear (Phase 0: no coding until MVP/architecture approved).
+
+## PRIME constraints (always)
+
+- Never bypass role checks or overwrite submitted proposal versions.
+- Never expose private RTEC comments to applicants.
+- Never commit secrets.
+
+See [AGENTS.md](AGENTS.md) and [README.md](README.md) §32–33.

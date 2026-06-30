@@ -1,0 +1,36 @@
+---
+description: PRIME v2 UI — modern responsive layout, right-side navbar for all users
+globs: "**/*.{tsx,css,scss}"
+alwaysApply: false
+---
+
+# PRIME v2 UI Standards
+
+Follow [docs/frontend/UI-DESIGN-STANDARDS.md](docs/frontend/UI-DESIGN-STANDARDS.md).
+
+## Layout (non-negotiable)
+
+- **Right-side navigation** for all authenticated users (Applicant, staff, Admin)
+- **No top horizontal navbar** as primary app navigation
+- Main content on the left/center; nav panel on the **right edge**
+- Same shell position for every role; only menu items differ by RBAC
+
+## Responsive
+
+- **Mobile** (&lt;768px): right nav in drawer/sheet, opened from the right
+- **Tablet** (768–1023px): narrow right rail or collapsible panel
+- **Desktop** (≥1024px): full right sidebar
+- Test at 375px, 768px, and 1280px minimum
+
+## Modern UI
+
+- Clean spacing, clear hierarchy, accessible contrast
+- Loading, empty, and error states
+- Touch-friendly targets on mobile/tablet (~44px min)
+- Forms: labels, validation, keyboard focus
+
+## Components
+
+Prefer shared `AppShell` + `RightNav` + `RightNavDrawer`; avoid per-role layout forks.
+
+QA must verify nav placement and breakpoints before push ([QA-PUSH-GATE.md](docs/agents/QA-PUSH-GATE.md)).
