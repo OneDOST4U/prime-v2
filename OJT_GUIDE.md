@@ -1,7 +1,7 @@
 # OJT Guide — What Do I Actually Do?
 
 **For:** OJT student (3rd year, assigned to PRIME v2)
-**Last updated:** 2026-06-30
+**Last updated:** 2026-06-30 (Phase 2 docs created)
 **Written by:** Kiro after reading the entire repository
 
 ---
@@ -84,7 +84,7 @@ This is like writing a report that says: "Here is what DOST currently does manua
 
 This is like writing a contract for the developers: "Build exactly these features, for exactly these roles, following exactly these rules."
 
-**Status: ⏳ NOT STARTED — cannot begin until Phase 1 is approved.**
+**Status: 🔄 IN PROGRESS — all four documents created, pending three approvals (Product Owner, Security Owner, Process Owner).**
 
 ---
 
@@ -118,15 +118,17 @@ This is like writing a contract for the developers: "Build exactly these feature
 | Stakeholder interviews | ⚠️ Pending | 11 open questions in Business Process Map need confirmation |
 | **Business Owner approval** | ❌ Pending | Brief is DRAFT — needs written sign-off to close Phase 1 |
 
-### Phase 2 — ⏳ Not Started
+### Phase 2 — 🔄 In Progress
 
-| Task | Status |
-|---|---|
-| MVP specification document | ❌ Not started |
-| Role-permission matrix | ❌ Not started |
-| Workflow status document | ❌ Not started |
-| User story backlog | ❌ Not started |
-| **Approval from product/security/process owner** | ❌ Pending |
+| Task | Status | Notes |
+|---|---|---|
+| MVP specification document | ✅ Created | `docs/requirements/PRIME-v2-MVP.md` — DRAFT, 70+ checklist items |
+| Role-permission matrix | ✅ Created | `docs/requirements/PRIME-v2-Roles-and-Permissions.md` — DRAFT |
+| Workflow status document | ✅ Created | `docs/workflows/PRIME-v2-Workflow.md` — DRAFT, includes Mermaid diagram |
+| User story backlog | ✅ Created | `docs/requirements/USER-STORY-BACKLOG.md` — DRAFT, all US-* stories |
+| **Product Owner approves MVP** | ❌ Pending | Needs written sign-off on PRIME-v2-MVP.md |
+| **Security Owner approves permissions** | ❌ Pending | Needs written sign-off on PRIME-v2-Roles-and-Permissions.md |
+| **Process Owner approves workflow** | ❌ Pending | Needs written sign-off on PRIME-v2-Workflow.md |
 
 ---
 
@@ -188,49 +190,53 @@ Once the open questions are answered:
 
 ---
 
-### STEP 3 — Start Phase 2 (After Phase 1 Approval)
+### STEP 3 — Get Phase 2 Approvals (Current Focus)
 
-Phase 2 = locking down exactly what to build. All the information already exists in README.md. You're extracting it into proper standalone documents.
+Phase 2 documents have all been created. Three approvals are needed to close this phase.
 
-**Create these in order:**
+#### 3A — Get Product Owner Approval on the MVP Spec
 
-#### 3A — MVP Specification
-- File: `docs/requirements/PRIME-v2-MVP.md`
-- Contents: The 20-step scenario from README.md §16 formatted as a checklist, plus in-scope and out-of-scope items
-- Source: `README.md` §6 and §16
-- Say to Kiro: "Draft the MVP specification for PRIME v2."
+1. Send `docs/requirements/PRIME-v2-MVP.md` to the Product Owner for review.
+2. The doc has a pass/fail column for 70+ checklist items — review these with the Product Owner.
+3. If they request changes, update the file, bump the version, and resubmit.
+4. Once approved, fill in the Approval section at the top of the file.
 
-#### 3B — Roles and Permissions Matrix
-- File: `docs/requirements/PRIME-v2-Roles-and-Permissions.md`
-- Contents: Table showing which role can do what (view, edit, submit, comment, return, approve, etc.)
-- Source: `README.md` §7 and §8
-- **Needs security owner approval** — it controls who can access what
-- Say to Kiro: "Draft the roles and permissions matrix for PRIME v2."
+Key things the Product Owner will want to confirm:
+- The 20-step MVP end-to-end scenario (§2)
+- The out-of-scope table (§4) — anything they want added or removed?
+- The Definition of Done (§7) — are the criteria strict enough?
 
-#### 3C — Workflow Document
-- File: `docs/workflows/PRIME-v2-Workflow.md`
-- Contents: All 24 proposal statuses, who triggers each transition, and the allowed paths
-- Source: `README.md` §10 and §11
-- Say to Kiro: "Draft the workflow document for PRIME v2."
+#### 3B — Get Security Owner Approval on Roles and Permissions
 
-#### 3D — User Story Backlog
-- File: `docs/requirements/USER-STORY-BACKLOG.md`
-- Contents: All user stories from README.md §17 in table format with IDs and acceptance criteria
-- Source: `README.md` §17 (already has ~30+ user stories written)
-- Say to Kiro: "Draft the user story backlog for PRIME v2."
+1. Send `docs/requirements/PRIME-v2-Roles-and-Permissions.md` to the Security Owner.
+2. Walk them through the permission matrix tables (§3.1, §3.2, §3.3) — these are the most important.
+3. Confirm the comment visibility rules (§4) and the 8 security constraints (§5).
+4. Once approved, fill in the Approval section.
 
-#### 3E — Get Phase 2 Approvals
+Key questions the Security Owner may raise:
+- Are the "Stage" restrictions enforced server-side?
+- Is the multi-role scenario handled correctly?
+- Is the RTEC private comment isolation strong enough?
 
-Three approvals needed:
-- Product owner approves the MVP specification
-- Security owner approves the role-permission matrix
-- Process owner approves the workflow document
+#### 3C — Get Process Owner Approval on the Workflow
 
-**Phase 2 is closed when all three approvals are recorded.**
+1. Send `docs/workflows/PRIME-v2-Workflow.md` to the Process Owner.
+2. Walk them through the Mermaid transition diagram (§2) and the transition table (§3).
+3. Confirm every row in the transition table — especially the "Required Conditions" column.
+4. Once approved, fill in the Approval section.
+
+Key things the Process Owner will want to verify:
+- Are all 24 statuses correct and complete?
+- Is the `RETURNED_BY_ACCOUNTING` → `UNDER_FOCAL_REVIEW` path policy-approved?
+- Can the Admin `CLOSE` a proposal at any stage, or only specific ones?
+
+#### 3D — Phase 2 is Closed When All Three Approvals Are Recorded
+
+Fill in the Approval section in each of the three documents. Phase 3 (form specs) cannot start until all three are signed off.
 
 ---
 
-### STEP 4 — After Phase 2 (Future)
+### STEP 4 — After Phase 2 (Next Phase)
 
 After Phase 2 you move to Phase 3 (form conversion specs) and Phase 4 (architecture). Coding starts only after Phase 4 is approved.
 
@@ -282,12 +288,12 @@ prime-v2/
     ├── requirements/
     │   ├── RISK-REGISTER.md                  ← ✅ Done (Phase 0)
     │   ├── INITIAL-BACKLOG.md                ← ✅ Done (Phase 0)
-    │   ├── PRIME-v2-MVP.md                   ← ❌ Phase 2
-    │   ├── PRIME-v2-Roles-and-Permissions.md ← ❌ Phase 2
-    │   └── USER-STORY-BACKLOG.md             ← ❌ Phase 2
+    │   ├── PRIME-v2-MVP.md                   ← ✅ Created — pending Product Owner approval
+    │   ├── PRIME-v2-Roles-and-Permissions.md ← ✅ Created — pending Security Owner approval
+    │   └── USER-STORY-BACKLOG.md             ← ✅ Created — pending Product Owner approval
     │
     ├── workflows/
-    │   └── PRIME-v2-Workflow.md              ← ❌ Phase 2
+    │   └── PRIME-v2-Workflow.md              ← ✅ Created — pending Process Owner approval
     │
     └── templates/
         ├── ISSUE-TEMPLATES.md                ← ✅ Done
@@ -332,13 +338,13 @@ All of that starts at Phase 6, which requires Phase 4 (architecture) approval fi
 |---|---|---|---|---|---|
 | 0 | Set up project structure & templates | No | Stakeholder list, risk register, templates | Project owner | ✅ Done |
 | 1 | Understand and document the business | No | Project Brief | Business owner | 🔄 In progress |
-| 2 | Define what to build and who can do what | No | MVP spec, permissions, workflow, user stories | Product + Security + Process owner | ⏳ Not started |
+| 2 | Define what to build and who can do what | No | MVP spec, permissions, workflow, user stories | Product + Security + Process owner | 🔄 In progress |
 | 3 | Analyze and spec the 27 forms | No | Form specs (one per form) | Form owners | ⏳ Not started |
 | 4 | Design the architecture | No | Architecture doc, ERD, security plan | Architect + Security | ⏳ Not started |
 | 5 | Prototype the UI | Mockups only | Wireframes | Users | ⏳ Not started |
 | **6+** | **Actually build it** | **Yes** | Working code | QA gate + supervisor | ⏳ Not started |
 
-**You are here: Phase 1 (in progress) → Phase 2 (next)**
+**You are here: Phase 1 (approval pending) → Phase 2 (documents created, approvals pending)**
 
 ---
 
@@ -346,10 +352,18 @@ All of that starts at Phase 6, which requires Phase 4 (architecture) approval fi
 
 If you just opened this file and want to know what to do in the next 30 minutes:
 
-1. Open `docs/project-brief/PRIME-v2-Business-Process-Map.md`
-2. Find every line with a ⚠️ symbol
-3. Write down those questions
-4. Ask your supervisor or process owner for the answers
-5. Come back and say: "Update the Business Process Map with these answers: [your answers]"
+**Phase 1 still needs Business Owner sign-off:**
 
-That's the current step.
+1. Open `docs/project-brief/PRIME-v2-Business-Process-Map.md`
+2. Find every line with a ⚠️ symbol — these need answers from the process owner
+3. Write down those questions and ask your supervisor
+4. Once answered, say to Kiro: "Update the Business Process Map with these answers: [your answers]"
+5. Then send the Project Brief to the Business Owner for formal approval
+
+**Phase 2 documents are created and waiting for approval:**
+
+1. Open `docs/requirements/PRIME-v2-MVP.md` — send to Product Owner for review
+2. Open `docs/requirements/PRIME-v2-Roles-and-Permissions.md` — send to Security Owner for review
+3. Open `docs/workflows/PRIME-v2-Workflow.md` — send to Process Owner for review
+
+Once all three approvals are recorded, Phase 2 is closed and Phase 3 (form conversion specs) can begin.
