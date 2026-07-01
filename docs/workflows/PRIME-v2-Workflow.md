@@ -3,11 +3,11 @@
 | Field | Value |
 |---|---|
 | Document | PRIME v2 Workflow and Proposal Statuses |
-| Version | 1.0 |
+| Version | 1.1 |
 | Status | DRAFT |
 | Phase | Phase 2 — MVP, Roles, and User Stories |
 | Author | Product Manager Agent |
-| Date | 2026-06-30 |
+| Date | 2026-07-01 |
 
 ---
 
@@ -34,21 +34,21 @@
 | 7 | `UNDER_RTEC_REVIEW` | The proposal has been distributed to assigned RTEC members for individual independent review. |
 | 8 | `RTEC_MEMBER_REVIEWS_COMPLETE` | All assigned RTEC members have submitted their individual reviews. The RTEC Head may now consolidate. |
 | 9 | `UNDER_RTEC_HEAD_CONSOLIDATION` | RTEC Head is actively consolidating member reviews into an official assessment. |
-| 10 | `RETURNED_TO_FOCAL_BY_RTEC` | RTEC Head has submitted the official RTEC recommendation. Result returned to Project Focal for next action. |
+| 10 | `RETURNED_TO_FOCAL_BY_RTEC` | RTEC Head has submitted the official RTEC recommendation. Result returned to Project Focal for next action. Focal may return the proposal to RTEC for re-review — back-and-forth is allowed. |
 | 11 | `FOR_APPLICANT_REVISION_AFTER_RTEC` | Project Focal has decided the proposal needs revision based on RTEC findings. Returned to Applicant. |
 | 12 | `ENDORSED_TO_BUDGET` | Project Focal has endorsed the proposal to the Budget Officer for financial review. |
 | 13 | `UNDER_BUDGET_REVIEW` | Budget Officer is reviewing line-item budgets, cost computations, and financial compliance. |
 | 14 | `RETURNED_BY_BUDGET` | Budget Officer has returned the proposal to the Project Focal with budget findings. |
 | 15 | `ENDORSED_TO_ACCOUNTING` | Budget Officer has endorsed the proposal to the Accountant for accounting review. |
 | 16 | `UNDER_ACCOUNTING_REVIEW` | Accountant is reviewing financial classifications and required financial attachments. |
-| 17 | `RETURNED_BY_ACCOUNTING` | Accountant has returned the proposal to Budget or Project Focal with accounting findings. |
+| 17 | `RETURNED_BY_ACCOUNTING` | Accountant has returned the proposal. Accountant may return directly to Project Focal (skipping Budget) — confirmed by supervisor 2026-07-01. |
 | 18 | `ENDORSED_TO_RD` | Accountant has endorsed the proposal to the Regional Director for final decision. |
 | 19 | `UNDER_RD_REVIEW` | Regional Director is reviewing the complete proposal, official recommendations, and workflow history. |
 | 20 | `APPROVED` | Regional Director has issued final approval. No further action required. |
 | 21 | `DEFERRED` | Regional Director has deferred the decision pending additional information or conditions. |
 | 22 | `REJECTED` | Regional Director has rejected the proposal. Final negative decision. |
 | 23 | `WITHDRAWN` | Applicant has voluntarily withdrawn the proposal before final approval, subject to policy. |
-| 24 | `CLOSED` | Proposal closed by Admin due to process resolution, policy action, or system maintenance. |
+| 24 | `CLOSED` | Reserved status — not used in the MVP. Proposals are not administratively closed; a future monitoring phase will handle long-term proposal lifecycle. Confirmed by supervisor 2026-07-01. |
 
 ---
 
@@ -80,6 +80,7 @@ flowchart TD
     UNDER_RTEC_HEAD_CONSOLIDATION -->|RTEC Head submits recommendation| RETURNED_TO_FOCAL_BY_RTEC
 
     RETURNED_TO_FOCAL_BY_RTEC -->|Focal returns to Applicant| FOR_APPLICANT_REVISION_AFTER_RTEC
+    RETURNED_TO_FOCAL_BY_RTEC -->|Focal returns to RTEC for re-review| ENDORSED_TO_RTEC
     RETURNED_TO_FOCAL_BY_RTEC -->|Focal endorses to Budget| ENDORSED_TO_BUDGET
 
     FOR_APPLICANT_REVISION_AFTER_RTEC -->|Applicant resubmits| RESUBMITTED_TO_FOCAL
@@ -95,11 +96,11 @@ flowchart TD
     ENDORSED_TO_ACCOUNTING -->|Accountant opens review| UNDER_ACCOUNTING_REVIEW
 
     UNDER_ACCOUNTING_REVIEW -->|Accountant returns to Budget| RETURNED_BY_ACCOUNTING
-    UNDER_ACCOUNTING_REVIEW -->|Accountant returns to Focal - policy| RETURNED_BY_ACCOUNTING
+    UNDER_ACCOUNTING_REVIEW -->|Accountant returns directly to Focal| RETURNED_BY_ACCOUNTING
     UNDER_ACCOUNTING_REVIEW -->|Accountant endorses to RD| ENDORSED_TO_RD
 
     RETURNED_BY_ACCOUNTING -->|Budget re-endorses to Accounting| ENDORSED_TO_ACCOUNTING
-    RETURNED_BY_ACCOUNTING -->|Focal re-routes per policy| UNDER_FOCAL_REVIEW
+    RETURNED_BY_ACCOUNTING -->|Focal re-routes| UNDER_FOCAL_REVIEW
 
     ENDORSED_TO_RD -->|RD opens proposal| UNDER_RD_REVIEW
 
@@ -135,6 +136,7 @@ flowchart TD
 | `RTEC_MEMBER_REVIEWS_COMPLETE` | `UNDER_RTEC_HEAD_CONSOLIDATION` | RTEC Head | Begin consolidation | RTEC Head acknowledged; all member reviews visible |
 | `UNDER_RTEC_HEAD_CONSOLIDATION` | `RETURNED_TO_FOCAL_BY_RTEC` | RTEC Head | Submit RTEC recommendation | Official consolidated recommendation written |
 | `RETURNED_TO_FOCAL_BY_RTEC` | `FOR_APPLICANT_REVISION_AFTER_RTEC` | Project Focal | Return to Applicant | Official comment or RTEC finding included |
+| `RETURNED_TO_FOCAL_BY_RTEC` | `ENDORSED_TO_RTEC` | Project Focal | Return to RTEC for re-review | Confirmed: Focal and RTEC can go back and forth; Focal includes reason for re-review |
 | `RETURNED_TO_FOCAL_BY_RTEC` | `ENDORSED_TO_BUDGET` | Project Focal | Endorse to Budget | RTEC result received; Budget Officer assigned |
 | `FOR_APPLICANT_REVISION_AFTER_RTEC` | `RESUBMITTED_TO_FOCAL` | Applicant | Resubmit | New version created |
 | `FOR_APPLICANT_REVISION_AFTER_RTEC` | `WITHDRAWN` | Applicant | Withdraw | Policy allows withdrawal |
@@ -143,17 +145,18 @@ flowchart TD
 | `UNDER_BUDGET_REVIEW` | `ENDORSED_TO_ACCOUNTING` | Budget Officer | Endorse to Accounting | Budget compliance confirmed |
 | `RETURNED_BY_BUDGET` | `ENDORSED_TO_BUDGET` | Project Focal | Re-endorse to Budget | Focal has addressed budget concerns |
 | `ENDORSED_TO_ACCOUNTING` | `UNDER_ACCOUNTING_REVIEW` | Accountant | Open for review | Accountant assigned |
-| `UNDER_ACCOUNTING_REVIEW` | `RETURNED_BY_ACCOUNTING` | Accountant | Return to Budget or Focal | Accounting findings recorded; return destination per policy |
+| `UNDER_ACCOUNTING_REVIEW` | `RETURNED_BY_ACCOUNTING` | Accountant | Return to Budget | Accounting findings recorded |
+| `UNDER_ACCOUNTING_REVIEW` | `RETURNED_BY_ACCOUNTING` | Accountant | Return directly to Project Focal | Confirmed: Accountant may skip Budget and return directly to Focal — supervisor 2026-07-01 |
 | `UNDER_ACCOUNTING_REVIEW` | `ENDORSED_TO_RD` | Accountant | Endorse to RD | Accounting compliance confirmed |
 | `RETURNED_BY_ACCOUNTING` | `ENDORSED_TO_ACCOUNTING` | Budget Officer | Re-endorse to Accounting | Budget addressed accounting concerns |
-| `RETURNED_BY_ACCOUNTING` | `UNDER_FOCAL_REVIEW` | Project Focal | Re-route per policy | Policy permits Focal re-routing |
+| `RETURNED_BY_ACCOUNTING` | `UNDER_FOCAL_REVIEW` | Project Focal | Re-route | Focal received direct return from Accountant |
 | `ENDORSED_TO_RD` | `UNDER_RD_REVIEW` | Regional Director | Open proposal | RD assigned |
 | `UNDER_RD_REVIEW` | `APPROVED` | Regional Director | Approve | Final comment and signature-equivalent action recorded |
 | `UNDER_RD_REVIEW` | `DEFERRED` | Regional Director | Defer | Deferral reason recorded |
 | `UNDER_RD_REVIEW` | `REJECTED` | Regional Director | Reject | Rejection reason recorded |
 | `UNDER_RD_REVIEW` | `RETURNED_TO_APPLICANT` | Regional Director | Return for revision | Comments provided |
 | `DEFERRED` | `UNDER_RD_REVIEW` | Regional Director | Resume review | Deferral condition resolved |
-| Any (pre-final) | `CLOSED` | Admin | Administrative close | Admin documents reason; cannot close an approved proposal without policy approval |
+| Any (pre-final) | `CLOSED` | — | — | **Not used in MVP.** CLOSED status is reserved. Proposals are not administratively closed; future monitoring phase will handle this. Confirmed by supervisor 2026-07-01. |
 
 ---
 
@@ -181,3 +184,4 @@ Every status transition must record:
 | Version | Summary | Author | Date |
 |---|---|---|---|
 | 1.0 | Initial draft — Phase 2 | Product Manager Agent | 2026-06-30 |
+| 1.1 | Supervisor confirmations 2026-07-01: Focal↔RTEC back-and-forth added; Accountant can return directly to Focal; CLOSED status not used in MVP; status 17 and transition table updated | Product Manager Agent | 2026-07-01 |

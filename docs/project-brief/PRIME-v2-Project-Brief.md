@@ -321,11 +321,11 @@ by the Business Owner or relevant stakeholder before Phase 2 begins.
 
 | ID | Assumption | Owner | Status |
 |---|---|---|---|
-| ASM-01 | All 27 source forms in `docs/forms/FORM-INVENTORY.md` are the current official versions and will not change materially before Phase 3 form specification work is complete. | Process Owner | Pending confirmation |
+| ASM-01 | All 27 source forms in `docs/forms/FORM-INVENTORY.md` are the current official versions and will not change materially before Phase 3 form specification work is complete. | Process Owner | **Confirmed** — supervisor 2026-07-01 |
 | ASM-02 | The organization has a reliable internet connection suitable for a browser-based web application at all relevant office locations. | Business Owner | Pending confirmation |
-| ASM-03 | Google Sign-In is an approved and available authentication method for applicant accounts under organizational IT policy. | Security Owner | Pending confirmation |
-| ASM-04 | An SMTP-compatible email service is available for PRIME v2 to send notification emails. | System Admin | Pending confirmation |
-| ASM-05 | Coolify is the approved and available deployment platform and will remain so through production launch. | DevOps / Business Owner | Pending confirmation |
+| ASM-03 | Google Sign-In is an approved and available authentication method for applicant accounts under organizational IT policy. | Security Owner | **Confirmed** — supervisor 2026-07-01 |
+| ASM-04 | An SMTP-compatible email service is available for PRIME v2 to send notification emails. | System Admin | **Invalidated** — no SMTP service available; in-app notifications only for MVP; email notifications deferred to future phase |
+| ASM-05 | Coolify is the approved and available deployment platform and will remain so through production launch. | DevOps / Business Owner | **Confirmed** — supervisor 2026-07-01 |
 | ASM-06 | All identified stakeholders will be available for interviews, reviews, and sign-offs within the timelines defined in the project schedule. | Project Owner | Pending confirmation |
 | ASM-07 | The technology stack direction stated in README §19 (React, Vite, TypeScript, Fastify, PostgreSQL, MinIO, Docker, Coolify) is acceptable subject to formal architecture review and approval in Phase 4. | Architect / Business Owner | Pending Phase 4 gate |
 | ASM-08 | The RTEC confidentiality rule — that individual member comments are private and visible only to the RTEC Head until consolidation — reflects current official policy. | Process Owner / RTEC Head | Pending confirmation |
