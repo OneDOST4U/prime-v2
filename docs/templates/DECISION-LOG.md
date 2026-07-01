@@ -35,6 +35,9 @@ Status values: `Proposed` · `Accepted` · `Deprecated` · `Superseded by DL-NNN
 | DL-013 | 2026-07-01 | 3 | No external data-privacy regulatory requirement; applicant consent-to-share shown at sign-up | Confirmed by supervisor (D-3); consent captured as AUTH-11 in MVP | Security Owner | Accepted |
 | DL-014 | 2026-07-01 | 3 | GIA/CEST/SSCP per-program form mapping, required attachments, and Excel budget formulas deferred | Verify later — mapping/attachments with Process Owner (A-2, A-3), formulas with Budget Officer in final phase (A-4); does not block Phase 3 spec drafting | Process/Budget Owner | Proposed |
 | DL-015 | 2026-07-01 | 3 | Stakeholder/approver names left [TBC] until at least a prototype exists | Supervisor directive — names on hold pending prototype | Project Owner | Accepted |
+| DL-016 | 2026-07-01 | 4 | Phase 4 approval gates formally waived by supervisor | Named approvers not yet assigned (DL-015); supervisor authorised Phase 6 to proceed without blocking on named sign-offs | Supervisor | Accepted |
+| DL-017 | 2026-07-01 | 6 | ORM: Prisma selected over Drizzle | Supervisor decision; Prisma chosen for its type-safe client, migration tooling, and broader community docs | Supervisor | Accepted |
+| DL-018 | 2026-07-01 | 6 | Security Plan §12 infrastructure checklist items are pending — not yet completed on Coolify server | Supervisor confirmed items (MinIO bucket ACL, PostgreSQL dedicated user, session secret) will be completed before any auth implementation begins | Supervisor | Accepted |
 
 ---
 

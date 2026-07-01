@@ -3,9 +3,13 @@ import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import RightNav from "./RightNav";
 
+const routerProps = {
+  future: { v7_startTransition: true, v7_relativeSplatPath: true },
+} as const;
+
 function renderNav(role: string) {
   return render(
-    <BrowserRouter>
+    <BrowserRouter {...routerProps}>
       <RightNav role={role} />
     </BrowserRouter>,
   );

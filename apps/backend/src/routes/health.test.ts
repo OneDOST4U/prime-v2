@@ -47,4 +47,26 @@ describe("GET /health", () => {
       statusCode: 404,
     });
   });
+
+  it("TC-BE-04: CORS rejects requests from an origin not in FRONTEND_URL", async () => {
+    const response = await app.inject({
+      method: "GET",
+      url: "/health",
+      headers: { origin: "http://evil.example.com" },
+    });
+    // Fastify CORS does not reflect the origin back when it's not allowed
+    expect(response.headers["access-control-allow-origin"]).not.toBe(
+      "http://evil.example.com",
+    );
+  });
+
+  it("TC-BE-05: helmet sets X-Content-Type-Options: nosniff header", async () => {
+    const response = await app.inject({ method: "GET", url: "/health" });
+    expect(response.headers["x-content-type-options"]).toBe("nosniff");
+  });
+
+  it("TC-BE-06: helmet sets X-Frame-Options header", async () => {
+    const response = await app.inject({ method: "GET", url: "/health" });
+    expect(response.headers["x-frame-options"]).toBeDefined();
+  });
 });

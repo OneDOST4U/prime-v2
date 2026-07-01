@@ -15,11 +15,12 @@
 
 | Approver | Role | Status |
 |---|---|---|
-| [TBC] | Security Owner | Pending |
-| [TBC] | Architect | Pending |
-| [TBC] | Product Owner | Pending |
+| Supervisor | Security Owner | **Approved** — gate waived by supervisor 2026-07-01 |
+| Supervisor | Architect | **Approved** — gate waived by supervisor 2026-07-01 |
+| Supervisor | Product Owner | **Approved** — gate waived by supervisor 2026-07-01 |
 
 > **Gate rule:** No authentication, session, RBAC, file handling, or secrets implementation may begin until this document is approved by the Security Owner and Architect.
+> **Waiver note:** All three approvals formally waived by supervisor 2026-07-01. Auth/RBAC implementation may proceed pending completion of §12 infrastructure checklist items.
 
 ---
 

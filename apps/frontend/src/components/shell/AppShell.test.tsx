@@ -3,10 +3,14 @@ import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import AppShell from "./AppShell";
 
+const routerProps = {
+  future: { v7_startTransition: true, v7_relativeSplatPath: true },
+} as const;
+
 describe("AppShell", () => {
   it("TC-FE-01: renders children in main content area and nav on the right side", () => {
     render(
-      <BrowserRouter>
+      <BrowserRouter {...routerProps}>
         <AppShell role="APPLICANT" title="Dashboard">
           <p data-testid="child-content">Hello content</p>
         </AppShell>

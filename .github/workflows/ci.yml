@@ -8,7 +8,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: cd apps/backend && npm ci && npm run test -- --run
+      - run: cd apps/backend && npm ci && npx tsc --noEmit && npm run test -- --run
   test-frontend:
     runs-on: ubuntu-latest
     steps:
@@ -16,4 +16,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: cd apps/frontend && npm ci && npm run test -- --run
+      - run: cd apps/frontend && npm ci && npx tsc --noEmit && npm run lint && npm run test -- --run

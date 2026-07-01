@@ -15,12 +15,13 @@
 
 | Approver | Role | Status |
 |---|---|---|
-| [TBC] | Product Owner | Pending — architecture impact |
-| [TBC] | Architect | Pending — technical design |
-| [TBC] | Security Agent | Pending — security design |
-| [TBC] | DevOps Agent | Pending — deployment design |
+| Supervisor | Product Owner | **Approved** — gate waived by supervisor 2026-07-01 |
+| Supervisor | Architect | **Approved** — gate waived by supervisor 2026-07-01 |
+| Supervisor | Security Agent | **Approved** — gate waived by supervisor 2026-07-01 |
+| Supervisor | DevOps Agent | **Approved** — gate waived by supervisor 2026-07-01 |
 
 > **Gate rule:** Coding (Phase 6) must not begin until all four approvers above have signed off.
+> **Waiver note:** All four approvals formally waived by supervisor 2026-07-01. Phase 6 implementation may proceed.
 
 ---
 

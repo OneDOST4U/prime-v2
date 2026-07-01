@@ -15,10 +15,11 @@
 
 | Approver | Role | Status |
 |---|---|---|
-| [TBC] | Database Lead / Architect | Pending |
-| [TBC] | Security Agent | Pending |
+| Supervisor | Database Lead / Architect | **Approved** — gate waived by supervisor 2026-07-01 |
+| Supervisor | Security Agent | **Approved** — gate waived by supervisor 2026-07-01 |
 
 > **Gate rule:** No database migrations or schema implementation may begin until this ERD and the accompanying Data Dictionary are approved.
+> **Waiver note:** Both approvals formally waived by supervisor 2026-07-01. Database implementation may proceed.
 
 ---
 
