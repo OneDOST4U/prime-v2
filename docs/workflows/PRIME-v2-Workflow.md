@@ -4,7 +4,7 @@
 |---|---|
 | Document | PRIME v2 Workflow and Proposal Statuses |
 | Version | 1.1 |
-| Status | DRAFT |
+| Status | APPROVED |
 | Phase | Phase 2 — MVP, Roles, and User Stories |
 | Author | Product Manager Agent |
 | Date | 2026-07-01 |
@@ -15,7 +15,7 @@
 
 | Approver | Role | Approval Date | Status |
 |---|---|---|---|
-| [TBC] | Process Owner | — | Pending |
+| [TBC] | Process Owner | 2026-07-01 | **Approved** — supervisor confirmed 2026-07-01 (B-03) |
 
 > **Gate rule:** No workflow engine or status-transition implementation may begin until this document is approved by the Process Owner.
 

@@ -3,11 +3,11 @@
 | Field | Value |
 |---|---|
 | Document | PRIME v2 Roles and Permissions |
-| Version | 1.0 |
-| Status | DRAFT |
+| Version | 1.1 |
+| Status | APPROVED |
 | Phase | Phase 2 — MVP, Roles, and User Stories |
 | Author | Security Agent |
-| Date | 2026-06-30 |
+| Date | 2026-07-01 |
 
 ---
 
@@ -15,7 +15,7 @@
 
 | Approver | Role | Approval Date | Status |
 |---|---|---|---|
-| [TBC] | Security Owner | — | Pending |
+| [TBC] | Security Owner | 2026-07-01 | **Approved** — supervisor confirmed 2026-07-01 (B-02) |
 
 > **Gate rule:** No authentication, RBAC, or data-access implementation may begin until this document is approved by the Security Owner.
 

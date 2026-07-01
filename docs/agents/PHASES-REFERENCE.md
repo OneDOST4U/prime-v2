@@ -63,9 +63,9 @@ The **21 phases (0–20)** are logically ordered, match the ObraTech framework, 
 
 ## Current Project Status (update as you progress)
 
-**You are here: Phase 2 — MVP, Roles, and User Stories (documents complete, approvals pending)**
+**You are here: Phase 3 — Form Conversion Specifications (all 27 forms specified; Phase 1 & 2 gates closed 2026-07-01; Phase 4 unblocked)**
 
-Phase 0 has been approved by the supervisor. Phase 1 is now in progress.
+Phases 0, 1, and 2 approved by supervisor 2026-07-01 (B-01..B-04). Phase 3 form specs drafted for all 21 web forms; 6 PDFs are reference-only.
 
 | Phase 0 item | Status |
 |---|---|
@@ -95,22 +95,30 @@ Phase 0 has been approved by the supervisor. Phase 1 is now in progress.
 | Stakeholder matrix | Included in Project Brief §10; detail in STAKEHOLDERS.md |
 | Risk register | Draft — `docs/project-brief/PRIME-v2-Risk-Register.md` |
 | Kiro spec (requirements.md) | Created — `.kiro/specs/phase-1-project-brief/requirements.md` |
-| Phase 1 approval gate | **Pending — Business Owner written sign-off required** |
+| Phase 1 approval gate | **Approved 2026-07-01 (B-04, supervisor confirmed; approver name TBC)** |
 
 | Phase 2 item | Status |
 |---|---|
-| MVP specification | ✅ Created — `docs/requirements/PRIME-v2-MVP.md` v1.0 DRAFT |
-| Roles and permissions matrix | ✅ Created — `docs/requirements/PRIME-v2-Roles-and-Permissions.md` v1.0 DRAFT |
-| Workflow statuses document | ✅ Created — `docs/workflows/PRIME-v2-Workflow.md` v1.0 DRAFT |
-| User story backlog | ✅ Created — `docs/requirements/USER-STORY-BACKLOG.md` v1.0 DRAFT |
+| MVP specification | ✅ Approved — `docs/requirements/PRIME-v2-MVP.md` v1.1 APPROVED |
+| Roles and permissions matrix | ✅ Approved — `docs/requirements/PRIME-v2-Roles-and-Permissions.md` v1.1 APPROVED |
+| Workflow statuses document | ✅ Approved — `docs/workflows/PRIME-v2-Workflow.md` v1.1 APPROVED |
+| User story backlog | ✅ Created — `docs/requirements/USER-STORY-BACKLOG.md` v1.0 |
 | Definition of Ready | ✅ Included in PRIME-v2-MVP.md §6 |
 | Definition of Done | ✅ Included in PRIME-v2-MVP.md §7 |
-| Product Owner approves MVP | ❌ Pending written sign-off |
-| Security Owner approves permissions | ❌ Pending written sign-off |
-| Process Owner approves workflow | ❌ Pending written sign-off |
-| Phase 2 approval gate | ❌ Pending — all three approvals required |
+| Product Owner approves MVP | ✅ Approved 2026-07-01 (B-01; C-01 email deferred, in-app only) |
+| Security Owner approves permissions | ✅ Approved 2026-07-01 (B-02) |
+| Process Owner approves workflow | ✅ Approved 2026-07-01 (B-03) |
+| Phase 2 approval gate | ✅ **Closed 2026-07-01 — all three approvals recorded** |
 
-**Next:** Obtain three approvals to close Phase 2. After Phase 2 gate, begin Phase 3 (Form Conversion Specifications).
+| Phase 3 item | Status |
+|---|---|
+| Form spec template | ✅ Created — `docs/forms/converted-form-specs/FORM-SPEC-TEMPLATE.md` |
+| Web-form specs (FORM-001–021) | ✅ All 21 drafted — `Specification Draft`; form-owner approval per A-01 |
+| PDF reference annexes (FORM-022–027) | ✅ Reference-only, no spec required |
+| Deferred (A-2/A-3/A-4) | Program mapping + attachments (Process Owner), Excel budget formulas (Budget Officer, final phase) — see DL-014 |
+| Phase 3 approval gate | Specs ready for form-owner approval; approver names TBC pending prototype (DL-015) |
+
+**Next:** Phase 4 — Architecture and Data Design. Inputs confirmed: domain available (D-1), Coolify server provisioned (D-2), no external data-privacy regulatory requirement — applicant consent shown at sign-up (D-3). Phase 4 deadline (D-04) still to confirm.
 
 ## One Rule
 

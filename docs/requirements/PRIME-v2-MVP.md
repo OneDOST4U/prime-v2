@@ -3,11 +3,11 @@
 | Field | Value |
 |---|---|
 | Document | PRIME v2 MVP Specification |
-| Version | 1.0 |
-| Status | DRAFT |
+| Version | 1.1 |
+| Status | APPROVED |
 | Phase | Phase 2 — MVP, Roles, and User Stories |
 | Author | Product Manager Agent |
-| Date | 2026-06-30 |
+| Date | 2026-07-01 |
 
 ---
 

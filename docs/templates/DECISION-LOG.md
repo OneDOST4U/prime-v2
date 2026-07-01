@@ -28,6 +28,13 @@ Status values: `Proposed` · `Accepted` · `Deprecated` · `Superseded by DL-NNN
 | DL-006 | 2026-06-30 | 0 | Google OAuth for applicants; email+password for staff | Applicants are external DOST researchers; staff needs role-controlled access | Project Owner | Accepted |
 | DL-007 | 2026-06-30 | 0 | Right-side navigation for all UI (not top navbar) | Non-negotiable design rule per UI-DESIGN-STANDARDS.md | Project Owner | Accepted |
 | DL-008 | 2026-06-30 | 0 | No application code until Phase 4 architecture approved | ObraTech SDLC mandate — prevents building on unapproved design | Project Owner | Accepted |
+| DL-009 | 2026-07-01 | 2 | Phase 1 & 2 documents approved: Project Brief, MVP, Roles/Permissions, Workflow | Supervisor sign-off (B-01..B-04); closes Phase 1 & 2 gates | Business/Product/Security/Process Owner | Accepted |
+| DL-010 | 2026-07-01 | 2 | Email notifications deferred to final phase; MVP ships in-app notifications only | No SMTP service available (ASM-04 invalidated, C-01) | Product Owner | Accepted |
+| DL-011 | 2026-07-01 | 3 | Domain name available for staging and production | Confirmed by supervisor (D-1); feeds Phase 4 architecture/deployment docs | Business Owner | Accepted |
+| DL-012 | 2026-07-01 | 3 | Coolify server/VM already provisioned — no new provisioning needed | Confirmed by supervisor (D-2) | Business Owner | Accepted |
+| DL-013 | 2026-07-01 | 3 | No external data-privacy regulatory requirement; applicant consent-to-share shown at sign-up | Confirmed by supervisor (D-3); consent captured as AUTH-11 in MVP | Security Owner | Accepted |
+| DL-014 | 2026-07-01 | 3 | GIA/CEST/SSCP per-program form mapping, required attachments, and Excel budget formulas deferred | Verify later — mapping/attachments with Process Owner (A-2, A-3), formulas with Budget Officer in final phase (A-4); does not block Phase 3 spec drafting | Process/Budget Owner | Proposed |
+| DL-015 | 2026-07-01 | 3 | Stakeholder/approver names left [TBC] until at least a prototype exists | Supervisor directive — names on hold pending prototype | Project Owner | Accepted |
 
 ---
 

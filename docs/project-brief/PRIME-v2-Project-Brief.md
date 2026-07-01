@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | **Document** | PRIME v2 Project Brief |
-| **Version** | 0.1 — Draft |
-| **Date** | 2025-07-01 |
+| **Version** | 1.0 — Approved |
+| **Date** | 2026-07-01 |
 | **Phase** | 1 — Business Analysis and Project Brief |
-| **Status** | DRAFT — Pending Business Owner Approval |
+| **Status** | APPROVED — Business Owner confirmed 2026-07-01 (B-04) |
 | **Prepared by** | Product Manager Agent |
 | **Approval authority** | Business Owner (see §12 — Approval Gate) |
 
@@ -17,6 +17,7 @@
 | Version | Date | Author | Summary of Changes |
 |---|---|---|---|
 | 0.1 | 2025-07-01 | Product Manager Agent | Initial draft based on Phase 0 context |
+| 1.0 | 2026-07-01 | Product Manager Agent | Business Owner approved (B-04). Architecture inputs confirmed: domain available (D-1), Coolify server provisioned (D-2), no external data-privacy regulatory requirement — applicant consent-to-share shown at sign-up (D-3). Email/SMTP deferred to final phase (C-01). |
 
 ---
 
@@ -420,10 +421,10 @@ This section constitutes the formal Phase 1 approval record.
 |---|---|
 | **Required approver** | Business Owner |
 | **Approval type** | Written confirmation or signed record |
-| **Approval status** | PENDING |
-| **Approved by** | [TBC] |
-| **Approval date** | [TBC] |
-| **Notes** | [TBC] |
+| **Approval status** | APPROVED |
+| **Approved by** | [TBC] (Business Owner — name on hold pending prototype) |
+| **Approval date** | 2026-07-01 |
+| **Notes** | Approved by supervisor 2026-07-01 (B-04). Approver name TBC until at least a prototype exists. |
 
 ### Approval Conditions
 
