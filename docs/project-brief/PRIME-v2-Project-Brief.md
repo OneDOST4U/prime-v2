@@ -246,7 +246,7 @@ The following capabilities are committed for the initial MVP release.
 - Regional Director final decision (approve / return / defer / reject)
 
 **Notifications and Visibility**
-- Email and in-app notifications for workflow events
+- In-app notifications for all workflow events (email notifications deferred — no SMTP available for MVP; confirmed supervisor 2026-07-01)
 - Proposal status dashboard for authorized users
 - Audit log accessible to authorized roles
 

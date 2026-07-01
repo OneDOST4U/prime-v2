@@ -15,7 +15,7 @@
 
 | Approver | Role | Approval Date | Status |
 |---|---|---|---|
-| [TBC] | Product Owner | — | Pending |
+| [TBC] | Product Owner | 2026-07-01 | **Approved** — supervisor confirmed 2026-07-01 |
 
 > **Gate rule:** Phase 3 (Form Conversion Specifications) must not begin until this document is approved by the Product Owner.
 
@@ -71,6 +71,7 @@ The MVP is complete when the following end-to-end scenario passes without manual
 | AUTH-08 | Role-based access control on all pages and API routes | All roles | — |
 | AUTH-09 | Session expiration and secure session handling | — | — |
 | AUTH-10 | Login rate limiting | — | — |
+| AUTH-11 | Privacy consent displayed to Applicants on sign-up / first login — permission to share information confirmed before account is created | US-APP-001 | — |
 
 ### 3.2 Proposal Creation and Submission
 
@@ -147,10 +148,12 @@ The MVP is complete when the following end-to-end scenario passes without manual
 
 | # | Capability | User Story(s) | Pass/Fail |
 |---|---|---|---|
-| NOTIF-01 | Email notification on proposal submission | US-APP-001 | — |
-| NOTIF-02 | Email notification when proposal returned to Applicant | US-FOC-002 | — |
-| NOTIF-03 | Email notification when RD issues final decision | US-RD-001 | — |
+| NOTIF-01 | In-app notification on proposal submission | US-APP-001 | — |
+| NOTIF-02 | In-app notification when proposal returned to Applicant | US-FOC-002 | — |
+| NOTIF-03 | In-app notification when RD issues final decision | US-RD-001 | — |
 | NOTIF-04 | In-app notification for all workflow events | All roles | — |
+
+> **Note:** Email notifications are deferred to a future phase. No SMTP service is available for the MVP. Confirmed by supervisor 2026-07-01.
 
 ### 3.9 Audit Log
 
@@ -232,9 +235,10 @@ The following are explicitly excluded and must not be included in any Phase 6–
 | OOS-09 | Offline-first support |
 | OOS-10 | Public proposal search portal |
 | OOS-11 | Advanced analytics |
-| OOS-12 | SMS integration |
-| OOS-13 | External accounting system integration |
-| OOS-14 | National government platform integration |
+| OOS-12 | SMS integration | Future enhancement |
+| OOS-13 | External accounting system integration | Future phase |
+| OOS-14 | National government platform integration | Future phase |
+| OOS-15 | Email notifications via SMTP | No SMTP service available for MVP — deferred to future phase; confirmed supervisor 2026-07-01 |
 
 ---
 
