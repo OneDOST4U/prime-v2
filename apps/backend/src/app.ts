@@ -6,6 +6,7 @@ import fastifyCookie from "@fastify/cookie";
 import fastifySession from "@fastify/session";
 import fastifyOauth2 from "@fastify/oauth2";
 import fastifyRateLimit from "@fastify/rate-limit";
+import fastifyMultipart from "@fastify/multipart";
 import ConnectPgSimple from "connect-pg-simple";
 import pg from "pg";
 import { envPluginOptions } from "./plugins/env.js";
@@ -15,6 +16,7 @@ import usersRoutes from "./routes/users.js";
 import proposalTypesRoutes from "./routes/proposalTypes.js";
 import formTemplatesRoutes from "./routes/formTemplates.js";
 import proposalsRoutes from "./routes/proposals.js";
+import attachmentsRoutes from "./routes/attachments.js";
 import { logger, setLogLevel } from "./utils/logger.js";
 
 const SESSION_SLIDING_MAX_AGE_MS = 30 * 60 * 1000;
@@ -83,6 +85,12 @@ export async function buildApp() {
     global: false,
   });
 
+  // 6b. Multipart file upload support — fileSize set to Infinity so files always
+  //     reach the route handler, which enforces the 50 MB cap and returns 400.
+  //     (Without Infinity, @fastify/multipart falls back to Fastify's bodyLimit
+  //     default of 1 MB and returns 413 before the handler can check.)
+  await app.register(fastifyMultipart, { limits: { fileSize: Infinity } });
+
   // 7. Routes
   await app.register(healthRoutes);
   await app.register(authRoutes);
@@ -90,6 +98,7 @@ export async function buildApp() {
   await app.register(proposalTypesRoutes);
   await app.register(formTemplatesRoutes);
   await app.register(proposalsRoutes);
+  await app.register(attachmentsRoutes);
 
   // 8. Error handlers
   app.setErrorHandler((error, _request, reply) => {
