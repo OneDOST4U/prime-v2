@@ -77,17 +77,51 @@ async function createStaffUser(params: {
   return user;
 }
 
+// Every user row this file creates, keyed by email. Cleaned before and after
+// the suite so runs are idempotent (fixed emails otherwise trip the unique
+// constraint on re-run). Mirrors the cleanup pattern in proposalTypes.test.ts.
+const TEST_EMAILS = [
+  "focal01@test.local",
+  "focal02@test.local",
+  "applicant-only@test.local",
+  "deactivated01@test.local",
+  "ratelimited@test.local",
+  "logout-test@test.local",
+  "me-test@test.local",
+  "admin-deactivate@test.local",
+  "to-deactivate@test.local",
+  "must-change@test.local",
+  "focal-rbac@test.local",
+  "new-staff@test.local",
+  "new-applicant@test.local",
+];
+
+async function cleanupUsers() {
+  const users = await db.user.findMany({ where: { email: { in: TEST_EMAILS } } });
+  const userIds = users.map((u) => u.id);
+  if (userIds.length > 0) {
+    await db.auditLog.deleteMany({ where: { actorUserId: { in: userIds } } });
+    await db.userRole.deleteMany({ where: { userId: { in: userIds } } });
+    await db.staffProfile.deleteMany({ where: { userId: { in: userIds } } });
+    await db.applicantProfile.deleteMany({ where: { userId: { in: userIds } } });
+    await db.userInvitation.deleteMany({ where: { userId: { in: userIds } } });
+    await db.user.deleteMany({ where: { id: { in: userIds } } });
+  }
+}
+
 describe("Auth routes", () => {
   let app: FastifyInstance;
 
   beforeAll(async () => {
     await ensureRolesSeeded();
+    await cleanupUsers();
     app = await buildApp();
     await app.ready();
   });
 
   afterAll(async () => {
     await app.close();
+    await cleanupUsers();
     await db.$disconnect();
   });
 
