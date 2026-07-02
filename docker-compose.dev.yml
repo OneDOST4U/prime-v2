@@ -24,7 +24,7 @@ services:
 
   # ─────────────────────────────────────────────────────────
   # prime-postgres-test — isolated test database on port 5433
-  # Used by `npm run test` in apps/backend.
+  # Used by `npm run test:local` in apps/backend.
   # Credentials are fixed/public — this DB never holds real data.
   # ─────────────────────────────────────────────────────────
   prime-postgres-test:
@@ -70,3 +70,12 @@ services:
       - ./apps/frontend/src:/app/src
     ports:
       - "5173:5173"
+    healthcheck:
+      # Dev runs vite on 5173, not nginx on 80 — override the base check
+      # (which would otherwise report a healthy dev container as unhealthy).
+      # 127.0.0.1, not localhost — see the note in docker-compose.yml.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
