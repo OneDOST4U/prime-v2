@@ -12,6 +12,7 @@ import { envPluginOptions } from "./plugins/env.js";
 import healthRoutes from "./routes/health.js";
 import authRoutes, { SESSION_COOKIE_NAME } from "./routes/auth.js";
 import usersRoutes from "./routes/users.js";
+import proposalTypesRoutes from "./routes/proposalTypes.js";
 import { logger, setLogLevel } from "./utils/logger.js";
 
 const SESSION_SLIDING_MAX_AGE_MS = 30 * 60 * 1000;
@@ -84,6 +85,7 @@ export async function buildApp() {
   await app.register(healthRoutes);
   await app.register(authRoutes);
   await app.register(usersRoutes);
+  await app.register(proposalTypesRoutes);
 
   // 8. Error handlers
   app.setErrorHandler((error, _request, reply) => {
