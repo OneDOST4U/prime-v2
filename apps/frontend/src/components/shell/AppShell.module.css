@@ -1,0 +1,197 @@
+.shell {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #d0d5dd;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #101828;
+  margin: 0;
+}
+
+.menuButton {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.content {
+  padding: 1.5rem;
+  grid-column: 1;
+}
+
+.desktopNav {
+  display: none;
+}
+
+.rightNav {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 1.25rem 1rem;
+  border-left: 1px solid #d0d5dd;
+  background: #f9fafb;
+}
+
+.navList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border-radius: 8px;
+  color: #1d2939;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.navItem:hover,
+.navItem:focus-visible {
+  background: #e4e7ec;
+  outline: 2px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+.userArea {
+  border-top: 1px solid #d0d5dd;
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.userName {
+  font-weight: 600;
+  color: #101828;
+  margin: 0;
+}
+
+.userRole {
+  color: #475467;
+  margin: 0.25rem 0 0.75rem;
+  font-size: 0.875rem;
+}
+
+.logoutButton {
+  min-height: 44px;
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.drawer {
+  border: none;
+  padding: 0;
+  margin: 0;
+  max-width: none;
+  max-height: none;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+.drawer::backdrop {
+  background: rgba(16, 24, 40, 0.5);
+}
+
+.drawerBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 24, 40, 0.5);
+}
+
+.drawerPanel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 80vw;
+  max-width: 320px;
+  background: #ffffff;
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.drawerClose {
+  align-self: flex-end;
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 1.25rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+/* Tablet: narrow icon rail on the right, always visible */
+@media (min-width: 768px) {
+  .shell {
+    grid-template-columns: 1fr 88px;
+  }
+
+  .menuButton {
+    display: none;
+  }
+
+  .desktopNav {
+    display: block;
+    grid-row: 1 / span 2;
+    grid-column: 2;
+  }
+
+  .navItem span {
+    display: none;
+  }
+}
+
+/* Desktop: full right sidebar with icons + labels always visible */
+@media (min-width: 1024px) {
+  .shell {
+    grid-template-columns: 1fr 260px;
+  }
+
+  .desktopNav {
+    grid-column: 2;
+  }
+}

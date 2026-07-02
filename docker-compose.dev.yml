@@ -1,0 +1,72 @@
+# ─────────────────────────────────────────────────────────
+# docker-compose.dev.yml — Local development overrides
+#
+# Use this on top of docker-compose.yml for local work only.
+# This file MUST NOT be used in staging or production.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+#
+# Overrides:
+# - prime-backend / prime-frontend build against the `builder` stage of
+#   their Dockerfiles (has devDependencies + full source) instead of the
+#   production runtime stage, and mount local src/ for hot reload.
+# - prime-postgres / prime-minio get host port mappings for local
+#   inspection (pgAdmin, DBeaver, MinIO console) — not used in prod.
+# ─────────────────────────────────────────────────────────
+
+services:
+
+  prime-postgres:
+    ports:
+      - "5432:5432"
+    # Accessible at localhost:5432 in dev only
+
+  # ─────────────────────────────────────────────────────────
+  # prime-postgres-test — isolated test database on port 5433
+  # Used by `npm run test` in apps/backend.
+  # Credentials are fixed/public — this DB never holds real data.
+  # ─────────────────────────────────────────────────────────
+  prime-postgres-test:
+    image: postgres:16-alpine
+    container_name: prime-postgres-test
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: primev2_test
+      POSTGRES_USER: primev2_user
+      POSTGRES_PASSWORD: devpassword123
+    ports:
+      - "5433:5432"
+    networks:
+      - prime-internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U primev2_user -d primev2_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  prime-minio:
+    ports:
+      - "9000:9000"   # MinIO S3 API
+      - "9001:9001"   # MinIO console UI — http://localhost:9001
+    # Access the console at http://localhost:9001
+    # Log in with MINIO_ACCESS_KEY / MINIO_SECRET_KEY from .env
+
+  prime-backend:
+    build:
+      target: builder
+    command: npx tsx watch src/server.ts
+    volumes:
+      - ./apps/backend/src:/app/src
+    environment:
+      NODE_ENV: development
+
+  prime-frontend:
+    build:
+      target: builder
+    command: npm run dev -- --host 0.0.0.0
+    volumes:
+      - ./apps/frontend/src:/app/src
+    ports:
+      - "5173:5173"

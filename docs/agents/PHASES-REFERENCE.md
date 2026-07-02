@@ -63,7 +63,11 @@ The **21 phases (0–20)** are logically ordered, match the ObraTech framework, 
 
 ## Current Project Status (update as you progress)
 
-**You are here: Phase 0 → moving to Phase 1**
+**You are here: Phase 10 — Workflow and Focal Review (Phase 9 gate closed 2026-07-02)**
+
+> Note: Phases 4–8 status detail is not recorded in this table (tracking gap — see git history for those phases). This table was last kept current through Phase 3; the entries below for Phase 9 were added at the Phase 9→10 gate.
+
+Phases 0, 1, and 2 approved by supervisor 2026-07-01 (B-01..B-04). Phase 3 form specs drafted for all 21 web forms; 6 PDFs are reference-only.
 
 | Phase 0 item | Status |
 |---|---|
@@ -73,15 +77,58 @@ The **21 phases (0–20)** are logically ordered, match the ObraTech framework, 
 | FORM-INVENTORY.md | Done |
 | Agent workflow (AGENTS.md, hooks, rules) | Done |
 | UI design standards | Done |
-| Issue templates | Not started |
-| Decision-log template | Not started |
-| Change-request template | Not started |
-| Stakeholder list | Not started |
-| Initial risk register | Not started |
-| Initial backlog | Not started |
-| Phase 0 approval gate | Pending |
+| Issue templates | Done (docs/templates/issue-template.md created 2026-06-30) |
+| Decision-log template | Done (docs/templates/DECISION-LOG.md created 2026-06-30) |
+| Change-request template | Done (docs/templates/CHANGE-REQUEST.md created 2026-06-30) |
+| Stakeholder list | Draft (names TBC — pending supervisor confirmation) |
+| Initial risk register | Draft (see docs/project-brief/PRIME-v2-Risk-Register.md) |
+| Initial backlog | Done (docs/requirements/INITIAL-BACKLOG.md created 2026-06-30) |
+| Phase 0 approval gate | **Approved (supervisor verbal confirmation)** |
 
-**Next:** Complete remaining Phase 0 items, get project owner sign-off, then start **Phase 1**.
+| Phase 1 item | Status |
+|---|---|
+| Project Brief | Created and submitted — `docs/project-brief/PRIME-v2-Project-Brief.md` v0.1 — pending Business Owner approval |
+| Business Process Map | Confirmed — `docs/project-brief/PRIME-v2-Business-Process-Map.md` v0.2 — all questions answered 2026-06-30 |
+| Problem statement | Included in Project Brief §3 |
+| Objectives | Included in Project Brief §5 |
+| Scope (in/out) | Included in Project Brief §6 |
+| Assumptions | Included in Project Brief §8 |
+| Constraints | Included in Project Brief §9 |
+| Stakeholder matrix | Included in Project Brief §10; detail in STAKEHOLDERS.md |
+| Risk register | Draft — `docs/project-brief/PRIME-v2-Risk-Register.md` |
+| Kiro spec (requirements.md) | Created — `.kiro/specs/phase-1-project-brief/requirements.md` |
+| Phase 1 approval gate | **Approved 2026-07-01 (B-04, supervisor confirmed; approver name TBC)** |
+
+| Phase 2 item | Status |
+|---|---|
+| MVP specification | ✅ Approved — `docs/requirements/PRIME-v2-MVP.md` v1.1 APPROVED |
+| Roles and permissions matrix | ✅ Approved — `docs/requirements/PRIME-v2-Roles-and-Permissions.md` v1.1 APPROVED |
+| Workflow statuses document | ✅ Approved — `docs/workflows/PRIME-v2-Workflow.md` v1.1 APPROVED |
+| User story backlog | ✅ Created — `docs/requirements/USER-STORY-BACKLOG.md` v1.0 |
+| Definition of Ready | ✅ Included in PRIME-v2-MVP.md §6 |
+| Definition of Done | ✅ Included in PRIME-v2-MVP.md §7 |
+| Product Owner approves MVP | ✅ Approved 2026-07-01 (B-01; C-01 email deferred, in-app only) |
+| Security Owner approves permissions | ✅ Approved 2026-07-01 (B-02) |
+| Process Owner approves workflow | ✅ Approved 2026-07-01 (B-03) |
+| Phase 2 approval gate | ✅ **Closed 2026-07-01 — all three approvals recorded** |
+
+| Phase 3 item | Status |
+|---|---|
+| Form spec template | ✅ Created — `docs/forms/converted-form-specs/FORM-SPEC-TEMPLATE.md` |
+| Web-form specs (FORM-001–021) | ✅ All 21 drafted — `Specification Draft`; form-owner approval per A-01 |
+| PDF reference annexes (FORM-022–027) | ✅ Reference-only, no spec required |
+| Deferred (A-2/A-3/A-4) | Program mapping + attachments (Process Owner), Excel budget formulas (Budget Officer, final phase) — see DL-014 |
+| Phase 3 approval gate | Specs ready for form-owner approval; approver names TBC pending prototype (DL-015) |
+
+| Phase 9 item | Status |
+|---|---|
+| Submission, versioning, comments routes | ✅ Implemented (`submission.ts`, `versions.ts`, `comments.ts`) |
+| Test teardown hygiene fix (auth.test.ts, users.test.ts) | ✅ Committed 39193e6 — `TEST_EMAILS` + FK-ordered `cleanupUsers()` pattern |
+| Full backend suite | ✅ 65/65 passing, two consecutive `--no-file-parallelism` runs (verified 2026-07-02) |
+| Vitest parallel-mode DB collision (formTemplates/proposals/submission) | Known issue, ticketed as RISK-16 in `docs/project-brief/PRIME-v2-Risk-Register.md`; interim mitigation is sequential test execution (`package.json` `test`/`test:local` scripts); real fix deferred to Phase 15 |
+| Phase 9 approval gate | ✅ **Closed 2026-07-02** |
+
+**Next:** Phase 10 — Workflow and Focal Review. New test files from Phase 10 onward must use the `TEST_EMAILS` + FK-ordered cleanup pattern from the start.
 
 ## One Rule
 
