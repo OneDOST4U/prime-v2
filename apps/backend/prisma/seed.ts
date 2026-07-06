@@ -259,6 +259,105 @@ async function main() {
     }
   }
   console.log("✓ Phase 10: workflow_definitions and workflow_transitions seeded");
+
+  // ── Phase 11: RTEC workflow transitions ───────────────────────────────────────
+  const rtecTransitions = [
+    { fromStatus: "ENDORSED_TO_RTEC", toStatus: "UNDER_RTEC_REVIEW", actionCode: "CONFIRM_RTEC_ASSIGNMENT", actorRole: "SYSTEM" },
+    { fromStatus: "UNDER_RTEC_REVIEW", toStatus: "RTEC_MEMBER_REVIEWS_COMPLETE", actionCode: "RTEC_REVIEWS_COMPLETE", actorRole: "SYSTEM" },
+    { fromStatus: "RTEC_MEMBER_REVIEWS_COMPLETE", toStatus: "UNDER_RTEC_HEAD_CONSOLIDATION", actionCode: "RTEC_BEGIN_CONSOLIDATION", actorRole: "RTEC_HEAD" },
+    { fromStatus: "UNDER_RTEC_HEAD_CONSOLIDATION", toStatus: "RETURNED_TO_FOCAL_BY_RTEC", actionCode: "RTEC_SUBMIT_RECOMMENDATION", actorRole: "RTEC_HEAD" },
+    { fromStatus: "RETURNED_TO_FOCAL_BY_RTEC", toStatus: "FOR_APPLICANT_REVISION_AFTER_RTEC", actionCode: "RETURN_TO_APPLICANT", actorRole: "PROJECT_FOCAL" },
+  ];
+
+  for (const t of rtecTransitions) {
+    const existing = await prisma.workflowTransition.findFirst({
+      where: {
+        actionCode: t.actionCode,
+        actorRole: t.actorRole,
+        fromStatus: t.fromStatus,
+        workflowDefinitionId: proposalWorkflow.id,
+      },
+    });
+    if (!existing) {
+      await prisma.workflowTransition.create({
+        data: {
+          workflowDefinitionId: proposalWorkflow.id,
+          fromStatus: t.fromStatus,
+          toStatus: t.toStatus,
+          actionCode: t.actionCode,
+          actorRole: t.actorRole,
+        },
+      });
+    }
+  }
+  console.log("✓ Phase 11: RTEC workflow_transitions seeded");
+
+  // ── Phase 11: RTEC dev group, users, and memberships ──────────────────────────
+  const rtecRoleCodes = ["RTEC_MEMBER", "RTEC_HEAD"] as const;
+  const rtecRoles: Record<string, { id: string }> = {};
+  for (const code of rtecRoleCodes) {
+    rtecRoles[code] = await prisma.role.findUniqueOrThrow({ where: { code } });
+  }
+
+  const RTEC_DEV_PASSWORD = "DevRtecPassw0rd!123";
+  const rtecDevPasswordHash = await bcrypt.hash(RTEC_DEV_PASSWORD, 12);
+
+  const rtecDevUserDefs = [
+    { email: "rtec.member1@dev.local", firstName: "Rtec", lastName: "Member1", roleCode: "RTEC_MEMBER" as const },
+    { email: "rtec.member2@dev.local", firstName: "Rtec", lastName: "Member2", roleCode: "RTEC_MEMBER" as const },
+    { email: "rtec.member3@dev.local", firstName: "Rtec", lastName: "Member3", roleCode: "RTEC_MEMBER" as const },
+    { email: "rtec.head1@dev.local", firstName: "Rtec", lastName: "Head1", roleCode: "RTEC_HEAD" as const },
+  ];
+
+  const rtecDevUsers: Record<string, { id: string }> = {};
+  for (const def of rtecDevUserDefs) {
+    const user = await prisma.user.upsert({
+      where: { email: def.email },
+      update: {},
+      create: {
+        email: def.email,
+        passwordHash: rtecDevPasswordHash,
+        firstName: def.firstName,
+        lastName: def.lastName,
+        isActive: true,
+        mustChangePassword: false,
+      },
+    });
+    rtecDevUsers[def.email] = user;
+
+    await prisma.userRole.upsert({
+      where: { userId_roleId: { userId: user.id, roleId: rtecRoles[def.roleCode].id } },
+      update: {},
+      create: { userId: user.id, roleId: rtecRoles[def.roleCode].id },
+    });
+  }
+
+  const giaProgram = seededPrograms["GIA"];
+  const rtecGroup =
+    (await prisma.rtecGroup.findFirst({ where: { name: "GIA RTEC Committee" } })) ??
+    (await prisma.rtecGroup.create({
+      data: { name: "GIA RTEC Committee", programId: giaProgram.id, isActive: true },
+    }));
+
+  const membershipDefs = [
+    { email: "rtec.member1@dev.local", roleInGroup: "MEMBER" },
+    { email: "rtec.member2@dev.local", roleInGroup: "MEMBER" },
+    { email: "rtec.member3@dev.local", roleInGroup: "MEMBER" },
+    { email: "rtec.head1@dev.local", roleInGroup: "HEAD" },
+  ];
+
+  for (const def of membershipDefs) {
+    const user = rtecDevUsers[def.email];
+    await prisma.rtecMembership.upsert({
+      where: { rtecGroupId_userId: { rtecGroupId: rtecGroup.id, userId: user.id } },
+      update: { roleInGroup: def.roleInGroup, isActive: true },
+      create: { rtecGroupId: rtecGroup.id, userId: user.id, roleInGroup: def.roleInGroup, isActive: true },
+    });
+  }
+
+  console.log(
+    `✓ Phase 11: rtec_groups, rtec_memberships, and 4 dev RTEC users seeded (password: ${RTEC_DEV_PASSWORD} — DEV ONLY)`,
+  );
 }
 
 main()
