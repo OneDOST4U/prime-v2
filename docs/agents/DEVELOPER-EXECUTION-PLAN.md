@@ -107,37 +107,42 @@ Phase 19–20 Production launch + hypercare
 ## Phase 21A — Test data and focal path
 
 **Goal:** Demo Applicant → Focal without manual database edits.  
-**Estimate:** 1–2 weeks.
+**Estimate:** 1–2 weeks.  
+**Status (2026-07-08 QA run):** ⏳ **Not closed — 3/6 manual gate tests fail.** See [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 21A for full results. Automated suites are green (82/82) but do not cover this gap.
 
 ### Tasks
 
-| # | Task | Files |
-|---|------|-------|
-| 1 | Seed proposals in multiple statuses (DRAFT, SUBMITTED_TO_FOCAL, ENDORSED_TO_RTEC, …) | `apps/backend/prisma/seed.ts` |
-| 2 | Seed `ProposalAssignment` for focal, RTEC, budget, RD dev users | `apps/backend/prisma/seed.ts` |
-| 3 | Focal workflow buttons on proposal detail (acknowledge, return, endorse) | `apps/frontend/src/pages/proposals/ProposalDetailPage.tsx`, `apps/frontend/src/lib/api.ts` |
-| 4 | Admin UI to assign staff to proposals | New admin page or extend admin module |
-| 5 | Unread notification count on sidebar | `apps/frontend/src/components/shell/SideNav.tsx` |
+| # | Task | Files | Status |
+|---|------|-------|--------|
+| 1 | Seed proposals in multiple statuses (DRAFT, SUBMITTED_TO_FOCAL, ENDORSED_TO_RTEC, …) | `apps/backend/prisma/seed.ts` | ⏳ Still not in `seed.ts` — proposal used for this QA run was created ad hoc through the UI, not seeded |
+| 2 | Seed `ProposalAssignment` for focal, RTEC, budget, RD dev users | `apps/backend/prisma/seed.ts` | ❌ **Blocking** — confirmed missing; this is the root cause of test gate failures #2–#5 |
+| 3 | Focal workflow buttons on proposal detail (acknowledge, return, endorse) | `apps/frontend/src/pages/proposals/ProposalDetailPage.tsx`, `apps/frontend/src/lib/api.ts` | ⏳ Still not present — confirmed via source read, tests #3/#4 exercised via API directly per task instructions |
+| 4 | Admin UI to assign staff to proposals | New admin page or extend admin module | ❌ **Blocking** — no route file exists for assignments at all (backend or frontend) |
+| 5 | Unread notification count on sidebar | `apps/frontend/src/components/shell/SideNav.tsx` | Not verified this run (not one of the 6 gate tests) |
 
-### Phase 21A test gate
+### Phase 21A test gate — result 2026-07-08
 
-Run these manually and mark Pass in [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 21A:
+Full detail, evidence, and root-cause analysis in [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 21A.
 
-| # | Login | URL | Action | Expected |
-|---|-------|-----|--------|----------|
-| 1 | applicant@dev.local | /proposals/new | Fill + submit GIA | Status SUBMITTED_TO_FOCAL |
-| 2 | focal@dev.local | /queue | Open proposal | Visible in queue |
-| 3 | focal@dev.local | /proposals/:id | Acknowledge | UNDER_FOCAL_REVIEW |
-| 4 | focal@dev.local | /proposals/:id | Return to applicant | Applicant notification |
-| 5 | applicant@dev.local | /notifications | Mark read | Notification cleared |
-| 6 | admin@dev.local | /admin/users | List users | Table loads |
+| # | Login | URL | Action | Expected | Result |
+|---|-------|-----|--------|----------|--------|
+| 1 | applicant@dev.local | /proposals/new | Fill + submit GIA | Status SUBMITTED_TO_FOCAL | ✅ Pass |
+| 2 | focal@dev.local | /queue | Open proposal | Visible in queue | ❌ Fail — no `ProposalAssignment` seeded |
+| 3 | focal@dev.local | /proposals/:id | Acknowledge | UNDER_FOCAL_REVIEW | ❌ Fail — `403 NOT_ASSIGNED`, same cause |
+| 4 | focal@dev.local | /proposals/:id | Return to applicant | Applicant notification | ❌ Fail — `403 NOT_ASSIGNED`, same cause |
+| 5 | applicant@dev.local | /notifications | Mark read | Notification cleared | ❌ Fail — downstream of #4 (mechanism itself verified working via diagnostic) |
+| 6 | admin@dev.local | /admin/users | List users | Table loads | ✅ Pass |
 
-### Automated gate
+**To close this gate:** implement tasks #1, #2, and #4 above (seed proposals + assignments; build an admin assignment API/UI), then re-run tests #2–#5.
+
+### Automated gate — result 2026-07-08
 
 ```powershell
-cd apps/frontend && npx vitest run
-cd apps/backend && npm test
+cd apps/frontend && npx vitest run   # 4 files, 7 tests — all passed
+cd apps/backend && npm test          # 11 files, 75 tests — all passed
 ```
+
+82/82 passed. Green, but this suite has no coverage for proposal-assignment seeding/admin UI (tasks #2/#4 above), so it does not substitute for the manual gate.
 
 ---
 
