@@ -14,7 +14,8 @@ Copy and check each item (or confirm in the push prompt):
 - [ ] **Workflow** — Status transitions valid; audit fields recorded if applicable (QA)
 - [ ] **Lint / typecheck** — No new errors in changed files (QA)
 - [ ] **Docs** — README, API, or agent docs updated if behavior changed
-- [ ] **UI** (if frontend changed) — Right-side nav (not top); responsive at mobile/tablet/desktop per [UI-DESIGN-STANDARDS.md](../frontend/UI-DESIGN-STANDARDS.md) (QA)
+- [ ] **UI** (if frontend changed) — Left-side nav (not top); responsive at mobile/tablet/desktop per [UI-DESIGN-STANDARDS.md](../frontend/UI-DESIGN-STANDARDS.md) (QA)
+- [ ] **Manual tests** — Relevant rows in [TEST-MATRIX.md](TEST-MATRIX.md) marked Pass (QA)
 - [ ] **Diff review** — No unrelated files; no `.env` or credentials
 
 ## Commands to Run (when code exists)
@@ -23,13 +24,10 @@ Adjust paths once `frontend/` and `backend/` are created:
 
 ```bash
 # Backend
-cd backend && npm test && npm run lint
+cd apps/backend && npm test
 
 # Frontend
-cd frontend && npm test && npm run lint && npm run build
-
-# Full check (from repo root, after scripts are added)
-npm run test
+cd apps/frontend && npx vitest run && npx tsc -b
 ```
 
 ## If Checks Fail
@@ -41,6 +39,8 @@ npm run test
 ## Waivers
 
 Only the **product owner** may waive a gate item for a hotfix. Record the waiver in the commit message or change log.
+
+See also [TEST-MATRIX.md](TEST-MATRIX.md) and [DEVELOPER-EXECUTION-PLAN.md](DEVELOPER-EXECUTION-PLAN.md).
 
 ## Bypass (emergency only)
 

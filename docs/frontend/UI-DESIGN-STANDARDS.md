@@ -9,36 +9,33 @@ Mandatory UI direction for all roles (Applicant, Project Focal, RTEC, Budget, Ac
 - **Role-aware** — same shell and navigation pattern for every authenticated user; menu items vary by role
 - **Consistent** — one shared layout system; no role-specific top menus that diverge in structure
 
-## Layout: Right-Side Navigation (Required)
+## Layout: Left-Side Navigation (Required)
 
-**Do not use a traditional top navbar** as the primary app navigation.
-
-Use a **right-side navigation panel** for all authenticated users:
+Use a **left-side navigation panel** for all authenticated users:
 
 ```text
-┌─────────────────────────────────────┬──────────┐
-│                                     │          │
-│         Main content area           │   Nav    │
-│    (dashboard, forms, proposals)    │  (right) │
-│                                     │          │
-└─────────────────────────────────────┴──────────┘
+┌──────────┬─────────────────────────────────────┐
+│          │                                     │
+│   Nav    │         Main content area           │
+│  (left)  │    (dashboard, forms, proposals)    │
+│          │                                     │
+└──────────┴─────────────────────────────────────┘
 ```
 
 ### Rules
 
-1. **Primary navigation lives on the right edge** of the viewport (vertical nav / sidebar aligned right).
+1. **Primary navigation lives on the left edge** of the viewport (vertical sidebar).
 2. **Same placement for every role** — Applicant through Admin; only menu **items** and permissions differ.
-3. **Main content occupies the left/center** — forms, tables, proposal detail, comments.
-4. **Public/unauthenticated pages** (landing, login) may use a minimal header; after login, use the right-nav app shell.
-5. **No duplicate nav** — do not add a second top horizontal menu that repeats right-nav links.
+3. **Main content occupies the center/right** — forms, tables, proposal detail, comments.
+4. **Public/unauthenticated pages** (landing, login) use a minimal layout without the app sidebar.
+5. **No duplicate nav** — do not add a second top horizontal menu that repeats sidebar links.
 
 ### Responsive Behavior
 
-| Breakpoint | Typical width | Right nav behavior |
+| Breakpoint | Typical width | Left nav behavior |
 |---|---|---|
-| **Mobile** | &lt; 768px | Collapsed by default; open via menu button (drawer/sheet sliding from **right**) |
-| **Tablet** | 768px – 1023px | Icon rail or narrow panel on the right; expand on tap/hover where appropriate |
-| **Desktop** | ≥ 1024px | Full right sidebar visible; labels + icons |
+| **Mobile** | &lt; 768px | Collapsed by default; open via menu button (drawer sliding from **left**) |
+| **Tablet / Desktop** | ≥ 768px | Full left sidebar visible; labels + active state |
 
 All breakpoints must remain **touch-friendly** (min ~44px tap targets on mobile/tablet).
 
@@ -67,16 +64,16 @@ When implementing `frontend/`, provide:
 
 | Component | Responsibility |
 |---|---|
-| `AppShell` | Page frame: content + right nav slot |
-| `RightNav` | Role-based links, user menu, logout |
-| `RightNavDrawer` | Mobile/tablet overlay from the right |
+| `AppShell` | Page frame: left nav slot + content |
+| `SideNav` | Role-based links, user menu, logout |
+| `SideNavDrawer` | Mobile/tablet overlay from the left |
 | `PageHeader` | In-content title/breadcrumbs (not primary nav) |
 
 ## QA Checks (Frontend / QA Agents)
 
 Before approving UI work:
 
-- [ ] Nav is on the **right**, not a top primary navbar
+- [ ] Nav is on the **left**, with working links for every menu item
 - [ ] Layout verified at mobile, tablet, and desktop widths
 - [ ] Applicant and staff shells use the same nav **position**
 - [ ] Keyboard and screen-reader access to nav (drawer trap focus on mobile)

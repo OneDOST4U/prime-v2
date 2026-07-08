@@ -2,13 +2,21 @@
 
 This file tells Cursor and all developers **which agent to consult** before coding and **when QA must run** before pushing.
 
+**Audience:** Any developer on the team (junior through senior). The workflow is not restricted to interns or junior developers only.
+
 Full SDLC details: [README.md](README.md) §23, §32, §33.
 
 ## Quick Links
 
 | Document | Purpose |
 |---|---|
-| [docs/agents/INTERN-VIBE-CODING-GUIDE.md](docs/agents/INTERN-VIBE-CODING-GUIDE.md) | **Intern guide** — phase-by-phase Cursor prompts |
+| **[DEVELOPERS.md](DEVELOPERS.md)** | **Start here after git pull** — run, build, test |
+| **[docs/agents/AI-DEVELOPMENT-PLAN.md](docs/agents/AI-DEVELOPMENT-PLAN.md)** | **AI plan** — phase order, gates, file map |
+| **[docs/agents/DEVELOPER-EXECUTION-PLAN.md](docs/agents/DEVELOPER-EXECUTION-PLAN.md)** | Phase-by-phase build and test plan |
+| **[docs/agents/TEST-MATRIX.md](docs/agents/TEST-MATRIX.md)** | Pass/Fail checklist per role and feature |
+| [docs/agents/INTERN-VIBE-CODING-GUIDE.md](docs/agents/INTERN-VIBE-CODING-GUIDE.md) | **Developer guide** — phase-by-phase Cursor prompts (all levels) |
+| [docs/agents/PHASE-21-MVP-COMPLETION.md](docs/agents/PHASE-21-MVP-COMPLETION.md) | **Phase 21** — integration, fillable forms, deploy readiness |
+| [docs/deployment/DEV-TEST-ACCOUNTS.md](docs/deployment/DEV-TEST-ACCOUNTS.md) | Local test login for every role |
 | [docs/agents/PHASES-REFERENCE.md](docs/agents/PHASES-REFERENCE.md) | Phase validation, SDLC mapping, current status |
 | [docs/agents/DEVELOPMENT-FLOW.md](docs/agents/DEVELOPMENT-FLOW.md) | Mandatory agent consultation before any change |
 | [docs/agents/QA-PUSH-GATE.md](docs/agents/QA-PUSH-GATE.md) | Checklist before `git push` |
@@ -26,7 +34,7 @@ Full SDLC details: [README.md](README.md) §23, §32, §33.
 ## UI Standards (All Frontend Work)
 
 - **Modern and responsive** — mobile, tablet, and desktop ([UI-DESIGN-STANDARDS.md](docs/frontend/UI-DESIGN-STANDARDS.md))
-- **Right-side navbar** for every authenticated user — not a top navbar; same nav position for all roles
+- **Left-side navbar** for every authenticated user — not a top navbar; same nav position for all roles
 
 ## Agent Routing (Summary)
 

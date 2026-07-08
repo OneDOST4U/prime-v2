@@ -44,6 +44,10 @@ const createProposalSchema = z.object({
   title: z.string().min(1).max(500),
 });
 
+const updateProposalSchema = z.object({
+  title: z.string().min(1).max(500).optional(),
+});
+
 const autosaveFieldsSchema = z.object({
   fields: z.array(
     z.object({
@@ -255,6 +259,39 @@ export default async function proposalsRoutes(fastify: FastifyInstance) {
               })),
             }
           : null,
+      });
+    },
+  );
+
+  // PATCH /api/proposals/:id — update draft metadata (OWNER only, DRAFT)
+  fastify.patch(
+    "/api/proposals/:id",
+    { preHandler: requireAuth() },
+    async (request, reply) => {
+      const currentUser = request.currentUser!;
+      const params = idParamSchema.parse(request.params);
+      const body = updateProposalSchema.parse(request.body);
+
+      const proposal = await prisma.proposal.findUnique({ where: { id: params.id } });
+      if (!proposal) {
+        return reply.status(404).send({ error: "Not Found", statusCode: 404 });
+      }
+      if (proposal.applicantUserId !== currentUser.id) {
+        return reply.status(403).send({ error: "Forbidden", statusCode: 403 });
+      }
+      if (proposal.status !== "DRAFT") {
+        return reply.status(409).send({ error: "Conflict", statusCode: 409 });
+      }
+
+      const updated = await prisma.proposal.update({
+        where: { id: params.id },
+        data: { ...(body.title !== undefined ? { title: body.title } : {}) },
+      });
+
+      return reply.status(200).send({
+        id: updated.id,
+        title: updated.title,
+        status: updated.status,
       });
     },
   );

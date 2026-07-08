@@ -24,6 +24,17 @@ const assignRolesSchema = z.object({
   roleCodes: z.array(z.enum(STAFF_ROLE_CODES as [string, ...string[]])).min(1),
 });
 
+const updateProfileSchema = z.object({
+  firstName: z.string().min(1).max(100).optional(),
+  lastName: z.string().min(1).max(100).optional(),
+  displayName: z.string().max(200).nullable().optional(),
+  institution: z.string().max(255).nullable().optional(),
+  contactNumber: z.string().max(50).nullable().optional(),
+  address: z.string().max(500).nullable().optional(),
+  positionTitle: z.string().max(255).nullable().optional(),
+  employeeNumber: z.string().max(100).nullable().optional(),
+});
+
 function serializeUser(user: {
   id: string;
   email: string;
@@ -49,16 +60,167 @@ function serializeUser(user: {
   };
 }
 
+async function serializeUserWithRoles(userId: string) {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+    include: {
+      userRoles: { include: { role: true } },
+      applicantProfile: true,
+      staffProfile: true,
+    },
+  });
+
+  return {
+    ...serializeUser(user),
+    roles: user.userRoles.map((ur) => ({
+      id: ur.role.id,
+      code: ur.role.code,
+      name: ur.role.name,
+    })),
+    applicantProfile: user.applicantProfile
+      ? {
+          institution: user.applicantProfile.institution,
+          positionTitle: user.applicantProfile.positionTitle,
+          contactNumber: user.applicantProfile.contactNumber,
+          address: user.applicantProfile.address,
+        }
+      : null,
+    staffProfile: user.staffProfile
+      ? {
+          officeId: user.staffProfile.officeId,
+          positionTitle: user.staffProfile.positionTitle,
+          employeeNumber: user.staffProfile.employeeNumber,
+        }
+      : null,
+  };
+}
+
 export default async function usersRoutes(fastify: FastifyInstance) {
+  fastify.get(
+    "/api/users",
+    { preHandler: [requireAuth(), requireRole("ADMIN")] },
+    async (request, reply) => {
+      const query = z
+        .object({
+          search: z.string().optional(),
+          includeInactive: z
+            .enum(["true", "false"])
+            .optional()
+            .transform((v) => v === "true"),
+        })
+        .parse(request.query);
+
+      const users = await prisma.user.findMany({
+        where: {
+          ...(query.includeInactive ? {} : { isActive: true }),
+          ...(query.search
+            ? {
+                OR: [
+                  { email: { contains: query.search, mode: "insensitive" } },
+                  { firstName: { contains: query.search, mode: "insensitive" } },
+                  { lastName: { contains: query.search, mode: "insensitive" } },
+                ],
+              }
+            : {}),
+        },
+        include: { userRoles: { include: { role: true } } },
+        orderBy: { createdAt: "desc" },
+      });
+
+      return reply.status(200).send(
+        users.map((user) => ({
+          ...serializeUser(user),
+          roles: user.userRoles.map((ur) => ({
+            id: ur.role.id,
+            code: ur.role.code,
+            name: ur.role.name,
+          })),
+        })),
+      );
+    },
+  );
+
+  fastify.get(
+    "/api/users/:id",
+    { preHandler: [requireAuth(), requireRole("ADMIN")] },
+    async (request, reply) => {
+      const params = z.object({ id: z.string().uuid() }).parse(request.params);
+      const user = await prisma.user.findUnique({ where: { id: params.id } });
+      if (!user) {
+        return reply.status(404).send({ error: "Not Found", statusCode: 404 });
+      }
+      return reply.status(200).send(await serializeUserWithRoles(params.id));
+    },
+  );
+
   fastify.get(
     "/api/users/me/profile",
     { preHandler: requireAuth() },
     async (request, reply) => {
       const currentUser = request.currentUser!;
-      const user = await prisma.user.findUniqueOrThrow({
-        where: { id: currentUser.id },
+      return reply.status(200).send(await serializeUserWithRoles(currentUser.id));
+    },
+  );
+
+  fastify.patch(
+    "/api/users/me/profile",
+    { preHandler: requireAuth() },
+    async (request, reply) => {
+      const currentUser = request.currentUser!;
+      const body = updateProfileSchema.parse(request.body);
+
+      const {
+        institution,
+        contactNumber,
+        address,
+        positionTitle,
+        employeeNumber,
+        ...userFields
+      } = body;
+
+      await prisma.$transaction(async (tx) => {
+        if (Object.keys(userFields).length > 0) {
+          await tx.user.update({
+            where: { id: currentUser.id },
+            data: userFields,
+          });
+        }
+
+        const isApplicant = currentUser.roles.includes("APPLICANT");
+        if (isApplicant) {
+          await tx.applicantProfile.upsert({
+            where: { userId: currentUser.id },
+            update: {
+              ...(institution !== undefined ? { institution } : {}),
+              ...(contactNumber !== undefined ? { contactNumber } : {}),
+              ...(address !== undefined ? { address } : {}),
+              ...(positionTitle !== undefined ? { positionTitle } : {}),
+            },
+            create: {
+              userId: currentUser.id,
+              institution: institution ?? null,
+              contactNumber: contactNumber ?? null,
+              address: address ?? null,
+              positionTitle: positionTitle ?? null,
+            },
+          });
+        } else {
+          await tx.staffProfile.upsert({
+            where: { userId: currentUser.id },
+            update: {
+              ...(positionTitle !== undefined ? { positionTitle } : {}),
+              ...(employeeNumber !== undefined ? { employeeNumber } : {}),
+            },
+            create: {
+              userId: currentUser.id,
+              positionTitle: positionTitle ?? null,
+              employeeNumber: employeeNumber ?? null,
+            },
+          });
+        }
       });
-      return reply.status(200).send(serializeUser(user));
+
+      return reply.status(200).send(await serializeUserWithRoles(currentUser.id));
     },
   );
 

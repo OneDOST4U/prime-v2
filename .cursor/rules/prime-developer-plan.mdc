@@ -1,0 +1,32 @@
+---
+description: PRIME v2 developer execution plan — follow phase order after git pull; do not skip ahead
+alwaysApply: true
+---
+
+# PRIME v2 Developer Plan (mandatory)
+
+After `git pull`, read and follow the plan **before** writing code.
+
+## Entry points
+
+1. [DEVELOPERS.md](../../DEVELOPERS.md) — human quick start
+2. [docs/agents/AI-DEVELOPMENT-PLAN.md](../../docs/agents/AI-DEVELOPMENT-PLAN.md) — **AI canonical plan** (phase order, file map, gates)
+3. [docs/agents/DEVELOPER-EXECUTION-PLAN.md](../../docs/agents/DEVELOPER-EXECUTION-PLAN.md) — detailed phase tasks
+4. [docs/agents/TEST-MATRIX.md](../../docs/agents/TEST-MATRIX.md) — Pass/Fail per role and feature
+5. [docs/agents/PHASES-REFERENCE.md](../../docs/agents/PHASES-REFERENCE.md) — current phase status
+
+## Rules for AI assistants
+
+- **Active phase:** 21A (test data + focal demo path). Check PHASES-REFERENCE before assuming.
+- **Do not** implement RTEC, Budget, RD, PDF, staging, or production features until earlier phase gates pass.
+- **Do not** skip TEST-MATRIX verification or QA-PUSH-GATE before push.
+- State the active phase at the start of every implementation task.
+- Only change files listed for the current phase in DEVELOPER-EXECUTION-PLAN.md unless the user explicitly expands scope.
+
+## When user says "implement the plan"
+
+1. Read AI-DEVELOPMENT-PLAN.md and DEVELOPER-EXECUTION-PLAN.md for the **current phase only**.
+2. Implement that phase's tasks.
+3. Run automated tests + mark TEST-MATRIX rows.
+4. Update PHASES-REFERENCE when the phase gate closes.
+5. Stop and report — do not continue to the next phase unless the user asks.

@@ -1,21 +1,34 @@
 import { useEffect, useRef } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { navConfig } from "./navConfig";
+import { useAuth } from "../../hooks/useAuth";
+import { navLinkClass } from "./navLinkClass";
 import styles from "./AppShell.module.css";
 
-export interface RightNavDrawerProps {
+export interface SideNavDrawerProps {
   role: string;
   open: boolean;
   onClose: () => void;
 }
 
-export default function RightNavDrawer({
+export default function SideNavDrawer({
   role,
   open,
   onClose,
-}: RightNavDrawerProps) {
+}: SideNavDrawerProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const items = navConfig[role] ?? [];
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const items = navConfig[role] ?? navConfig.ADMIN ?? [];
+  const displayName = user
+    ? `${user.firstName} ${user.lastName}`.trim() || user.email
+    : "User";
+
+  const handleLogout = async () => {
+    await logout();
+    onClose();
+    navigate("/", { replace: true });
+  };
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -42,12 +55,12 @@ export default function RightNavDrawer({
 
   return (
     <dialog
-      id="right-nav-drawer"
+      id="left-nav-drawer"
       ref={dialogRef}
       className={styles.drawer}
       aria-label="Navigation drawer"
       onClose={onClose}
-      data-testid="right-nav-drawer"
+      data-testid="side-nav-drawer"
     >
       <div className={styles.drawerBackdrop} onClick={onClose} />
       <div className={styles.drawerPanel}>
@@ -60,12 +73,14 @@ export default function RightNavDrawer({
           ×
         </button>
 
+        <p className={styles.brand}>PRIME v2</p>
+
         <ul className={styles.navList}>
           {items.map((item) => (
             <li key={item.path}>
               <NavLink
                 to={item.path}
-                className={styles.navItem}
+                className={navLinkClass}
                 aria-label={item.label}
                 onClick={onClose}
               >
@@ -76,12 +91,13 @@ export default function RightNavDrawer({
         </ul>
 
         <div className={styles.userArea}>
-          <p className={styles.userName}>User Name</p>
-          <p className={styles.userRole}>{role}</p>
+          <p className={styles.userName}>{displayName}</p>
+          <p className={styles.userRole}>{role.replaceAll("_", " ").toLowerCase()}</p>
           <button
             type="button"
             className={styles.logoutButton}
             aria-label="Log out"
+            onClick={handleLogout}
           >
             Log out
           </button>

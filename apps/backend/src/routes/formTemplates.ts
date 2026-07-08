@@ -88,6 +88,78 @@ function serializeVersion(version: {
 }
 
 export default async function formTemplatesRoutes(fastify: FastifyInstance) {
+  fastify.get(
+    "/api/form-templates",
+    { preHandler: requireAuth() },
+    async (_request, reply) => {
+      const templates = await prisma.formTemplate.findMany({
+        orderBy: { formCode: "asc" },
+        include: {
+          versions: {
+            where: { isCurrent: true },
+            select: {
+              id: true,
+              versionNumber: true,
+              schemaVersion: true,
+              publishedAt: true,
+            },
+            take: 1,
+          },
+        },
+      });
+
+      return reply.status(200).send(
+        templates.map((t) => ({
+          id: t.id,
+          formCode: t.formCode,
+          title: t.title,
+          sourceType: t.sourceType,
+          programCode: t.programCode,
+          isActive: t.isActive,
+          createdAt: t.createdAt,
+          currentVersion: t.versions[0] ?? null,
+        })),
+      );
+    },
+  );
+
+  fastify.get(
+    "/api/form-templates/:id",
+    { preHandler: requireAuth() },
+    async (request, reply) => {
+      const params = idParamSchema.parse(request.params);
+      const template = await prisma.formTemplate.findUnique({
+        where: { id: params.id },
+        include: {
+          versions: {
+            orderBy: { versionNumber: "desc" },
+            select: {
+              id: true,
+              versionNumber: true,
+              schemaVersion: true,
+              isCurrent: true,
+              publishedAt: true,
+              createdAt: true,
+            },
+          },
+        },
+      });
+      if (!template) {
+        return reply.status(404).send({ error: "Not Found", statusCode: 404 });
+      }
+      return reply.status(200).send({
+        id: template.id,
+        formCode: template.formCode,
+        title: template.title,
+        sourceType: template.sourceType,
+        programCode: template.programCode,
+        isActive: template.isActive,
+        createdAt: template.createdAt,
+        versions: template.versions,
+      });
+    },
+  );
+
   // GET /api/form-templates/:id/versions/current — get current version with sections and fields
   fastify.get(
     "/api/form-templates/:id/versions/current",

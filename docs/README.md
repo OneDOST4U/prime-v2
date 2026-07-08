@@ -6,6 +6,10 @@ Quick navigation for all project documentation. For the full SDLC guide, see [..
 
 | Document | Purpose |
 |---|---|
+| [../DEVELOPERS.md](../DEVELOPERS.md) | **Developers: quick start after git pull** |
+| [agents/DEVELOPER-EXECUTION-PLAN.md](agents/DEVELOPER-EXECUTION-PLAN.md) | Build plan, phases, exit gates |
+| [agents/TEST-MATRIX.md](agents/TEST-MATRIX.md) | Test all users and features (Pass/Fail) |
+| [deployment/DEV-TEST-ACCOUNTS.md](deployment/DEV-TEST-ACCOUNTS.md) | Local login per role |
 | [../README.md](../README.md) | Full ObraTech AI SDLC guide (business rules, workflow, phases) |
 | [../PROJECT-STRUCTURE.md](../PROJECT-STRUCTURE.md) | One-page folder map |
 | [forms/FORM-INVENTORY.md](forms/FORM-INVENTORY.md) | Catalog of all source proposal forms |

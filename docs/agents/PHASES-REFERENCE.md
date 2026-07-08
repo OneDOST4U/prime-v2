@@ -60,10 +60,31 @@ The **21 phases (0–20)** are logically ordered, match the ObraTech framework, 
 | 18 | Production Readiness | Checklist | Production Readiness, Security, DevOps |
 | 19 | Production Deployment | Deploy | DevOps |
 | 20 | Hypercare and Improvement | Yes | All agents as needed |
+| 21 | MVP Integration, Fillable Forms, Deploy Readiness | **Yes** | Frontend, Backend, DevOps, QA |
 
 ## Current Project Status (update as you progress)
 
-**You are here: Phase 10 — Workflow and Focal Review (Phase 9 gate closed 2026-07-02)**
+**You are here: Phase 21A — test data + focal demo path** (see [DEVELOPER-EXECUTION-PLAN.md](DEVELOPER-EXECUTION-PLAN.md))
+
+Implementation is open to **all developers**. Follow agent consultation ([AGENTS.md](../../AGENTS.md)), [DEVELOPER-EXECUTION-PLAN.md](DEVELOPER-EXECUTION-PLAN.md), [TEST-MATRIX.md](TEST-MATRIX.md), and [QA-PUSH-GATE.md](QA-PUSH-GATE.md).
+
+| Phase 21 sub-phase | Focus | Status |
+|---|---|---|
+| **21A** | Seed sample proposals + assignments; focal workflow UI; notification badge | ⏳ In progress |
+| **21B** | Expand GIA/CEST/SSCP forms; TABLE/required validation | ⏳ Pending |
+
+| Phase 21 item | Status |
+|---|---|
+| Dev test account per role (`seed.ts`) | ✅ Done |
+| [DEV-TEST-ACCOUNTS.md](../deployment/DEV-TEST-ACCOUNTS.md) | ✅ Done |
+| `@dev.local` applicant login in development | ✅ Done |
+| Left nav + admin/queue/notification UI | ✅ Done |
+| Fillable dynamic forms (3 seeded types) | ✅ Partial — expand to all 21 forms (21B) |
+| Focal workflow UI on proposal detail | ⏳ Pending (21A) |
+| Staging deploy smoke checklist | ⏳ Pending |
+| Phase 21 approval gate | ⏳ Open |
+
+**Previous:** Phase 10 — Workflow and Focal Review (Phase 9 gate closed 2026-07-02)
 
 > Note: Phases 4–8 status detail is not recorded in this table (tracking gap — see git history for those phases). This table was last kept current through Phase 3; the entries below for Phase 9 were added at the Phase 9→10 gate.
 
@@ -132,6 +153,8 @@ Phases 0, 1, and 2 approved by supervisor 2026-07-01 (B-01..B-04). Phase 3 form 
 
 ## One Rule
 
-> Do not vibe-code application features until **Phase 4** is approved (MVP, workflow, permissions, architecture). Phases 0–5 are documents, specs, and prototypes only.
+> Phases 0–4 planning gates are **closed**. Active work: **Phase 21A → 21B**, then Phases 10–13, then harden and deploy (14–20). All developers may implement when following [AGENTS.md](../../AGENTS.md) and the current phase checklist.
 
-For step-by-step Cursor prompts, see [INTERN-VIBE-CODING-GUIDE.md](INTERN-VIBE-CODING-GUIDE.md).
+**Start here after git pull:** [../../DEVELOPERS.md](../../DEVELOPERS.md) → [DEVELOPER-EXECUTION-PLAN.md](DEVELOPER-EXECUTION-PLAN.md) → [TEST-MATRIX.md](TEST-MATRIX.md).
+
+For step-by-step Cursor prompts, see [INTERN-VIBE-CODING-GUIDE.md](INTERN-VIBE-CODING-GUIDE.md) (all developers). Phase 21 detail: [PHASE-21-MVP-COMPLETION.md](PHASE-21-MVP-COMPLETION.md).

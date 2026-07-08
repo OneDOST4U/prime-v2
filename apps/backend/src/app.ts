@@ -26,6 +26,11 @@ import adminRtecGroupsRoutes from "./routes/adminRtecGroups.js";
 import budgetRoutes from "./routes/budget.js";
 import accountingRoutes from "./routes/accounting.js";
 import rdRoutes from "./routes/rd.js";
+import notificationsRoutes from "./routes/notifications.js";
+import rolesRoutes from "./routes/roles.js";
+import queuesRoutes from "./routes/queues.js";
+import auditLogsRoutes from "./routes/auditLogs.js";
+import adminRoutes from "./routes/admin.js";
 import { logger, setLogLevel } from "./utils/logger.js";
 
 const SESSION_SLIDING_MAX_AGE_MS = 30 * 60 * 1000;
@@ -64,7 +69,7 @@ export async function buildApp() {
     cookie: {
       httpOnly: true,
       secure: app.config.NODE_ENV !== "development",
-      sameSite: "strict",
+      sameSite: app.config.NODE_ENV === "development" ? "lax" : "strict",
       maxAge: SESSION_SLIDING_MAX_AGE_MS,
     },
     saveUninitialized: false,
@@ -117,6 +122,11 @@ export async function buildApp() {
   await app.register(budgetRoutes);
   await app.register(accountingRoutes);
   await app.register(rdRoutes);
+  await app.register(notificationsRoutes);
+  await app.register(rolesRoutes);
+  await app.register(queuesRoutes);
+  await app.register(auditLogsRoutes);
+  await app.register(adminRoutes);
 
   // 8. Error handlers
   app.setErrorHandler((error, _request, reply) => {

@@ -14,6 +14,7 @@ import {
   issueStaffSession,
   userHasStaffRole,
   verifyStaffCredentials,
+  verifyDevLocalCredentials,
 } from "../services/auth.js";
 
 export const SESSION_COOKIE_NAME = "sessionId";
@@ -198,6 +199,45 @@ export default async function authRoutes(fastify: FastifyInstance) {
   // ── Staff path: email + password ──────────────────────────────
   fastify.post("/api/auth/staff/login", async (request, reply) => {
     const body = staffLoginSchema.parse(request.body);
+
+    // Local dev: @dev.local seeded accounts (all roles, including APPLICANT).
+    if (
+      fastify.config.NODE_ENV !== "production" &&
+      body.email.endsWith("@dev.local")
+    ) {
+      const devResult = await verifyDevLocalCredentials(
+        prisma,
+        body.email,
+        body.password,
+      );
+
+      if (devResult.outcome === "invalid_credentials") {
+        return reply.status(401).send({ error: "Unauthorized", statusCode: 401 });
+      }
+      if (devResult.outcome === "deactivated") {
+        return reply.status(403).send({ error: "Forbidden", statusCode: 403 });
+      }
+      if (devResult.outcome === "success") {
+        const user = devResult.user;
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastLoginAt: new Date() },
+        });
+        if (devResult.isApplicantOnly) {
+          issueApplicantSession(request.session as never, user);
+        } else {
+          issueStaffSession(
+            request.session as never,
+            user,
+            user.mustChangePassword,
+          );
+        }
+        return reply.status(200).send({
+          status: "ok",
+          mustChangePassword: user.mustChangePassword,
+        });
+      }
+    }
 
     try {
       await checkStaffLoginRateLimit(prisma, {

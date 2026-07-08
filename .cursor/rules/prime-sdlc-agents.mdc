@@ -7,7 +7,7 @@ alwaysApply: true
 
 Before implementing any change, follow [docs/agents/DEVELOPMENT-FLOW.md](docs/agents/DEVELOPMENT-FLOW.md).
 
-**Intern / vibe coding:** state current phase and follow [INTERN-VIBE-CODING-GUIDE.md](docs/agents/INTERN-VIBE-CODING-GUIDE.md). No app code before Phase 4 approval.
+**Intern / vibe coding:** state current phase and follow [INTERN-VIBE-CODING-GUIDE.md](docs/agents/INTERN-VIBE-CODING-GUIDE.md). **All developers** implement **one phase at a time** per [AI-DEVELOPMENT-PLAN.md](docs/agents/AI-DEVELOPMENT-PLAN.md) and [DEVELOPER-EXECUTION-PLAN.md](docs/agents/DEVELOPER-EXECUTION-PLAN.md). Active phase: **21A**.
 
 ## Required consultations (do not skip)
 
@@ -22,7 +22,7 @@ Route to domain lead: **Frontend** (UI), **Backend** (API/workflow), **Database*
 
 1. State which agents must approve the task.
 2. Ask clarifying questions if user story, permissions, or workflow status are missing.
-3. Do not implement until scope/design/security/tests are clear (Phase 0: no coding until MVP/architecture approved).
+3. Do not implement until scope/design/security/tests are clear. Follow [AI-DEVELOPMENT-PLAN.md](docs/agents/AI-DEVELOPMENT-PLAN.md) — **current phase only** (21A).
 
 ## PRIME constraints (always)
 
