@@ -17,6 +17,7 @@ interface FieldValues {
 
 interface CreatedProposal {
   id: string;
+  title: string;
   status: string;
 }
 
@@ -25,6 +26,7 @@ export default function ProposalFormPage() {
   const navigate = useNavigate();
 
   const [proposalId, setProposalId] = useState<string | null>(null);
+  const [proposalTitle, setProposalTitle] = useState("Draft Proposal");
   const [proposalStatus, setProposalStatus] = useState<string>("DRAFT");
   const [sections, setSections] = useState<FormSection[]>([]);
   const [fieldValues, setFieldValues] = useState<FieldValues>({});
@@ -52,6 +54,7 @@ export default function ProposalFormPage() {
           title: "Draft Proposal",
         });
         setProposalId(created.id);
+        setProposalTitle(created.title ?? "Draft Proposal");
         setProposalStatus(created.status ?? "DRAFT");
 
         // Step 2: Get proposal type to find defaultFormTemplateId
@@ -108,9 +111,18 @@ export default function ProposalFormPage() {
       .catch(() => setSaveStatus("failed"));
   }
 
-  function handleFieldChange(formFieldId: string, value: string) {
+  function handleFieldChange(formFieldId: string, value: string, fieldLabel?: string) {
     const nextValues = { ...fieldValues, [formFieldId]: value };
     setFieldValues(nextValues);
+
+    if (
+      fieldLabel?.toLowerCase().includes("project title") &&
+      proposalId &&
+      value.trim()
+    ) {
+      setProposalTitle(value.trim());
+      void api.patch(`/api/proposals/${proposalId}`, { title: value.trim() });
+    }
 
     if (!proposalId) return;
 
@@ -205,6 +217,34 @@ export default function ProposalFormPage() {
     <div style={{ padding: "1rem", maxWidth: "720px" }}>
       <h2 style={{ marginTop: 0 }}>New Proposal</h2>
 
+      <div style={{ marginBottom: "1rem" }}>
+        <label
+          htmlFor="proposal-title"
+          style={{
+            display: "block",
+            marginBottom: "0.25rem",
+            fontWeight: 500,
+            fontSize: "0.875rem",
+          }}
+        >
+          Proposal title
+        </label>
+        <input
+          id="proposal-title"
+          type="text"
+          value={proposalTitle}
+          onChange={(e) => {
+            const value = e.target.value;
+            setProposalTitle(value);
+            if (proposalId && value.trim()) {
+              void api.patch(`/api/proposals/${proposalId}`, { title: value.trim() });
+            }
+          }}
+          style={inputStyle}
+          required
+        />
+      </div>
+
       {/* Save status */}
       <div
         aria-live="polite"
@@ -260,7 +300,7 @@ export default function ProposalFormPage() {
                   type="text"
                   required={field.isRequired}
                   value={fieldValues[field.id] ?? ""}
-                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                  onChange={(e) => handleFieldChange(field.id, e.target.value, field.label)}
                   style={inputStyle}
                 />
               )}
@@ -270,7 +310,7 @@ export default function ProposalFormPage() {
                   id={field.id}
                   required={field.isRequired}
                   value={fieldValues[field.id] ?? ""}
-                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                  onChange={(e) => handleFieldChange(field.id, e.target.value, field.label)}
                   rows={4}
                   style={{ ...inputStyle, resize: "vertical" }}
                 />
@@ -282,7 +322,7 @@ export default function ProposalFormPage() {
                   type="number"
                   required={field.isRequired}
                   value={fieldValues[field.id] ?? ""}
-                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                  onChange={(e) => handleFieldChange(field.id, e.target.value, field.label)}
                   style={inputStyle}
                 />
               )}
@@ -293,7 +333,7 @@ export default function ProposalFormPage() {
                   type="date"
                   required={field.isRequired}
                   value={fieldValues[field.id] ?? ""}
-                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                  onChange={(e) => handleFieldChange(field.id, e.target.value, field.label)}
                   style={inputStyle}
                 />
               )}
@@ -303,7 +343,7 @@ export default function ProposalFormPage() {
                   id={field.id}
                   required={field.isRequired}
                   value={fieldValues[field.id] ?? ""}
-                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                  onChange={(e) => handleFieldChange(field.id, e.target.value, field.label)}
                   style={inputStyle}
                 >
                   <option value="">— Select —</option>

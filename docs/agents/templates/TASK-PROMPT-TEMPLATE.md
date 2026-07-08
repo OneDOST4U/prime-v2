@@ -63,5 +63,5 @@ Constraints:
 - Do not overwrite submitted proposal versions.
 - Do not expose private RTEC comments.
 - Do not commit secrets.
-- UI: modern, responsive (mobile/tablet/desktop); right-side navbar for all users — not a top navbar (see docs/frontend/UI-DESIGN-STANDARDS.md).
+- UI: modern, responsive (mobile/tablet/desktop); left-side navbar for all users — not a top navbar (see docs/frontend/UI-DESIGN-STANDARDS.md).
 ```

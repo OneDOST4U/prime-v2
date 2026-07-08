@@ -40,16 +40,33 @@ function serializeProposalType(pt: {
 }
 
 export default async function proposalTypesRoutes(fastify: FastifyInstance) {
-  // GET /api/proposal-types — list all active proposal types
+  // GET /api/proposal-types — list proposal types
   fastify.get(
     "/api/proposal-types",
     { preHandler: requireAuth() },
-    async (_request, reply) => {
+    async (request, reply) => {
+      const query = z
+        .object({
+          includeInactive: z
+            .enum(["true", "false"])
+            .optional()
+            .transform((v) => v === "true"),
+        })
+        .parse(request.query);
+
       const types = await prisma.proposalType.findMany({
-        where: { isActive: true },
+        where: query.includeInactive ? {} : { isActive: true },
+        include: {
+          program: { select: { id: true, code: true, name: true } },
+        },
         orderBy: { createdAt: "asc" },
       });
-      return reply.status(200).send(types.map(serializeProposalType));
+      return reply.status(200).send(
+        types.map((pt) => ({
+          ...serializeProposalType(pt),
+          program: pt.program,
+        })),
+      );
     },
   );
 

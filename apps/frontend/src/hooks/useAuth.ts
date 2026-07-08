@@ -1,13 +1,2 @@
-export interface AuthState {
-  user: null;
-  role: string;
-  isLoading: boolean;
-}
-
-export function useAuth(): AuthState {
-  return {
-    user: null,
-    role: "APPLICANT",
-    isLoading: false,
-  };
-}
+export { useAuthContext as useAuth, getPrimaryRole } from "../contexts/AuthContext";
+export type { AuthState } from "../contexts/AuthContext";

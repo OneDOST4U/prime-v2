@@ -1,0 +1,144 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(circle at top right, rgba(29, 78, 216, 0.12), transparent 45%),
+    var(--prime-bg);
+}
+
+.card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--prime-surface);
+  border: 1px solid var(--prime-border);
+  border-radius: var(--prime-radius);
+  box-shadow: var(--prime-shadow);
+  padding: 2rem;
+}
+
+.brand {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.brand h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--prime-heading);
+  margin-bottom: 0.5rem;
+}
+
+.brand p {
+  color: #475467;
+  font-size: 0.95rem;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.buttonPrimary,
+.buttonSecondary,
+.buttonGhost {
+  min-height: 44px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.buttonPrimary {
+  background: var(--prime-primary);
+  color: #fff;
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background: var(--prime-primary-hover);
+}
+
+.buttonSecondary {
+  background: #fff;
+  border-color: var(--prime-border);
+  color: var(--prime-heading);
+}
+
+.buttonSecondary:hover:not(:disabled) {
+  background: #f9fafb;
+}
+
+.buttonGhost {
+  background: transparent;
+  color: var(--prime-primary);
+  border: none;
+  padding-inline: 0;
+  min-height: auto;
+}
+
+.buttonPrimary:disabled,
+.buttonSecondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  text-align: left;
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--prime-heading);
+}
+
+.field input {
+  min-height: 44px;
+  border: 1px solid var(--prime-border);
+  border-radius: 8px;
+  padding: 0.625rem 0.75rem;
+  background: #fff;
+  color: var(--prime-heading);
+}
+
+.field input:focus-visible {
+  outline: 2px solid var(--prime-primary);
+  outline-offset: 1px;
+}
+
+.error {
+  background: var(--prime-danger-bg);
+  color: var(--prime-danger);
+  border: 1px solid #fecdca;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.hint {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: #667085;
+  text-align: center;
+  line-height: 1.4;
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: 2.25rem;
+  }
+}

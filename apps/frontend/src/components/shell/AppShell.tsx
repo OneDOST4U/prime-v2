@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
-import RightNav from "./RightNav";
-import RightNavDrawer from "./RightNavDrawer";
+import SideNav from "./SideNav";
+import SideNavDrawer from "./SideNavDrawer";
 import styles from "./AppShell.module.css";
 
 export interface AppShellProps {
@@ -14,29 +14,31 @@ export default function AppShell({ role, title, children }: AppShellProps) {
 
   return (
     <div className={styles.shell}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>{title}</h1>
-        <button
-          type="button"
-          className={styles.menuButton}
-          aria-label="Open navigation menu"
-          aria-expanded={drawerOpen}
-          aria-controls="right-nav-drawer"
-          onClick={() => setDrawerOpen(true)}
-        >
-          ☰
-        </button>
-      </header>
-
-      <main className={styles.content} data-testid="app-shell-content">
-        {children}
-      </main>
-
       <div className={styles.desktopNav} data-testid="app-shell-nav">
-        <RightNav role={role} />
+        <SideNav role={role} />
       </div>
 
-      <RightNavDrawer
+      <div className={styles.mainArea}>
+        <header className={styles.header}>
+          <button
+            type="button"
+            className={styles.menuButton}
+            aria-label="Open navigation menu"
+            aria-expanded={drawerOpen}
+            aria-controls="left-nav-drawer"
+            onClick={() => setDrawerOpen(true)}
+          >
+            ☰
+          </button>
+          <h1 className={styles.title}>{title}</h1>
+        </header>
+
+        <main className={styles.content} data-testid="app-shell-content">
+          {children}
+        </main>
+      </div>
+
+      <SideNavDrawer
         role={role}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}

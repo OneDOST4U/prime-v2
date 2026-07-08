@@ -37,6 +37,8 @@ PostgreSQL will be available at `localhost:5432` (dev only).
 MinIO console will be available at `http://localhost:9001` (dev only).
 Backend API will be available at `http://localhost:3000`.
 
+**Test every role locally:** [DEV-TEST-ACCOUNTS.md](DEV-TEST-ACCOUNTS.md) — run `npx prisma db seed` after first start.
+
 ## Service Topology
 
 ```

@@ -138,6 +138,47 @@ export async function verifyStaffCredentials(
   return { outcome: "success", user };
 }
 
+/** Dev-only: @dev.local accounts may include APPLICANT for local end-to-end testing. */
+export type DevLoginResult =
+  | { outcome: "success"; user: User; isApplicantOnly: boolean }
+  | { outcome: "invalid_credentials" }
+  | { outcome: "not_dev_account" }
+  | { outcome: "deactivated" };
+
+export async function verifyDevLocalCredentials(
+  db: PrismaClient,
+  email: string,
+  password: string,
+): Promise<DevLoginResult> {
+  if (!email.endsWith("@dev.local")) {
+    return { outcome: "not_dev_account" };
+  }
+
+  const user = await db.user.findUnique({
+    where: { email },
+    include: { userRoles: { include: { role: true } } },
+  });
+
+  if (!user || !user.passwordHash) {
+    return { outcome: "invalid_credentials" };
+  }
+
+  if (!user.isActive) {
+    return { outcome: "deactivated" };
+  }
+
+  const matches = await bcrypt.compare(password, user.passwordHash);
+  if (!matches) {
+    return { outcome: "invalid_credentials" };
+  }
+
+  const isApplicantOnly =
+    user.userRoles.every((ur) => ur.role.code === "APPLICANT") &&
+    user.userRoles.some((ur) => ur.role.code === "APPLICANT");
+
+  return { outcome: "success", user, isApplicantOnly };
+}
+
 // Issues a session for a verified staff member. Intentionally separate from
 // issueApplicantSession — the two paths must never share session logic.
 export function issueStaffSession(

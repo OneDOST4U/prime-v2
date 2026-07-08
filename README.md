@@ -5,7 +5,21 @@
 **Project Folder:** `primev2/`  
 **Primary Deployment Platform:** Coolify  
 **Status:** Planning and Architecture Preparation  
-**Coding Status:** **DO NOT START CODING UNTIL THE MVP AND ARCHITECTURE ARE APPROVED**
+**Coding Status:** **Active development (Phases 6–10 + Phase 21 integration).** Phases 0–4 approved; MVP implementation in progress.
+
+**Who may implement:** All developers on the team — junior, mid-level, senior, and AI-assisted — following [AGENTS.md](AGENTS.md) and phase gates. The SDLC is not limited to junior developers or interns.
+
+---
+
+## Developers: start here (after git pull)
+
+| Document | Purpose |
+|----------|---------|
+| **[DEVELOPERS.md](DEVELOPERS.md)** | Quick start — run locally, test, daily workflow |
+| **[docs/agents/AI-DEVELOPMENT-PLAN.md](docs/agents/AI-DEVELOPMENT-PLAN.md)** | AI / Cursor canonical plan — phase order and gates |
+| **[docs/agents/DEVELOPER-EXECUTION-PLAN.md](docs/agents/DEVELOPER-EXECUTION-PLAN.md)** | What to build next, phase by phase |
+| **[docs/agents/TEST-MATRIX.md](docs/agents/TEST-MATRIX.md)** | Pass/Fail checklist for every role and feature |
+| **[docs/deployment/DEV-TEST-ACCOUNTS.md](docs/deployment/DEV-TEST-ACCOUNTS.md)** | Login credentials for all 8 roles |
 
 ---
 
@@ -15,9 +29,8 @@ This README is the primary Software Development Life Cycle guide for PRIME v2.
 
 It is written for:
 
-- Junior prompt developers
-- Junior software developers
-- AI-assisted developers
+- Prompt developers and AI-assisted developers
+- Software developers at all experience levels
 - Project managers
 - System architects
 - Quality assurance testers
@@ -2263,6 +2276,38 @@ Deliverables:
 
 ---
 
+## Phase 21 — MVP Integration, Fillable Forms, and Deploy Readiness
+
+Objective:
+
+Complete the integrated MVP so the team can deploy, test every role, and use fillable forms end-to-end.
+
+Tasks:
+
+- Seed one dev test account per role (`@dev.local`)
+- Document local login and deployment steps
+- Wire remaining UI features to APIs (queues, admin, notifications, profile)
+- Convert all 21 web form specs into fillable `FormTemplate` versions
+- Run staging deployment smoke tests (login, proposal, workflow, storage)
+- Confirm any developer can run the stack and validate features
+
+Deliverables:
+
+- [docs/deployment/DEV-TEST-ACCOUNTS.md](docs/deployment/DEV-TEST-ACCOUNTS.md)
+- [docs/agents/PHASE-21-MVP-COMPLETION.md](docs/agents/PHASE-21-MVP-COMPLETION.md)
+- Fillable forms for GIA, CEST, SSCP (minimum); all 21 forms (target)
+- Staging deploy checklist executed
+
+Approval Gate:
+
+- All role test accounts work locally
+- At least one full proposal path tested (applicant → focal)
+- QA sign-off on integration release
+
+Coding allowed. See [PHASE-21-MVP-COMPLETION.md](docs/agents/PHASE-21-MVP-COMPLETION.md).
+
+---
+
 # 25. Security Plan
 
 ## 25.1 Authentication
@@ -2566,7 +2611,9 @@ A feature is done only when:
 
 ---
 
-# 32. Junior Prompt Developer Working Rules
+# 32. Developer Working Rules
+
+Applies to **all developers** (any experience level), not only junior staff or interns.
 
 1. Read this README before making changes.
 2. Do not start coding from a vague request.

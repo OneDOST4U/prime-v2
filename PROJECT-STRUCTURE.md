@@ -6,10 +6,16 @@ Quick map of the repository. For full SDLC details, see [README.md](README.md).
 
 | If you need… | Open |
 |---|---|
+| **Run, build, and test locally (start here)** | **[DEVELOPERS.md](DEVELOPERS.md)** |
+| **Development plan + phase gates** | **[docs/agents/DEVELOPER-EXECUTION-PLAN.md](docs/agents/DEVELOPER-EXECUTION-PLAN.md)** |
+| **Test every user and feature** | **[docs/agents/TEST-MATRIX.md](docs/agents/TEST-MATRIX.md)** |
+| **Dev login for all 8 roles** | **[docs/deployment/DEV-TEST-ACCOUNTS.md](docs/deployment/DEV-TEST-ACCOUNTS.md)** |
 | Business rules, workflow, development phases | [README.md](README.md) |
 | Documentation folder guide | [docs/README.md](docs/README.md) |
 | List of all proposal forms | [docs/forms/FORM-INVENTORY.md](docs/forms/FORM-INVENTORY.md) |
-| **Agent workflow and vibe coding (intern)** | [docs/agents/INTERN-VIBE-CODING-GUIDE.md](docs/agents/INTERN-VIBE-CODING-GUIDE.md) |
+| **Agent workflow and coding guide (all developers)** | [docs/agents/INTERN-VIBE-CODING-GUIDE.md](docs/agents/INTERN-VIBE-CODING-GUIDE.md) |
+| **Phase 21 — MVP integration** | [docs/agents/PHASE-21-MVP-COMPLETION.md](docs/agents/PHASE-21-MVP-COMPLETION.md) |
+| **Dev test accounts (every role)** | [docs/deployment/DEV-TEST-ACCOUNTS.md](docs/deployment/DEV-TEST-ACCOUNTS.md) |
 | Phase status and validation | [docs/agents/PHASES-REFERENCE.md](docs/agents/PHASES-REFERENCE.md) |
 
 ## Folder Tree
@@ -22,7 +28,9 @@ primev2/
 │
 └── docs/
     ├── README.md                ← Documentation index
-    ├── agents/                  ← Intern guide, phases, QA gate, task templates
+    ├── agents/                  ← Developer guides, phases, QA gate
+    │   ├── DEVELOPER-EXECUTION-PLAN.md
+    │   ├── TEST-MATRIX.md
     │   ├── INTERN-VIBE-CODING-GUIDE.md
     │   ├── PHASES-REFERENCE.md
     │   ├── DEVELOPMENT-FLOW.md

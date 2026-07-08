@@ -1,8 +1,10 @@
-# PRIME v2 — Intern Vibe Coding Guide
+# PRIME v2 — Developer Coding Guide
 
 How to use **Cursor Agent** on this project, phase by phase, without skipping approvals or agents.
 
-**Read first:** [AGENTS.md](../../AGENTS.md) · [PHASES-REFERENCE.md](PHASES-REFERENCE.md) · [DEVELOPMENT-FLOW.md](DEVELOPMENT-FLOW.md)
+**Who this is for:** All developers (junior, mid, senior, AI-assisted) — not interns only.
+
+**Read first:** [../../DEVELOPERS.md](../../DEVELOPERS.md) · [DEVELOPER-EXECUTION-PLAN.md](DEVELOPER-EXECUTION-PLAN.md) · [TEST-MATRIX.md](TEST-MATRIX.md) · [AGENTS.md](../../AGENTS.md) · [PHASES-REFERENCE.md](PHASES-REFERENCE.md)
 
 ---
 
@@ -11,9 +13,10 @@ How to use **Cursor Agent** on this project, phase by phase, without skipping ap
 1. **Always say which phase you are in** at the start of your Cursor prompt.
 2. **Name the agent** you want (Product Manager, Architect, Security, QA, Frontend, Backend, etc.).
 3. **Paste or fill** [TASK-PROMPT-TEMPLATE.md](templates/TASK-PROMPT-TEMPLATE.md) for any feature work.
-4. **Do not ask Cursor to write app code** before Phase 4 architecture approval (Phases 0–5 = docs and prototype only).
-5. **Before `git push`:** complete [QA-PUSH-GATE.md](QA-PUSH-GATE.md) (Cursor will prompt you).
-6. **UI work:** follow [UI-DESIGN-STANDARDS.md](../frontend/UI-DESIGN-STANDARDS.md) — modern, responsive, **right-side nav** for all users.
+4. **Phases 0–4 are approved** — follow [DEVELOPER-EXECUTION-PLAN.md](DEVELOPER-EXECUTION-PLAN.md) starting at **Phase 21A**.
+5. **Before `git push`:** complete [QA-PUSH-GATE.md](QA-PUSH-GATE.md) and mark relevant rows in [TEST-MATRIX.md](TEST-MATRIX.md).
+6. **UI work:** follow [UI-DESIGN-STANDARDS.md](../frontend/UI-DESIGN-STANDARDS.md) — modern, responsive, **left-side nav** for all users.
+7. **Local testing:** use [DEV-TEST-ACCOUNTS.md](../deployment/DEV-TEST-ACCOUNTS.md) — one login per role.
 
 ---
 
@@ -35,7 +38,7 @@ Constraints:
 - Follow ObraTech SDLC — no coding if this phase forbids it
 - Consult Product Manager, Architect, Security, QA as required
 - Do not commit secrets
-- UI: right-side navbar, responsive mobile/tablet/desktop (if UI)
+- UI: left-side navbar, responsive mobile/tablet/desktop (if UI)
 
 Output:
 [Exact file paths to create or update]
@@ -217,7 +220,7 @@ Create:
 1. docs/architecture/PRIME-v2-Architecture.md — logical diagram, frontend/backend/PostgreSQL/MinIO
 2. docs/architecture/ADR-001-deployment-container-strategy.md — Option A multi-container vs Option B (recommend A)
 
-Include: React+Vite+TS, Fastify, right-side AppShell, Coolify deployment.
+Include: React+Vite+TS, Fastify, left-side AppShell (SideNav), Coolify deployment.
 ```
 
 **4B — Database:**
@@ -269,7 +272,7 @@ Create docs/frontend/WIREFRAMES.md describing each screen:
 - Mobile, tablet, desktop behavior
 - Empty, loading, error states
 
-Optional: scaffold frontend/ with Vite+React+TS placeholder pages ONLY if architecture approved — AppShell with RightNav, no real API yet.
+Optional: scaffold frontend/ with Vite+React+TS placeholder pages ONLY if architecture approved — AppShell with SideNav (left side), no real API yet.
 
 Do not connect to production database. Prototype only.
 ```
@@ -295,7 +298,7 @@ Act as: Architect Agent + Backend Agent + DevOps Agent
 Read docs/architecture/PRIME-v2-Architecture.md and UI-DESIGN-STANDARDS.md.
 
 Scaffold monorepo or separate folders:
-- frontend/ — React, Vite, TypeScript strict, AppShell + RightNav (right side)
+- frontend/ — React, Vite, TypeScript strict, AppShell + SideNav (left side)
 - backend/ — Fastify, TypeScript, health endpoint
 - docker-compose.yml — PostgreSQL, MinIO, app services
 - .env.example — no real secrets
@@ -368,7 +371,36 @@ Security Agent: review auth/permission changes.
 
 ---
 
-## Daily Checklist for Intern
+## Phase 21 — MVP Integration (current focus)
+
+| | |
+|---|---|
+| **Coding** | Yes — all developers |
+| **Goal** | Deploy-ready MVP, fillable forms, test accounts per role |
+| **Detail** | [PHASE-21-MVP-COMPLETION.md](PHASE-21-MVP-COMPLETION.md) |
+
+**Cursor prompt — Phase 21 slice:**
+
+```text
+Project: PRIME v2
+Current phase: Phase 21 — MVP Integration
+Act as: Frontend + Backend + DevOps + QA
+
+Read:
+- docs/agents/PHASE-21-MVP-COMPLETION.md
+- docs/deployment/DEV-TEST-ACCOUNTS.md
+
+Task: [one checklist item from Phase 21 — e.g. wire focal workflow buttons, seed sample proposal]
+
+Constraints:
+- Use @dev.local test accounts only in seed/docs
+- Follow UI-DESIGN-STANDARDS.md (left nav)
+- Run tests before push
+```
+
+---
+
+## Daily Checklist for Developers
 
 1. Check [PHASES-REFERENCE.md](PHASES-REFERENCE.md) — am I in the right phase?
 2. Open Cursor Agent with **phase + agent name** in the prompt.
@@ -378,13 +410,13 @@ Security Agent: review auth/permission changes.
 
 ---
 
-## If Cursor Wants to Code Too Early
+## If Cursor Wants to Code Outside the Current Phase
 
 Reply with:
 
 ```text
-Stop. PRIME v2 is in Phase [N]. Coding is not allowed until Phase 4 architecture approval.
-Continue with documentation/specs only, or ask Product Manager Agent to confirm phase.
+Stop. PRIME v2 is in Phase [N]. Confirm the task is in the current phase checklist
+(PHASES-REFERENCE.md / PHASE-21-MVP-COMPLETION.md) before implementing.
 ```
 
 ---
@@ -393,7 +425,9 @@ Continue with documentation/specs only, or ask Product Manager Agent to confirm 
 
 | Doc | Use |
 |---|---|
+| [PHASE-21-MVP-COMPLETION.md](PHASE-21-MVP-COMPLETION.md) | Integration, forms, deploy |
+| [DEV-TEST-ACCOUNTS.md](../deployment/DEV-TEST-ACCOUNTS.md) | Login for every role |
 | [PHASES-REFERENCE.md](PHASES-REFERENCE.md) | Phase validation and status |
 | [AGENT-ROSTER.md](AGENT-ROSTER.md) | Which agent does what |
 | [QA-PUSH-GATE.md](QA-PUSH-GATE.md) | Before every push |
-| [UI-DESIGN-STANDARDS.md](../frontend/UI-DESIGN-STANDARDS.md) | Right nav + responsive UI |
+| [UI-DESIGN-STANDARDS.md](../frontend/UI-DESIGN-STANDARDS.md) | Left nav + responsive UI |

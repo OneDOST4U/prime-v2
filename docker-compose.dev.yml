@@ -48,8 +48,8 @@ services:
 
   prime-minio:
     ports:
-      - "9000:9000"   # MinIO S3 API
-      - "9001:9001"   # MinIO console UI — http://localhost:9001
+      - "9010:9000"   # MinIO S3 API (host 9010 — avoids conflict with other services on 9000)
+      - "9011:9001"   # MinIO console UI — http://localhost:9011
     # Access the console at http://localhost:9001
     # Log in with MINIO_ACCESS_KEY / MINIO_SECRET_KEY from .env
 
@@ -59,6 +59,7 @@ services:
     command: npx tsx watch src/server.ts
     volumes:
       - ./apps/backend/src:/app/src
+      - ./apps/backend/prisma:/app/prisma
     environment:
       NODE_ENV: development
 
@@ -66,7 +67,11 @@ services:
     build:
       target: builder
     command: npm run dev -- --host 0.0.0.0
+    environment:
+      VITE_API_URL: ""
+      API_PROXY_TARGET: http://prime-backend:3000
     volumes:
       - ./apps/frontend/src:/app/src
+      - ./apps/frontend/vite.config.ts:/app/vite.config.ts
     ports:
       - "5173:5173"

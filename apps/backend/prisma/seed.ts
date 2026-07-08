@@ -14,11 +14,89 @@ const ROLES: Array<{ code: string; name: string; description: string }> = [
   { code: "REGIONAL_DIRECTOR", name: "Regional Director", description: "Issues final approval decisions" },
 ];
 
-// Dev-only known credentials. NEVER use this account or password outside a
-// local development database. must_change_password is false here ONLY so
-// local dev can log in immediately without an extra step.
+// Dev-only known credentials. NEVER use these accounts or passwords outside a
+// local development database.
+const DEV_PASSWORD = "DevTestPassw0rd!123";
 const DEV_ADMIN_EMAIL = "admin@dev.local";
 const DEV_ADMIN_PASSWORD = "DevAdminPassw0rd!123";
+
+const DEV_USERS: Array<{
+  email: string;
+  firstName: string;
+  lastName: string;
+  roleCode: string;
+  kind: "staff" | "applicant";
+}> = [
+  { email: DEV_ADMIN_EMAIL, firstName: "Dev", lastName: "Admin", roleCode: "ADMIN", kind: "staff" },
+  { email: "applicant@dev.local", firstName: "Dev", lastName: "Applicant", roleCode: "APPLICANT", kind: "applicant" },
+  { email: "focal@dev.local", firstName: "Dev", lastName: "Focal", roleCode: "PROJECT_FOCAL", kind: "staff" },
+  { email: "rtec.member@dev.local", firstName: "Dev", lastName: "RtecMember", roleCode: "RTEC_MEMBER", kind: "staff" },
+  { email: "rtec.head@dev.local", firstName: "Dev", lastName: "RtecHead", roleCode: "RTEC_HEAD", kind: "staff" },
+  { email: "budget@dev.local", firstName: "Dev", lastName: "Budget", roleCode: "BUDGET_OFFICER", kind: "staff" },
+  { email: "accountant@dev.local", firstName: "Dev", lastName: "Accountant", roleCode: "ACCOUNTANT", kind: "staff" },
+  { email: "rd@dev.local", firstName: "Dev", lastName: "Director", roleCode: "REGIONAL_DIRECTOR", kind: "staff" },
+];
+
+async function seedDevUser(
+  def: (typeof DEV_USERS)[number],
+  password: string,
+) {
+  const role = await prisma.role.findUniqueOrThrow({ where: { code: def.roleCode } });
+  const passwordHash = await bcrypt.hash(password, 12);
+
+  const user = await prisma.user.upsert({
+    where: { email: def.email },
+    update: {
+      firstName: def.firstName,
+      lastName: def.lastName,
+      isActive: true,
+      mustChangePassword: false,
+    },
+    create: {
+      email: def.email,
+      passwordHash,
+      firstName: def.firstName,
+      lastName: def.lastName,
+      isActive: true,
+      mustChangePassword: false,
+    },
+  });
+
+  await prisma.userRole.upsert({
+    where: { userId_roleId: { userId: user.id, roleId: role.id } },
+    update: {},
+    create: { userId: user.id, roleId: role.id },
+  });
+
+  if (def.kind === "applicant") {
+    await prisma.applicantProfile.upsert({
+      where: { userId: user.id },
+      update: {
+        institution: "Dev Test University",
+        positionTitle: "Researcher",
+        contactNumber: "+63-900-000-0001",
+        privacyConsentGiven: true,
+        privacyConsentAt: new Date(),
+      },
+      create: {
+        userId: user.id,
+        institution: "Dev Test University",
+        positionTitle: "Researcher",
+        contactNumber: "+63-900-000-0001",
+        privacyConsentGiven: true,
+        privacyConsentAt: new Date(),
+      },
+    });
+  } else {
+    await prisma.staffProfile.upsert({
+      where: { userId: user.id },
+      update: { positionTitle: `${def.roleCode.replaceAll("_", " ")} (Dev)` },
+      create: { userId: user.id, positionTitle: `${def.roleCode.replaceAll("_", " ")} (Dev)` },
+    });
+  }
+
+  return user;
+}
 
 async function main() {
   for (const role of ROLES) {
@@ -29,35 +107,24 @@ async function main() {
     });
   }
 
-  const adminRole = await prisma.role.findUniqueOrThrow({
-    where: { code: "ADMIN" },
-  });
+  for (const def of DEV_USERS) {
+    const password =
+      def.email === DEV_ADMIN_EMAIL ? DEV_ADMIN_PASSWORD : DEV_PASSWORD;
+    await seedDevUser(def, password);
+  }
 
-  const passwordHash = await bcrypt.hash(DEV_ADMIN_PASSWORD, 12);
-
-  const adminUser = await prisma.user.upsert({
+  const adminUser = await prisma.user.findUniqueOrThrow({
     where: { email: DEV_ADMIN_EMAIL },
-    update: {},
-    create: {
-      email: DEV_ADMIN_EMAIL,
-      passwordHash,
-      firstName: "Dev",
-      lastName: "Admin",
-      isActive: true,
-      mustChangePassword: false,
-    },
-  });
-
-  await prisma.userRole.upsert({
-    where: { userId_roleId: { userId: adminUser.id, roleId: adminRole.id } },
-    update: {},
-    create: { userId: adminUser.id, roleId: adminRole.id },
   });
 
   console.log("Seeded 8 role codes.");
   console.log(
-    `Seeded dev ADMIN user: ${DEV_ADMIN_EMAIL} / ${DEV_ADMIN_PASSWORD} — DEV ONLY, do not use in staging/production.`,
+    `Seeded ${DEV_USERS.length} dev test users (@dev.local) — see docs/deployment/DEV-TEST-ACCOUNTS.md`,
   );
+  console.log(
+    `  Admin: ${DEV_ADMIN_EMAIL} / ${DEV_ADMIN_PASSWORD}`,
+  );
+  console.log(`  Other roles: *@dev.local / ${DEV_PASSWORD}`);
 
   // ── Phase 8: Office, Programs, Form Templates, Proposal Types ────────────────
 
