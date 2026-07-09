@@ -399,6 +399,78 @@ export const rtecApi = {
     ),
 };
 
+// ── Phase 12: Budget, Accounting, Regional Director ─────────────────────────
+
+export const phase12Api = {
+  // Budget Officer
+  budgetOpen: (proposalId: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/budget-open`
+    ),
+  budgetReturn: (proposalId: string, comment: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/budget-return`, { comment }
+    ),
+  budgetEndorse: (proposalId: string, comment?: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/budget-endorse`, { comment }
+    ),
+  budgetReEndorse: (proposalId: string, comment?: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/budget-re-endorse`, { comment }
+    ),
+
+  // Accountant
+  accountingOpen: (proposalId: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/accounting-open`
+    ),
+  accountingReturnToBudget: (proposalId: string, comment: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/accounting-return-to-budget`, { comment }
+    ),
+  accountingReturnToFocal: (proposalId: string, comment: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/accounting-return-to-focal`, { comment }
+    ),
+  accountingEndorseToRd: (proposalId: string, comment?: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/accounting-endorse-to-rd`, { comment }
+    ),
+
+  // Regional Director
+  rdOpen: (proposalId: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/rd-open`
+    ),
+  rdApprove: (proposalId: string, comment: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/rd-approve`, { comment }
+    ),
+  rdReject: (proposalId: string, comment: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/rd-reject`, { comment }
+    ),
+  rdDefer: (proposalId: string, reason: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/rd-defer`, { reason }
+    ),
+  rdResume: (proposalId: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/rd-resume`
+    ),
+  rdReturn: (proposalId: string, comment: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/rd-return`, { comment }
+    ),
+
+  // Focal re-route (already in workflow.ts from Phase 10)
+  focalReroute: (proposalId: string, comment: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/focal-reroute`, { comment }
+    ),
+};
+
 // ── Notifications ─────────────────────────────────────────────────────────────
 
 export interface NotificationItem {

@@ -30,6 +30,34 @@ Last run 2026-07-09 (Phase 21B gate): A1 7/7 tests (4 files), A2 120/120 tests (
 
 ---
 
+## Phase 12 — Budget, Accounting, Regional Director gate (2026-07-09)
+
+**Executed:** 2026-07-09. Environment: local Docker stack. Automated via curl (API) + Playwright screenshots (UI render). No backend routes changed (constraint honored). Files: `apps/frontend/src/lib/api.ts` (`phase12Api`), `apps/frontend/src/pages/proposals/ProposalDetailPage.tsx` (Budget/Accountant/RD action panels, 11 modals, Focal re-route button), `apps/frontend/src/pages/proposals/ProposalDetailPage.test.tsx` (3 new tests), `apps/backend/prisma/seed.ts` (3 new idempotent demo proposals).
+
+| # | Login | URL / Method | Action | Expected | Result | Pass | Fail |
+|---|-------|--------------|--------|----------|--------|:----:|:----:|
+| B1 | budget | /budget/queue, API | View queue | "Seeded Budget Proposal" visible | `GET /api/queues/budget` → 1 proposal, ENDORSED_TO_BUDGET | [x] | [ ] |
+| B2 | budget | /proposals/:id, API | Click "Open for Review" | Status → UNDER_BUDGET_REVIEW | `POST .../workflow/budget-open` → 200, status flipped | [x] | [ ] |
+| B3 | budget | /proposals/:id, API | Click "Endorse to Accounting" | Status → ENDORSED_TO_ACCOUNTING | `POST .../workflow/budget-endorse` → 200, status flipped | [x] | [ ] |
+| B4 | accountant | /accounting/queue, API | View queue | "Seeded Accounting Proposal" visible | `GET /api/queues/accounting` → 1 proposal, ENDORSED_TO_ACCOUNTING | [x] | [ ] |
+| B5 | accountant | /proposals/:id, API | Click "Open for Review" | Status → UNDER_ACCOUNTING_REVIEW | `POST .../workflow/accounting-open` → 200 | [x] | [ ] |
+| B6 | accountant | /proposals/:id, API | Click "Endorse to RD" | Status → ENDORSED_TO_RD | `POST .../workflow/accounting-endorse-to-rd` → 200 | [x] | [ ] |
+| B7 | rd | /rd/queue, API | View queue | "Seeded RD Proposal" visible | `GET /api/queues/rd` → 1 proposal (assignment-filtered — confirmed the accounting-demo proposal that also reached ENDORSED_TO_RD did *not* leak into RD's queue since RD wasn't assigned to it) | [x] | [ ] |
+| B8 | rd | /proposals/:id, API | Click "Open for Review" | Status → UNDER_RD_REVIEW | `POST .../workflow/rd-open` → 200 | [x] | [ ] |
+| B9 | rd | /proposals/:id, API + UI | Click "Approve" + comment | Status → APPROVED, badge shows APPROVED | `POST .../workflow/rd-approve` → 200; UI screenshot confirms green APPROVED badge, Regional Director Actions panel empty (finalized, no further buttons), Workflow History shows Rd Open → Rd Approve | [x] | [ ] |
+| B10 | rd | /proposals/:id, API | Click "Reject" + comment | Status → REJECTED | Used a second UNDER_RD_REVIEW test proposal (B9's proposal was already finalized/locked) — `POST .../workflow/rd-reject` → 200, status REJECTED | [x] | [ ] |
+| B11 | rd | /proposals/:id, API | Click "Defer" + reason | Status → DEFERRED, Resume button appears | Used a third UNDER_RD_REVIEW test proposal — `POST .../workflow/rd-defer` → 200 DEFERRED; `POST .../workflow/rd-resume` → 200 back to UNDER_RD_REVIEW, confirming the Resume path works | [x] | [ ] |
+| B12 | focal | /proposals/:id, API + UI | Status=RETURNED_BY_ACCOUNTING | "Re-route for Focal Review" button visible | Reached via `accounting-return-to-focal`; UI screenshot confirms the button renders in the existing Focal Actions panel, and the modal/handler (`phase12Api.focalReroute`) is wired | [x] | [ ] |
+| B13 | applicant | /notifications, API | After RD Approve/Reject | Notification listed | `GET /api/notifications` confirmed `PROPOSAL_APPROVED` and `PROPOSAL_REJECTED` notifications present for the applicant | [x] | [ ] |
+| A1 | — | vitest run | Frontend tests | All pass (existing 14 + 3 new = 17+) | 17/17 passed | [x] | [ ] |
+| A2 | — | npm test | Backend tests | 120+ all pass (no new backend tests needed) | 126/126 passed, unchanged (no backend files touched) | [x] | [ ] |
+| A3 | — | tsc -b | TypeScript check | Clean | Clean, no errors | [x] | [ ] |
+| A4 | — | seed (twice) | Idempotency | No errors, no duplicate rows | Ran twice clean; SQL confirmed 1 row each for the 3 new demo proposal titles | [x] | [ ] |
+
+**Automated gate: 4/4 Pass (A1–A4). Manual gate: 13/13 Pass.**
+
+---
+
 ## Phase 11 — RTEC review and consolidation gate (2026-07-09)
 
 **Executed:** 2026-07-09. Environment: local Docker stack. Automated via curl (API) + Playwright screenshots (UI render). Files: `apps/backend/src/routes/adminRtecGroups.ts` (role fix), `apps/backend/src/routes/adminRtecGroups.test.ts` (new, 6 tests), `apps/backend/prisma/seed.ts` (RTEC demo proposal block), `apps/frontend/src/lib/api.ts` (`rtecApi`, `RtecGroupSummary.memberships`), `apps/frontend/src/pages/rtec/RtecMemberReviewPage.tsx` (new), `apps/frontend/src/pages/rtec/RtecHeadConsolidationPage.tsx` (new), `apps/frontend/src/pages/queues/QueuePage.tsx` (RTEC-specific row navigation), `apps/frontend/src/App.tsx` (new routes).
@@ -249,11 +277,13 @@ See Phase 11 gate section above for the full R1–R8 results.
 
 | # | Account | URL | Expected | Pass | Fail |
 |---|---------|-----|----------|:----:|:----:|
-| B1 | budget@dev.local | /budget/queue | Budget-stage proposals | [ ] | [ ] |
-| B2 | budget@dev.local | /proposals/:id | Budget review action (Phase 12) | [ ] | [ ] |
-| B3 | accountant@dev.local | /accounting/queue | Accounting-stage proposals | [ ] | [ ] |
-| B4 | rd@dev.local | /rd/queue | RD decision queue | [ ] | [ ] |
-| B5 | rd@dev.local | /proposals/:id | Approve / reject / defer (Phase 12) | [ ] | [ ] |
+| B1 | budget@dev.local | /budget/queue | Budget-stage proposals | [x] | [ ] |
+| B2 | budget@dev.local | /proposals/:id | Budget review action (Phase 12) | [x] | [ ] |
+| B3 | accountant@dev.local | /accounting/queue | Accounting-stage proposals | [x] | [ ] |
+| B4 | rd@dev.local | /rd/queue | RD decision queue | [x] | [ ] |
+| B5 | rd@dev.local | /proposals/:id | Approve / reject / defer (Phase 12) | [x] | [ ] |
+
+See Phase 12 gate section above for the full B1–B13 results.
 
 ---
 

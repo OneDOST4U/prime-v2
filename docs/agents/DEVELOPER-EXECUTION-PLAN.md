@@ -31,11 +31,11 @@ Related docs:
 | Focal workflow | Backend done; **UI done** (Phase 10, closed 2026-07-09) |
 | Proposal staff assignment | Done — seed + admin API + admin UI (Phase 21A) |
 | RTEC workflow | Backend + UI done (Phase 11, closed 2026-07-09) — `RtecMemberReviewPage.tsx`, `RtecHeadConsolidationPage.tsx` |
-| Budget / RD workflow | Backend routes done (`budget.ts`, `accounting.ts`, `rd.ts`); UI not built (Phase 12) |
+| Budget / Accounting / RD workflow | Backend + UI done (Phase 12, closed 2026-07-09) — Budget/Accountant/RD action panels on `ProposalDetailPage.tsx` |
 | Full fillable forms (21 specs) | Partial (3 short stubs in seed) |
 | Staging deploy | Pending |
 
-**You are here:** **Phase 12** (Budget, Accounting, RD) — **Phase 11 closed 2026-07-09**, automated 4/4 + manual 8/8, see [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 11; **Phase 10 closed 2026-07-09**, automated 3/3 + manual 7/7 (F4 caveated); **Phase 21B closed 2026-07-09**, automated gates 13/13 Pass; **Phase 21A closed 2026-07-08**, all 6 gate tests pass.
+**You are here:** **Phase 13** (Document generation) — **Phase 12 closed 2026-07-09**, automated 4/4 + manual 13/13, see [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 12; **Phase 11 closed 2026-07-09**, automated 4/4 + manual 8/8; **Phase 10 closed 2026-07-09**, automated 3/3 + manual 7/7 (F4 caveated); **Phase 21B closed 2026-07-09**, automated gates 13/13 Pass; **Phase 21A closed 2026-07-08**, all 6 gate tests pass.
 
 ---
 
@@ -210,6 +210,8 @@ Known gap (not fixed, flagged during implementation): `GET /api/admin/rtec-group
 - Notifications on endorse
 
 **Test:** budget@dev.local, accountant@dev.local, rd@dev.local on their queue URLs
+
+**Status:** ✅ **Closed 2026-07-09.** `phase12Api` added to `apps/frontend/src/lib/api.ts`; Budget Officer, Accountant, and Regional Director action panels (11 modals total) wired into `apps/frontend/src/pages/proposals/ProposalDetailPage.tsx`, following the Phase 10 Focal Actions pattern exactly. A Focal re-route button was added to the existing Focal Actions panel for the `RETURNED_BY_ACCOUNTING` status. 3 demo proposals seeded (one per role, idempotent). No backend routes changed. Full results in [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 12.
 
 ---
 

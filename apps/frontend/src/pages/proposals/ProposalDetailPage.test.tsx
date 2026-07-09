@@ -47,12 +47,29 @@ vi.mock("../../lib/api", () => ({
   },
   workflowApi: {
     getHistory: vi.fn(() => Promise.resolve({ history: [] })),
-    listRtecGroups: vi.fn(() => Promise.resolve([])),
+    listRtecGroups: vi.fn(() => Promise.resolve({ groups: [] })),
     acknowledge: vi.fn(),
     returnToApplicant: vi.fn(),
     endorseToRtec: vi.fn(),
     endorseToBudget: vi.fn(),
     returnToRtec: vi.fn(),
+  },
+  phase12Api: {
+    budgetOpen: vi.fn(),
+    budgetReturn: vi.fn(),
+    budgetEndorse: vi.fn(),
+    budgetReEndorse: vi.fn(),
+    accountingOpen: vi.fn(),
+    accountingReturnToBudget: vi.fn(),
+    accountingReturnToFocal: vi.fn(),
+    accountingEndorseToRd: vi.fn(),
+    rdOpen: vi.fn(),
+    rdApprove: vi.fn(),
+    rdReject: vi.fn(),
+    rdDefer: vi.fn(),
+    rdResume: vi.fn(),
+    rdReturn: vi.fn(),
+    focalReroute: vi.fn(),
   },
 }));
 
@@ -110,5 +127,26 @@ describe("ProposalDetailPage — focal workflow actions", () => {
     expect(screen.queryByLabelText("Return proposal to applicant")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Endorse proposal to RTEC")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Endorse proposal to budget")).not.toBeInTheDocument();
+  });
+});
+
+describe("ProposalDetailPage — Phase 12 budget/accounting/RD workflow actions", () => {
+  it('TC-BUDGET-UI-01: role="BUDGET_OFFICER", status="ENDORSED_TO_BUDGET" shows "Open for Review"', async () => {
+    renderPage("BUDGET_OFFICER", "ENDORSED_TO_BUDGET");
+    expect(await screen.findByLabelText("Open for Review")).toBeInTheDocument();
+  });
+
+  it('TC-BUDGET-UI-02: role="BUDGET_OFFICER", status="UNDER_BUDGET_REVIEW" shows Return to Focal and Endorse to Accounting', async () => {
+    renderPage("BUDGET_OFFICER", "UNDER_BUDGET_REVIEW");
+    expect(await screen.findByLabelText("Return to Focal")).toBeInTheDocument();
+    expect(screen.getByLabelText("Endorse to Accounting")).toBeInTheDocument();
+  });
+
+  it('TC-RD-UI-01: role="REGIONAL_DIRECTOR", status="UNDER_RD_REVIEW" shows Approve, Reject, Defer, Return to Applicant', async () => {
+    renderPage("REGIONAL_DIRECTOR", "UNDER_RD_REVIEW");
+    expect(await screen.findByLabelText("Approve")).toBeInTheDocument();
+    expect(screen.getByLabelText("Reject")).toBeInTheDocument();
+    expect(screen.getByLabelText("Defer")).toBeInTheDocument();
+    expect(screen.getByLabelText("Return to Applicant")).toBeInTheDocument();
   });
 });

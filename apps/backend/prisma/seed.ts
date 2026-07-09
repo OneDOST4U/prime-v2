@@ -815,6 +815,107 @@ async function main() {
   }
 
   console.log("✓ Phase 11: RTEC demo proposal seeded (status: UNDER_RTEC_REVIEW)");
+
+  // ── Phase 12: Budget, Accounting, RD demo proposals ───────────────────────────
+  const budgetOfficerUser = await prisma.user.findUniqueOrThrow({ where: { email: "budget@dev.local" } });
+  const accountantUser = await prisma.user.findUniqueOrThrow({ where: { email: "accountant@dev.local" } });
+  const rdUser = await prisma.user.findUniqueOrThrow({ where: { email: "rd@dev.local" } });
+
+  const giaFormVersionForPhase12 = await prisma.formTemplateVersion.findFirstOrThrow({
+    where: { formTemplateId: giaProposalType.defaultFormTemplateId!, isCurrent: true },
+  });
+
+  async function seedPhase12DemoProposal(
+    title: string,
+    status: string,
+    assignments: Array<{ userId: string; roleCode: string }>,
+    logLabel: string,
+  ) {
+    let proposal = await prisma.proposal.findFirst({ where: { title } });
+
+    if (!proposal) {
+      const created = await prisma.proposal.create({
+        data: {
+          applicantUserId: applicantUser.id,
+          proposalTypeId: giaProposalType.id,
+          status,
+          title,
+          submittedAt: new Date(),
+        },
+      });
+
+      const version = await prisma.proposalVersion.create({
+        data: {
+          proposalId: created.id,
+          versionNumber: 1,
+          formTemplateVersionId: giaFormVersionForPhase12.id,
+          createdBy: applicantUser.id,
+          statusAtCreation: "DRAFT",
+          isSubmitted: true,
+          submittedAt: new Date(),
+        },
+      });
+
+      proposal = await prisma.proposal.update({
+        where: { id: created.id },
+        data: { currentVersionId: version.id },
+      });
+    }
+
+    for (const def of assignments) {
+      const existing = await prisma.proposalAssignment.findFirst({
+        where: { proposalId: proposal.id, userId: def.userId, roleCode: def.roleCode },
+      });
+      if (existing) {
+        if (!existing.isActive) {
+          await prisma.proposalAssignment.update({ where: { id: existing.id }, data: { isActive: true } });
+        }
+      } else {
+        await prisma.proposalAssignment.create({
+          data: {
+            proposalId: proposal.id,
+            userId: def.userId,
+            roleCode: def.roleCode,
+            assignedBy: adminUser.id,
+            isActive: true,
+          },
+        });
+      }
+    }
+
+    console.log(`✓ Phase 12: ${logLabel}`);
+  }
+
+  await seedPhase12DemoProposal(
+    "Seeded Budget Proposal — Budget Demo",
+    "ENDORSED_TO_BUDGET",
+    [
+      { userId: budgetOfficerUser.id, roleCode: "BUDGET_OFFICER" },
+      { userId: focalUser.id, roleCode: "PROJECT_FOCAL" },
+    ],
+    "budget@dev.local demo proposal seeded (ENDORSED_TO_BUDGET)",
+  );
+
+  await seedPhase12DemoProposal(
+    "Seeded Accounting Proposal — Accounting Demo",
+    "ENDORSED_TO_ACCOUNTING",
+    [
+      { userId: accountantUser.id, roleCode: "ACCOUNTANT" },
+      { userId: budgetOfficerUser.id, roleCode: "BUDGET_OFFICER" },
+      { userId: focalUser.id, roleCode: "PROJECT_FOCAL" },
+    ],
+    "accountant@dev.local demo proposal seeded (ENDORSED_TO_ACCOUNTING)",
+  );
+
+  await seedPhase12DemoProposal(
+    "Seeded RD Proposal — RD Demo",
+    "ENDORSED_TO_RD",
+    [
+      { userId: rdUser.id, roleCode: "REGIONAL_DIRECTOR" },
+      { userId: focalUser.id, roleCode: "PROJECT_FOCAL" },
+    ],
+    "rd@dev.local demo proposal seeded (ENDORSED_TO_RD)",
+  );
 }
 
 main()

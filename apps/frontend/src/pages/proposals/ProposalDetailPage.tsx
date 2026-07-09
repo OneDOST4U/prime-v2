@@ -6,6 +6,7 @@ import {
   assignmentsApi,
   adminApi,
   workflowApi,
+  phase12Api,
   type AttachmentMeta,
   type ProposalDetail,
   type ProposalComment,
@@ -96,6 +97,42 @@ export default function ProposalDetailPage() {
   // Return-to-RTEC modal
   const [showReturnRtecModal, setShowReturnRtecModal] = useState(false);
   const [returnRtecComment, setReturnRtecComment] = useState("");
+
+  // Focal re-route (RETURNED_BY_ACCOUNTING → UNDER_FOCAL_REVIEW)
+  const [showFocalRerouteModal, setShowFocalRerouteModal] = useState(false);
+  const [focalRerouteComment, setFocalRerouteComment] = useState("");
+
+  // Budget Officer actions
+  const [budgetActionError, setBudgetActionError] = useState<string | null>(null);
+  const [budgetActioning, setBudgetActioning] = useState(false);
+  const [showBudgetReturnModal, setShowBudgetReturnModal] = useState(false);
+  const [budgetReturnComment, setBudgetReturnComment] = useState("");
+  const [showBudgetEndorseModal, setShowBudgetEndorseModal] = useState(false);
+  const [budgetEndorseComment, setBudgetEndorseComment] = useState("");
+  const [showBudgetReEndorseModal, setShowBudgetReEndorseModal] = useState(false);
+  const [budgetReEndorseComment, setBudgetReEndorseComment] = useState("");
+
+  // Accountant actions
+  const [accountingActionError, setAccountingActionError] = useState<string | null>(null);
+  const [accountingActioning, setAccountingActioning] = useState(false);
+  const [showAcctReturnBudgetModal, setShowAcctReturnBudgetModal] = useState(false);
+  const [acctReturnBudgetComment, setAcctReturnBudgetComment] = useState("");
+  const [showAcctReturnFocalModal, setShowAcctReturnFocalModal] = useState(false);
+  const [acctReturnFocalComment, setAcctReturnFocalComment] = useState("");
+  const [showAcctEndorseRdModal, setShowAcctEndorseRdModal] = useState(false);
+  const [acctEndorseRdComment, setAcctEndorseRdComment] = useState("");
+
+  // Regional Director actions
+  const [rdActionError, setRdActionError] = useState<string | null>(null);
+  const [rdActioning, setRdActioning] = useState(false);
+  const [showRdApproveModal, setShowRdApproveModal] = useState(false);
+  const [rdApproveComment, setRdApproveComment] = useState("");
+  const [showRdRejectModal, setShowRdRejectModal] = useState(false);
+  const [rdRejectComment, setRdRejectComment] = useState("");
+  const [showRdDeferModal, setShowRdDeferModal] = useState(false);
+  const [rdDeferReason, setRdDeferReason] = useState("");
+  const [showRdReturnModal, setShowRdReturnModal] = useState(false);
+  const [rdReturnComment, setRdReturnComment] = useState("");
 
   // Workflow history
   const [workflowHistory, setWorkflowHistory] = useState<WorkflowHistoryEntry[]>([]);
@@ -380,11 +417,293 @@ export default function ProposalDetailPage() {
     }
   }
 
+  async function handleFocalReroute() {
+    if (!id) return;
+    if (!focalRerouteComment.trim()) {
+      setFocalActionError("A comment is required to re-route this proposal.");
+      return;
+    }
+    setFocalActionError(null);
+    setFocalActioning(true);
+    try {
+      const result = await phase12Api.focalReroute(id, focalRerouteComment);
+      setProposal((prev) => (prev ? { ...prev, status: result.status } : prev));
+      setShowFocalRerouteModal(false);
+      setFocalRerouteComment("");
+      loadWorkflowHistory();
+    } catch (err: unknown) {
+      setFocalActionError(err instanceof Error ? err.message : "Failed to re-route proposal.");
+    } finally {
+      setFocalActioning(false);
+    }
+  }
+
+  async function handleBudgetOpen() {
+    if (!id) return;
+    setBudgetActionError(null);
+    setBudgetActioning(true);
+    try {
+      const result = await phase12Api.budgetOpen(id);
+      setProposal((prev) => (prev ? { ...prev, status: result.status } : prev));
+      loadWorkflowHistory();
+    } catch (err: unknown) {
+      setBudgetActionError(err instanceof Error ? err.message : "Failed to open proposal for review.");
+    } finally {
+      setBudgetActioning(false);
+    }
+  }
+
+  async function handleBudgetReturn() {
+    if (!id) return;
+    if (!budgetReturnComment.trim()) {
+      setBudgetActionError("A comment is required to return this proposal to Focal.");
+      return;
+    }
+    setBudgetActionError(null);
+    setBudgetActioning(true);
+    try {
+      const result = await phase12Api.budgetReturn(id, budgetReturnComment);
+      setProposal((prev) => (prev ? { ...prev, status: result.status } : prev));
+      setShowBudgetReturnModal(false);
+      setBudgetReturnComment("");
+      loadWorkflowHistory();
+    } catch (err: unknown) {
+      setBudgetActionError(err instanceof Error ? err.message : "Failed to return proposal to Focal.");
+    } finally {
+      setBudgetActioning(false);
+    }
+  }
+
+  async function handleBudgetEndorse() {
+    if (!id) return;
+    setBudgetActionError(null);
+    setBudgetActioning(true);
+    try {
+      const result = await phase12Api.budgetEndorse(id, budgetEndorseComment || undefined);
+      setProposal((prev) => (prev ? { ...prev, status: result.status } : prev));
+      setShowBudgetEndorseModal(false);
+      setBudgetEndorseComment("");
+      loadWorkflowHistory();
+    } catch (err: unknown) {
+      setBudgetActionError(err instanceof Error ? err.message : "Failed to endorse proposal to Accounting.");
+    } finally {
+      setBudgetActioning(false);
+    }
+  }
+
+  async function handleBudgetReEndorse() {
+    if (!id) return;
+    setBudgetActionError(null);
+    setBudgetActioning(true);
+    try {
+      const result = await phase12Api.budgetReEndorse(id, budgetReEndorseComment || undefined);
+      setProposal((prev) => (prev ? { ...prev, status: result.status } : prev));
+      setShowBudgetReEndorseModal(false);
+      setBudgetReEndorseComment("");
+      loadWorkflowHistory();
+    } catch (err: unknown) {
+      setBudgetActionError(err instanceof Error ? err.message : "Failed to re-endorse proposal to Accounting.");
+    } finally {
+      setBudgetActioning(false);
+    }
+  }
+
+  async function handleAccountingOpen() {
+    if (!id) return;
+    setAccountingActionError(null);
+    setAccountingActioning(true);
+    try {
+      const result = await phase12Api.accountingOpen(id);
+      setProposal((prev) => (prev ? { ...prev, status: result.status } : prev));
+      loadWorkflowHistory();
+    } catch (err: unknown) {
+      setAccountingActionError(err instanceof Error ? err.message : "Failed to open proposal for review.");
+    } finally {
+      setAccountingActioning(false);
+    }
+  }
+
+  async function handleAccountingReturnToBudget() {
+    if (!id) return;
+    if (!acctReturnBudgetComment.trim()) {
+      setAccountingActionError("A comment is required to return this proposal to Budget.");
+      return;
+    }
+    setAccountingActionError(null);
+    setAccountingActioning(true);
+    try {
+      const result = await phase12Api.accountingReturnToBudget(id, acctReturnBudgetComment);
+      setProposal((prev) => (prev ? { ...prev, status: result.status } : prev));
+      setShowAcctReturnBudgetModal(false);
+      setAcctReturnBudgetComment("");
+      loadWorkflowHistory();
+    } catch (err: unknown) {
+      setAccountingActionError(err instanceof Error ? err.message : "Failed to return proposal to Budget.");
+    } finally {
+      setAccountingActioning(false);
+    }
+  }
+
+  async function handleAccountingReturnToFocal() {
+    if (!id) return;
+    if (!acctReturnFocalComment.trim()) {
+      setAccountingActionError("A comment is required to return this proposal to Focal.");
+      return;
+    }
+    setAccountingActionError(null);
+    setAccountingActioning(true);
+    try {
+      const result = await phase12Api.accountingReturnToFocal(id, acctReturnFocalComment);
+      setProposal((prev) => (prev ? { ...prev, status: result.status } : prev));
+      setShowAcctReturnFocalModal(false);
+      setAcctReturnFocalComment("");
+      loadWorkflowHistory();
+    } catch (err: unknown) {
+      setAccountingActionError(err instanceof Error ? err.message : "Failed to return proposal to Focal.");
+    } finally {
+      setAccountingActioning(false);
+    }
+  }
+
+  async function handleAccountingEndorseToRd() {
+    if (!id) return;
+    setAccountingActionError(null);
+    setAccountingActioning(true);
+    try {
+      const result = await phase12Api.accountingEndorseToRd(id, acctEndorseRdComment || undefined);
+      setProposal((prev) => (prev ? { ...prev, status: result.status } : prev));
+      setShowAcctEndorseRdModal(false);
+      setAcctEndorseRdComment("");
+      loadWorkflowHistory();
+    } catch (err: unknown) {
+      setAccountingActionError(err instanceof Error ? err.message : "Failed to endorse proposal to RD.");
+    } finally {
+      setAccountingActioning(false);
+    }
+  }
+
+  async function handleRdOpen() {
+    if (!id) return;
+    setRdActionError(null);
+    setRdActioning(true);
+    try {
+      const result = await phase12Api.rdOpen(id);
+      setProposal((prev) => (prev ? { ...prev, status: result.status } : prev));
+      loadWorkflowHistory();
+    } catch (err: unknown) {
+      setRdActionError(err instanceof Error ? err.message : "Failed to open proposal for review.");
+    } finally {
+      setRdActioning(false);
+    }
+  }
+
+  async function handleRdApprove() {
+    if (!id) return;
+    if (!rdApproveComment.trim()) {
+      setRdActionError("A comment is required to approve this proposal.");
+      return;
+    }
+    setRdActionError(null);
+    setRdActioning(true);
+    try {
+      const result = await phase12Api.rdApprove(id, rdApproveComment);
+      setProposal((prev) => (prev ? { ...prev, status: result.status } : prev));
+      setShowRdApproveModal(false);
+      setRdApproveComment("");
+      loadWorkflowHistory();
+    } catch (err: unknown) {
+      setRdActionError(err instanceof Error ? err.message : "Failed to approve proposal.");
+    } finally {
+      setRdActioning(false);
+    }
+  }
+
+  async function handleRdReject() {
+    if (!id) return;
+    if (!rdRejectComment.trim()) {
+      setRdActionError("A comment is required to reject this proposal.");
+      return;
+    }
+    setRdActionError(null);
+    setRdActioning(true);
+    try {
+      const result = await phase12Api.rdReject(id, rdRejectComment);
+      setProposal((prev) => (prev ? { ...prev, status: result.status } : prev));
+      setShowRdRejectModal(false);
+      setRdRejectComment("");
+      loadWorkflowHistory();
+    } catch (err: unknown) {
+      setRdActionError(err instanceof Error ? err.message : "Failed to reject proposal.");
+    } finally {
+      setRdActioning(false);
+    }
+  }
+
+  async function handleRdDefer() {
+    if (!id) return;
+    if (!rdDeferReason.trim()) {
+      setRdActionError("A reason is required to defer this proposal.");
+      return;
+    }
+    setRdActionError(null);
+    setRdActioning(true);
+    try {
+      const result = await phase12Api.rdDefer(id, rdDeferReason);
+      setProposal((prev) => (prev ? { ...prev, status: result.status } : prev));
+      setShowRdDeferModal(false);
+      setRdDeferReason("");
+      loadWorkflowHistory();
+    } catch (err: unknown) {
+      setRdActionError(err instanceof Error ? err.message : "Failed to defer proposal.");
+    } finally {
+      setRdActioning(false);
+    }
+  }
+
+  async function handleRdResume() {
+    if (!id) return;
+    setRdActionError(null);
+    setRdActioning(true);
+    try {
+      const result = await phase12Api.rdResume(id);
+      setProposal((prev) => (prev ? { ...prev, status: result.status } : prev));
+      loadWorkflowHistory();
+    } catch (err: unknown) {
+      setRdActionError(err instanceof Error ? err.message : "Failed to resume review.");
+    } finally {
+      setRdActioning(false);
+    }
+  }
+
+  async function handleRdReturn() {
+    if (!id) return;
+    if (!rdReturnComment.trim()) {
+      setRdActionError("A comment is required to return this proposal to the applicant.");
+      return;
+    }
+    setRdActionError(null);
+    setRdActioning(true);
+    try {
+      const result = await phase12Api.rdReturn(id, rdReturnComment);
+      setProposal((prev) => (prev ? { ...prev, status: result.status } : prev));
+      setShowRdReturnModal(false);
+      setRdReturnComment("");
+      loadWorkflowHistory();
+    } catch (err: unknown) {
+      setRdActionError(err instanceof Error ? err.message : "Failed to return proposal to applicant.");
+    } finally {
+      setRdActioning(false);
+    }
+  }
+
   // Determine if current user is the proposal owner.
   // useAuth returns a stub — in production this would be the real user id.
   const isApplicant = role === "APPLICANT";
   const isAdmin = role === "ADMIN";
   const isFocal = role === "PROJECT_FOCAL";
+  const isBudgetOfficer = role === "BUDGET_OFFICER";
+  const isAccountant = role === "ACCOUNTANT";
+  const isRd = role === "REGIONAL_DIRECTOR";
 
   if (loading) {
     return <p style={{ padding: "1rem" }}>Loading proposal…</p>;
@@ -669,6 +988,429 @@ export default function ProposalDetailPage() {
                 }}
               >
                 Return to RTEC
+              </button>
+            )}
+
+            {proposal.status === "RETURNED_BY_ACCOUNTING" && (
+              <button
+                type="button"
+                onClick={() => setShowFocalRerouteModal(true)}
+                disabled={focalActioning}
+                aria-label="Re-route for Focal Review"
+                style={{
+                  minHeight: "44px",
+                  padding: "0.5rem 1rem",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#fff",
+                  cursor: focalActioning ? "not-allowed" : "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  opacity: focalActioning ? 0.6 : 1,
+                }}
+              >
+                Re-route for Focal Review
+              </button>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Budget Officer workflow actions */}
+      {isBudgetOfficer && (
+        <section
+          aria-label="Budget Officer workflow actions"
+          style={{ marginBottom: "2rem", border: "1px solid #e5e7eb", borderRadius: "0.5rem", padding: "1rem" }}
+        >
+          <h3
+            style={{
+              margin: "0 0 0.75rem 0",
+              fontSize: "1rem",
+              fontWeight: 600,
+              borderBottom: "1px solid #e5e7eb",
+              paddingBottom: "0.5rem",
+            }}
+          >
+            Budget Actions
+          </h3>
+
+          {budgetActionError && (
+            <p role="alert" style={{ color: "#dc2626", fontSize: "0.875rem", marginBottom: "0.75rem" }}>
+              {budgetActionError}
+            </p>
+          )}
+
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            {proposal.status === "ENDORSED_TO_BUDGET" && (
+              <button
+                type="button"
+                onClick={() => void handleBudgetOpen()}
+                disabled={budgetActioning}
+                aria-label="Open for Review"
+                style={{
+                  minHeight: "44px",
+                  padding: "0.5rem 1rem",
+                  border: "none",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#2563eb",
+                  color: "#fff",
+                  cursor: budgetActioning ? "not-allowed" : "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  opacity: budgetActioning ? 0.6 : 1,
+                }}
+              >
+                {budgetActioning ? "Processing…" : "Open for Review"}
+              </button>
+            )}
+
+            {proposal.status === "UNDER_BUDGET_REVIEW" && (
+              <button
+                type="button"
+                onClick={() => setShowBudgetReturnModal(true)}
+                disabled={budgetActioning}
+                aria-label="Return to Focal"
+                style={{
+                  minHeight: "44px",
+                  padding: "0.5rem 1rem",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#fff",
+                  cursor: budgetActioning ? "not-allowed" : "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  opacity: budgetActioning ? 0.6 : 1,
+                }}
+              >
+                Return to Focal
+              </button>
+            )}
+
+            {proposal.status === "UNDER_BUDGET_REVIEW" && (
+              <button
+                type="button"
+                onClick={() => setShowBudgetEndorseModal(true)}
+                disabled={budgetActioning}
+                aria-label="Endorse to Accounting"
+                style={{
+                  minHeight: "44px",
+                  padding: "0.5rem 1rem",
+                  border: "none",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#16a34a",
+                  color: "#fff",
+                  cursor: budgetActioning ? "not-allowed" : "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  opacity: budgetActioning ? 0.6 : 1,
+                }}
+              >
+                Endorse to Accounting
+              </button>
+            )}
+
+            {proposal.status === "RETURNED_BY_ACCOUNTING" && (
+              <button
+                type="button"
+                onClick={() => setShowBudgetReEndorseModal(true)}
+                disabled={budgetActioning}
+                aria-label="Re-endorse to Accounting"
+                style={{
+                  minHeight: "44px",
+                  padding: "0.5rem 1rem",
+                  border: "none",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#16a34a",
+                  color: "#fff",
+                  cursor: budgetActioning ? "not-allowed" : "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  opacity: budgetActioning ? 0.6 : 1,
+                }}
+              >
+                Re-endorse to Accounting
+              </button>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Accountant workflow actions */}
+      {isAccountant && (
+        <section
+          aria-label="Accountant workflow actions"
+          style={{ marginBottom: "2rem", border: "1px solid #e5e7eb", borderRadius: "0.5rem", padding: "1rem" }}
+        >
+          <h3
+            style={{
+              margin: "0 0 0.75rem 0",
+              fontSize: "1rem",
+              fontWeight: 600,
+              borderBottom: "1px solid #e5e7eb",
+              paddingBottom: "0.5rem",
+            }}
+          >
+            Accounting Actions
+          </h3>
+
+          {accountingActionError && (
+            <p role="alert" style={{ color: "#dc2626", fontSize: "0.875rem", marginBottom: "0.75rem" }}>
+              {accountingActionError}
+            </p>
+          )}
+
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            {proposal.status === "ENDORSED_TO_ACCOUNTING" && (
+              <button
+                type="button"
+                onClick={() => void handleAccountingOpen()}
+                disabled={accountingActioning}
+                aria-label="Open for Review"
+                style={{
+                  minHeight: "44px",
+                  padding: "0.5rem 1rem",
+                  border: "none",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#2563eb",
+                  color: "#fff",
+                  cursor: accountingActioning ? "not-allowed" : "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  opacity: accountingActioning ? 0.6 : 1,
+                }}
+              >
+                {accountingActioning ? "Processing…" : "Open for Review"}
+              </button>
+            )}
+
+            {proposal.status === "UNDER_ACCOUNTING_REVIEW" && (
+              <button
+                type="button"
+                onClick={() => setShowAcctReturnBudgetModal(true)}
+                disabled={accountingActioning}
+                aria-label="Return to Budget"
+                style={{
+                  minHeight: "44px",
+                  padding: "0.5rem 1rem",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#fff",
+                  cursor: accountingActioning ? "not-allowed" : "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  opacity: accountingActioning ? 0.6 : 1,
+                }}
+              >
+                Return to Budget
+              </button>
+            )}
+
+            {proposal.status === "UNDER_ACCOUNTING_REVIEW" && (
+              <button
+                type="button"
+                onClick={() => setShowAcctReturnFocalModal(true)}
+                disabled={accountingActioning}
+                aria-label="Return to Focal"
+                style={{
+                  minHeight: "44px",
+                  padding: "0.5rem 1rem",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#fff",
+                  cursor: accountingActioning ? "not-allowed" : "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  opacity: accountingActioning ? 0.6 : 1,
+                }}
+              >
+                Return to Focal
+              </button>
+            )}
+
+            {proposal.status === "UNDER_ACCOUNTING_REVIEW" && (
+              <button
+                type="button"
+                onClick={() => setShowAcctEndorseRdModal(true)}
+                disabled={accountingActioning}
+                aria-label="Endorse to RD"
+                style={{
+                  minHeight: "44px",
+                  padding: "0.5rem 1rem",
+                  border: "none",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#16a34a",
+                  color: "#fff",
+                  cursor: accountingActioning ? "not-allowed" : "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  opacity: accountingActioning ? 0.6 : 1,
+                }}
+              >
+                Endorse to RD
+              </button>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Regional Director workflow actions */}
+      {isRd && (
+        <section
+          aria-label="Regional Director workflow actions"
+          style={{ marginBottom: "2rem", border: "1px solid #e5e7eb", borderRadius: "0.5rem", padding: "1rem" }}
+        >
+          <h3
+            style={{
+              margin: "0 0 0.75rem 0",
+              fontSize: "1rem",
+              fontWeight: 600,
+              borderBottom: "1px solid #e5e7eb",
+              paddingBottom: "0.5rem",
+            }}
+          >
+            Regional Director Actions
+          </h3>
+
+          {rdActionError && (
+            <p role="alert" style={{ color: "#dc2626", fontSize: "0.875rem", marginBottom: "0.75rem" }}>
+              {rdActionError}
+            </p>
+          )}
+
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            {proposal.status === "ENDORSED_TO_RD" && (
+              <button
+                type="button"
+                onClick={() => void handleRdOpen()}
+                disabled={rdActioning}
+                aria-label="Open for Review"
+                style={{
+                  minHeight: "44px",
+                  padding: "0.5rem 1rem",
+                  border: "none",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#2563eb",
+                  color: "#fff",
+                  cursor: rdActioning ? "not-allowed" : "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  opacity: rdActioning ? 0.6 : 1,
+                }}
+              >
+                {rdActioning ? "Processing…" : "Open for Review"}
+              </button>
+            )}
+
+            {proposal.status === "UNDER_RD_REVIEW" && (
+              <button
+                type="button"
+                onClick={() => setShowRdApproveModal(true)}
+                disabled={rdActioning}
+                aria-label="Approve"
+                style={{
+                  minHeight: "44px",
+                  padding: "0.5rem 1rem",
+                  border: "none",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#16a34a",
+                  color: "#fff",
+                  cursor: rdActioning ? "not-allowed" : "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  opacity: rdActioning ? 0.6 : 1,
+                }}
+              >
+                Approve
+              </button>
+            )}
+
+            {proposal.status === "UNDER_RD_REVIEW" && (
+              <button
+                type="button"
+                onClick={() => setShowRdRejectModal(true)}
+                disabled={rdActioning}
+                aria-label="Reject"
+                style={{
+                  minHeight: "44px",
+                  padding: "0.5rem 1rem",
+                  border: "none",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#dc2626",
+                  color: "#fff",
+                  cursor: rdActioning ? "not-allowed" : "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  opacity: rdActioning ? 0.6 : 1,
+                }}
+              >
+                Reject
+              </button>
+            )}
+
+            {proposal.status === "UNDER_RD_REVIEW" && (
+              <button
+                type="button"
+                onClick={() => setShowRdDeferModal(true)}
+                disabled={rdActioning}
+                aria-label="Defer"
+                style={{
+                  minHeight: "44px",
+                  padding: "0.5rem 1rem",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#fff",
+                  cursor: rdActioning ? "not-allowed" : "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  opacity: rdActioning ? 0.6 : 1,
+                }}
+              >
+                Defer
+              </button>
+            )}
+
+            {proposal.status === "UNDER_RD_REVIEW" && (
+              <button
+                type="button"
+                onClick={() => setShowRdReturnModal(true)}
+                disabled={rdActioning}
+                aria-label="Return to Applicant"
+                style={{
+                  minHeight: "44px",
+                  padding: "0.5rem 1rem",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#fff",
+                  cursor: rdActioning ? "not-allowed" : "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  opacity: rdActioning ? 0.6 : 1,
+                }}
+              >
+                Return to Applicant
+              </button>
+            )}
+
+            {proposal.status === "DEFERRED" && (
+              <button
+                type="button"
+                onClick={() => void handleRdResume()}
+                disabled={rdActioning}
+                aria-label="Resume Review"
+                style={{
+                  minHeight: "44px",
+                  padding: "0.5rem 1rem",
+                  border: "none",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#2563eb",
+                  color: "#fff",
+                  cursor: rdActioning ? "not-allowed" : "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  opacity: rdActioning ? 0.6 : 1,
+                }}
+              >
+                {rdActioning ? "Processing…" : "Resume Review"}
               </button>
             )}
           </div>
@@ -1396,6 +2138,285 @@ export default function ProposalDetailPage() {
                 style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#7c3aed", color: "#fff", cursor: focalActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: focalActioning ? 0.7 : 1 }}
               >
                 {focalActioning ? "Processing…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Focal re-route modal */}
+      {showFocalRerouteModal && (
+        <div role="dialog" aria-modal="true" aria-labelledby="focal-reroute-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
+            <h3 id="focal-reroute-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>
+              Re-route for Focal Review
+            </h3>
+            <textarea
+              value={focalRerouteComment}
+              onChange={(e) => setFocalRerouteComment(e.target.value)}
+              placeholder="Comment (required)…"
+              rows={4}
+              aria-label="Re-route comment"
+              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+            />
+            {!focalRerouteComment.trim() && focalActionError && (
+              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+            )}
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
+              <button type="button" onClick={() => { setShowFocalRerouteModal(false); setFocalRerouteComment(""); }} aria-label="Cancel re-route" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
+              <button type="button" onClick={() => void handleFocalReroute()} disabled={focalActioning} aria-label="Confirm re-route" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#7c3aed", color: "#fff", cursor: focalActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: focalActioning ? 0.7 : 1 }}>
+                {focalActioning ? "Processing…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Budget: Return to Focal modal */}
+      {showBudgetReturnModal && (
+        <div role="dialog" aria-modal="true" aria-labelledby="budget-return-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
+            <h3 id="budget-return-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Return to Focal</h3>
+            <textarea
+              value={budgetReturnComment}
+              onChange={(e) => setBudgetReturnComment(e.target.value)}
+              placeholder="Comment (required)…"
+              rows={4}
+              aria-label="Budget return to focal comment"
+              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+            />
+            {!budgetReturnComment.trim() && budgetActionError && (
+              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+            )}
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
+              <button type="button" onClick={() => { setShowBudgetReturnModal(false); setBudgetReturnComment(""); }} aria-label="Cancel return to focal" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
+              <button type="button" onClick={() => void handleBudgetReturn()} disabled={budgetActioning} aria-label="Confirm return to focal" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#7c3aed", color: "#fff", cursor: budgetActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: budgetActioning ? 0.7 : 1 }}>
+                {budgetActioning ? "Processing…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Budget: Endorse to Accounting modal */}
+      {showBudgetEndorseModal && (
+        <div role="dialog" aria-modal="true" aria-labelledby="budget-endorse-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
+            <h3 id="budget-endorse-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Endorse to Accounting</h3>
+            <textarea
+              value={budgetEndorseComment}
+              onChange={(e) => setBudgetEndorseComment(e.target.value)}
+              placeholder="Comment (optional)…"
+              rows={3}
+              aria-label="Budget endorse to accounting comment"
+              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "1rem" }}
+            />
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+              <button type="button" onClick={() => { setShowBudgetEndorseModal(false); setBudgetEndorseComment(""); }} aria-label="Cancel endorse to accounting" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
+              <button type="button" onClick={() => void handleBudgetEndorse()} disabled={budgetActioning} aria-label="Confirm endorse to accounting" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#16a34a", color: "#fff", cursor: budgetActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: budgetActioning ? 0.7 : 1 }}>
+                {budgetActioning ? "Processing…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Budget: Re-endorse to Accounting modal */}
+      {showBudgetReEndorseModal && (
+        <div role="dialog" aria-modal="true" aria-labelledby="budget-reendorse-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
+            <h3 id="budget-reendorse-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Re-endorse to Accounting</h3>
+            <textarea
+              value={budgetReEndorseComment}
+              onChange={(e) => setBudgetReEndorseComment(e.target.value)}
+              placeholder="Comment (optional)…"
+              rows={3}
+              aria-label="Budget re-endorse to accounting comment"
+              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "1rem" }}
+            />
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+              <button type="button" onClick={() => { setShowBudgetReEndorseModal(false); setBudgetReEndorseComment(""); }} aria-label="Cancel re-endorse to accounting" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
+              <button type="button" onClick={() => void handleBudgetReEndorse()} disabled={budgetActioning} aria-label="Confirm re-endorse to accounting" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#16a34a", color: "#fff", cursor: budgetActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: budgetActioning ? 0.7 : 1 }}>
+                {budgetActioning ? "Processing…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Accounting: Return to Budget modal */}
+      {showAcctReturnBudgetModal && (
+        <div role="dialog" aria-modal="true" aria-labelledby="acct-return-budget-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
+            <h3 id="acct-return-budget-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Return to Budget</h3>
+            <textarea
+              value={acctReturnBudgetComment}
+              onChange={(e) => setAcctReturnBudgetComment(e.target.value)}
+              placeholder="Comment (required)…"
+              rows={4}
+              aria-label="Accounting return to budget comment"
+              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+            />
+            {!acctReturnBudgetComment.trim() && accountingActionError && (
+              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+            )}
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
+              <button type="button" onClick={() => { setShowAcctReturnBudgetModal(false); setAcctReturnBudgetComment(""); }} aria-label="Cancel return to budget" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
+              <button type="button" onClick={() => void handleAccountingReturnToBudget()} disabled={accountingActioning} aria-label="Confirm return to budget" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#7c3aed", color: "#fff", cursor: accountingActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: accountingActioning ? 0.7 : 1 }}>
+                {accountingActioning ? "Processing…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Accounting: Return to Focal modal */}
+      {showAcctReturnFocalModal && (
+        <div role="dialog" aria-modal="true" aria-labelledby="acct-return-focal-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
+            <h3 id="acct-return-focal-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Return to Focal</h3>
+            <textarea
+              value={acctReturnFocalComment}
+              onChange={(e) => setAcctReturnFocalComment(e.target.value)}
+              placeholder="Comment (required)…"
+              rows={4}
+              aria-label="Accounting return to focal comment"
+              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+            />
+            {!acctReturnFocalComment.trim() && accountingActionError && (
+              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+            )}
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
+              <button type="button" onClick={() => { setShowAcctReturnFocalModal(false); setAcctReturnFocalComment(""); }} aria-label="Cancel return to focal" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
+              <button type="button" onClick={() => void handleAccountingReturnToFocal()} disabled={accountingActioning} aria-label="Confirm return to focal" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#7c3aed", color: "#fff", cursor: accountingActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: accountingActioning ? 0.7 : 1 }}>
+                {accountingActioning ? "Processing…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Accounting: Endorse to RD modal */}
+      {showAcctEndorseRdModal && (
+        <div role="dialog" aria-modal="true" aria-labelledby="acct-endorse-rd-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
+            <h3 id="acct-endorse-rd-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Endorse to RD</h3>
+            <textarea
+              value={acctEndorseRdComment}
+              onChange={(e) => setAcctEndorseRdComment(e.target.value)}
+              placeholder="Comment (optional)…"
+              rows={3}
+              aria-label="Accounting endorse to RD comment"
+              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "1rem" }}
+            />
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+              <button type="button" onClick={() => { setShowAcctEndorseRdModal(false); setAcctEndorseRdComment(""); }} aria-label="Cancel endorse to RD" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
+              <button type="button" onClick={() => void handleAccountingEndorseToRd()} disabled={accountingActioning} aria-label="Confirm endorse to RD" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#16a34a", color: "#fff", cursor: accountingActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: accountingActioning ? 0.7 : 1 }}>
+                {accountingActioning ? "Processing…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RD: Approve modal */}
+      {showRdApproveModal && (
+        <div role="dialog" aria-modal="true" aria-labelledby="rd-approve-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
+            <h3 id="rd-approve-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Approve Proposal</h3>
+            <textarea
+              value={rdApproveComment}
+              onChange={(e) => setRdApproveComment(e.target.value)}
+              placeholder="Comment (required)…"
+              rows={4}
+              aria-label="RD approve comment"
+              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+            />
+            {!rdApproveComment.trim() && rdActionError && (
+              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+            )}
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
+              <button type="button" onClick={() => { setShowRdApproveModal(false); setRdApproveComment(""); }} aria-label="Cancel approval" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
+              <button type="button" onClick={() => void handleRdApprove()} disabled={rdActioning} aria-label="Confirm approval" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#16a34a", color: "#fff", cursor: rdActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: rdActioning ? 0.7 : 1 }}>
+                {rdActioning ? "Processing…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RD: Reject modal */}
+      {showRdRejectModal && (
+        <div role="dialog" aria-modal="true" aria-labelledby="rd-reject-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
+            <h3 id="rd-reject-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Reject Proposal</h3>
+            <textarea
+              value={rdRejectComment}
+              onChange={(e) => setRdRejectComment(e.target.value)}
+              placeholder="Comment (required)…"
+              rows={4}
+              aria-label="RD reject comment"
+              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+            />
+            {!rdRejectComment.trim() && rdActionError && (
+              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+            )}
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
+              <button type="button" onClick={() => { setShowRdRejectModal(false); setRdRejectComment(""); }} aria-label="Cancel rejection" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
+              <button type="button" onClick={() => void handleRdReject()} disabled={rdActioning} aria-label="Confirm rejection" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#dc2626", color: "#fff", cursor: rdActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: rdActioning ? 0.7 : 1 }}>
+                {rdActioning ? "Processing…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RD: Defer modal */}
+      {showRdDeferModal && (
+        <div role="dialog" aria-modal="true" aria-labelledby="rd-defer-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
+            <h3 id="rd-defer-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Defer Proposal</h3>
+            <textarea
+              value={rdDeferReason}
+              onChange={(e) => setRdDeferReason(e.target.value)}
+              placeholder="Reason (required)…"
+              rows={4}
+              aria-label="RD defer reason"
+              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+            />
+            {!rdDeferReason.trim() && rdActionError && (
+              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+            )}
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
+              <button type="button" onClick={() => { setShowRdDeferModal(false); setRdDeferReason(""); }} aria-label="Cancel defer" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
+              <button type="button" onClick={() => void handleRdDefer()} disabled={rdActioning} aria-label="Confirm defer" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#7c3aed", color: "#fff", cursor: rdActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: rdActioning ? 0.7 : 1 }}>
+                {rdActioning ? "Processing…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RD: Return to Applicant modal */}
+      {showRdReturnModal && (
+        <div role="dialog" aria-modal="true" aria-labelledby="rd-return-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
+            <h3 id="rd-return-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Return to Applicant</h3>
+            <textarea
+              value={rdReturnComment}
+              onChange={(e) => setRdReturnComment(e.target.value)}
+              placeholder="Comment (required)…"
+              rows={4}
+              aria-label="RD return to applicant comment"
+              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+            />
+            {!rdReturnComment.trim() && rdActionError && (
+              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+            )}
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
+              <button type="button" onClick={() => { setShowRdReturnModal(false); setRdReturnComment(""); }} aria-label="Cancel return to applicant" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
+              <button type="button" onClick={() => void handleRdReturn()} disabled={rdActioning} aria-label="Confirm return to applicant" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#7c3aed", color: "#fff", cursor: rdActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: rdActioning ? 0.7 : 1 }}>
+                {rdActioning ? "Processing…" : "Confirm"}
               </button>
             </div>
           </div>

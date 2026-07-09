@@ -64,7 +64,17 @@ The **21 phases (0–20)** are logically ordered, match the ObraTech framework, 
 
 ## Current Project Status (update as you progress)
 
-**You are here: Phase 12 — Budget, Accounting, Regional Director** (Phase 11 closed 2026-07-09 — see [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 11). Phase 10 closed 2026-07-09. Phase 21B closed 2026-07-09. **Phase 21A closed 2026-07-08** — 6/6 manual gate tests pass, automated suite green (127/127).
+**You are here: Phase 13 — Document Generation / Reports** (Phase 12 closed 2026-07-09 — see [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 12). Phase 11 closed 2026-07-09. Phase 10 closed 2026-07-09. Phase 21B closed 2026-07-09. **Phase 21A closed 2026-07-08** — 6/6 manual gate tests pass, automated suite green (127/127).
+
+| Phase 12 item | Status |
+|---|---|
+| `phase12Api` (budget/accounting/RD workflow methods + focalReroute) | ✅ Done — `apps/frontend/src/lib/api.ts` |
+| Budget Officer, Accountant, Regional Director action panels + 11 modals | ✅ Done — `apps/frontend/src/pages/proposals/ProposalDetailPage.tsx` |
+| Focal re-route button (RETURNED_BY_ACCOUNTING → UNDER_FOCAL_REVIEW) | ✅ Done — added to the existing Focal Actions panel |
+| Demo proposals (Budget, Accounting, RD) | ✅ Done — `apps/backend/prisma/seed.ts`, idempotent, verified via double-seed |
+| Frontend tests (TC-BUDGET-UI-01/02, TC-RD-UI-01) | ✅ Done — 3/3 pass, 17/17 total |
+| No backend routes changed | ✅ Confirmed — 126/126 backend tests unchanged |
+| Phase 12 approval gate | ✅ **Closed 2026-07-09** — automated 4/4 (vitest/npm test/tsc/seed), manual 13/13 (B1–B13) |
 
 | Phase 11 item | Status |
 |---|---|
@@ -178,7 +188,7 @@ Phases 0, 1, and 2 approved by supervisor 2026-07-01 (B-01..B-04). Phase 3 form 
 
 ## One Rule
 
-> Phases 0–4 planning gates are **closed**. Phase 21A, 21B, 10, and 11 are **closed**. Active work: **Phase 12**, then Phase 13, then harden and deploy (14–20). All developers may implement when following [AGENTS.md](../../AGENTS.md) and the current phase checklist.
+> Phases 0–4 planning gates are **closed**. Phase 21A, 21B, 10, 11, and 12 are **closed**. Active work: **Phase 13**, then harden and deploy (14–20). All developers may implement when following [AGENTS.md](../../AGENTS.md) and the current phase checklist.
 
 **Start here after git pull:** [../../DEVELOPERS.md](../../DEVELOPERS.md) → [DEVELOPER-EXECUTION-PLAN.md](DEVELOPER-EXECUTION-PLAN.md) → [TEST-MATRIX.md](TEST-MATRIX.md).
 
