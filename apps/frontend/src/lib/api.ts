@@ -272,10 +272,19 @@ export interface WorkflowHistoryEntry {
   sessionReference: string | null;
 }
 
+export interface RtecMembershipSummary {
+  id: string;
+  rtecGroupId: string;
+  userId: string;
+  roleInGroup: 'MEMBER' | 'HEAD';
+  isActive: boolean;
+}
+
 export interface RtecGroupSummary {
   id: string;
   name: string;
   isActive: boolean;
+  memberships: RtecMembershipSummary[];
 }
 
 export const workflowApi = {
@@ -308,7 +317,86 @@ export const workflowApi = {
       'GET', `/api/proposals/${proposalId}/workflow/history`
     ),
   listRtecGroups: () =>
-    request<RtecGroupSummary[]>('GET', '/api/admin/rtec-groups'),
+    request<{ groups: RtecGroupSummary[] }>('GET', '/api/admin/rtec-groups'),
+};
+
+// ── RTEC review and consolidation (Phase 11) ────────────────────────────────
+
+export interface RtecReviewItem {
+  id: string;
+  formSectionId: string | null;
+  remarks: string;
+}
+
+export interface RtecReview {
+  id: string;
+  proposalId: string;
+  rtecGroupId: string;
+  reviewerUserId: string;
+  status: string;
+  isSubmitted: boolean;
+  submittedAt: string | null;
+  overallRemarks: string | null;
+  items: RtecReviewItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RtecConsolidation {
+  id: string;
+  proposalId: string;
+  rtecGroupId: string;
+  consolidatedBy: string;
+  recommendation: 'FOR_APPROVAL' | 'FOR_REVISION' | 'NOT_RECOMMENDED';
+  consolidatedRemarks: string;
+  isSubmitted: boolean;
+  createdAt: string;
+}
+
+export const rtecApi = {
+  // RTEC_MEMBER actions
+  saveReview: (proposalId: string, body: {
+    rtecGroupId: string;
+    overallRemarks?: string;
+    items?: Array<{ formSectionId?: string; remarks: string }>;
+  }) => request<{ review: RtecReview }>('POST', `/api/proposals/${proposalId}/rtec/reviews`, body),
+
+  submitReview: (proposalId: string) =>
+    request<{ review: RtecReview }>('POST', `/api/proposals/${proposalId}/rtec/reviews/submit`),
+
+  getMyReview: (proposalId: string) =>
+    request<{ review: RtecReview }>('GET', `/api/proposals/${proposalId}/rtec/reviews/mine`),
+
+  // RTEC_HEAD actions
+  getAllReviews: (proposalId: string) =>
+    request<{ reviews: RtecReview[] }>('GET', `/api/proposals/${proposalId}/rtec/reviews`),
+
+  saveConsolidation: (proposalId: string, body: {
+    rtecGroupId: string;
+    recommendation: 'FOR_APPROVAL' | 'FOR_REVISION' | 'NOT_RECOMMENDED';
+    consolidatedRemarks: string;
+  }) => request<{ consolidation: RtecConsolidation }>(
+    'POST', `/api/proposals/${proposalId}/rtec/consolidation`, body
+  ),
+
+  getConsolidation: (proposalId: string) =>
+    request<{ consolidation: RtecConsolidation }>('GET', `/api/proposals/${proposalId}/rtec/consolidation`),
+
+  submitConsolidation: (proposalId: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/rtec/consolidation/submit`
+    ),
+
+  beginConsolidation: (proposalId: string) =>
+    request<{ id: string; status: string; transitionedAt: string }>(
+      'POST', `/api/proposals/${proposalId}/workflow/rtec-begin-consolidation`
+    ),
+
+  reopenReview: (proposalId: string, reviewId: string, reason?: string) =>
+    request<{ review: RtecReview }>(
+      'POST', `/api/proposals/${proposalId}/rtec/reviews/${reviewId}/reopen`,
+      { reason }
+    ),
 };
 
 // ── Notifications ─────────────────────────────────────────────────────────────

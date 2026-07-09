@@ -162,7 +162,7 @@ export default function ProposalDetailPage() {
     if (!showEndorseRtecModal) return;
     workflowApi
       .listRtecGroups()
-      .then((groups) => {
+      .then(({ groups }) => {
         setRtecGroups(groups);
         if (groups.length === 1) {
           setSelectedRtecGroupId(groups[0].id);

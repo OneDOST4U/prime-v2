@@ -21,7 +21,7 @@ export default async function adminRtecGroupsRoutes(fastify: FastifyInstance) {
   // ── GET /api/admin/rtec-groups ───────────────────────────────────────────
   fastify.get(
     "/api/admin/rtec-groups",
-    { preHandler: [requireAuth(), requireRole("ADMIN")] },
+    { preHandler: [requireAuth(), requireRole("ADMIN", "PROJECT_FOCAL", "RTEC_MEMBER", "RTEC_HEAD")] },
     async (_request, reply) => {
       const groups = await prisma.rtecGroup.findMany({
         include: { memberships: { where: { isActive: true } } },

@@ -30,6 +30,33 @@ Last run 2026-07-09 (Phase 21B gate): A1 7/7 tests (4 files), A2 120/120 tests (
 
 ---
 
+## Phase 11 — RTEC review and consolidation gate (2026-07-09)
+
+**Executed:** 2026-07-09. Environment: local Docker stack. Automated via curl (API) + Playwright screenshots (UI render). Files: `apps/backend/src/routes/adminRtecGroups.ts` (role fix), `apps/backend/src/routes/adminRtecGroups.test.ts` (new, 6 tests), `apps/backend/prisma/seed.ts` (RTEC demo proposal block), `apps/frontend/src/lib/api.ts` (`rtecApi`, `RtecGroupSummary.memberships`), `apps/frontend/src/pages/rtec/RtecMemberReviewPage.tsx` (new), `apps/frontend/src/pages/rtec/RtecHeadConsolidationPage.tsx` (new), `apps/frontend/src/pages/queues/QueuePage.tsx` (RTEC-specific row navigation), `apps/frontend/src/App.tsx` (new routes).
+
+**Scope note — two deviations from the task spec, both flagged to the user during implementation and approved before coding:**
+1. Task 1 specified relaxing `GET /api/admin/rtec-groups` to `ADMIN, PROJECT_FOCAL` only. Building the review/consolidation forms surfaced the same problem for `RTEC_MEMBER` and `RTEC_HEAD`: neither role has any way to learn its own `rtecGroupId` before a first review/consolidation draft exists (required in the `POST` body), and the only available endpoint was that same route. Extended the identical fix to `RTEC_MEMBER` and `RTEC_HEAD` (`requireRole("ADMIN", "PROJECT_FOCAL", "RTEC_MEMBER", "RTEC_HEAD")`) — same route, same class of gap, user approved the pattern for the first case.
+2. Fixed a latent Phase 10 bug found in passing: `workflowApi.listRtecGroups()` was typed as returning a bare array, but the backend has always returned `{ groups: [...] }`. Updated the type and the one call site (`ProposalDetailPage.tsx`).
+
+| # | Login | URL / Method | Action | Expected | Result | Pass | Fail |
+|---|-------|--------------|--------|----------|--------|:----:|:----:|
+| R1 | rtec.member | /rtec/queue, API | View "My RTEC Reviews" queue | Proposals with UNDER_RTEC_REVIEW shown | `GET /api/queues/rtec_reviews` → 1 proposal (seeded demo) | [x] | [ ] |
+| R2 | rtec.member | /rtec/reviews/:id, API | Write + save draft review | "Saved" status, overallRemarks persisted | `POST .../rtec/reviews` → 200, `rtecGroupId` correctly resolved client-side from `listRtecGroups()` membership match; remarks persisted | [x] | [ ] |
+| R3 | rtec.member | /rtec/reviews/:id, API | Submit review | isSubmitted=true, button disabled | `POST .../rtec/reviews/submit` → 200, `isSubmitted: true`; UI screenshot confirms Submit Review button disables and shows "Review submitted" | [x] | [ ] |
+| R4 | rtec.head | /rtec/consolidation, API | View consolidation queue | Proposals at RTEC_MEMBER_REVIEWS_COMPLETE shown | Quorum requires all 4 active MEMBER `RtecMembership` rows in "GIA RTEC Committee" (member, member1, member2, member3) to submit — seed initially only assigned 3, fixed to assign all 4; after 4th submission, `GET /api/queues/rtec_consolidation` → 1 proposal at RTEC_MEMBER_REVIEWS_COMPLETE | [x] | [ ] |
+| R5 | rtec.head | /rtec/consolidation/:id, API | Click Begin Consolidation | Status → UNDER_RTEC_HEAD_CONSOLIDATION | `POST .../workflow/rtec-begin-consolidation` → 200, status flipped | [x] | [ ] |
+| R6 | rtec.head | /rtec/consolidation/:id, API | Fill + submit recommendation | Status → RETURNED_TO_FOCAL_BY_RTEC | `POST .../rtec/consolidation` (draft) → 200, `POST .../rtec/consolidation/submit` → 200, status → RETURNED_TO_FOCAL_BY_RTEC | [x] | [ ] |
+| R7 | rtec.head | /rtec/consolidation/:id | Read member reviews panel | All submitted reviews visible with remarks | UI screenshot confirms all 4 submitted reviews rendered with reviewer id, SUBMITTED badge, and remarks; consolidation submitted-view shows recommendation + remarks read-only | [x] | [ ] |
+| R8 | focal | /proposals/:id | Endorse to RTEC modal | RTEC group dropdown now populated (Task 1 fix) | UI screenshot confirms "GIA RTEC Committee" appears in the dropdown for a real `focal@dev.local` session — Phase 10 known gap now closed | [x] | [ ] |
+| A1 | — | vitest run | Frontend tests | 11 existing + 3 new = 14+ all green | 14/14 passed (11 existing + 3 new TC-RTEC-UI tests) | [x] | [ ] |
+| A2 | — | npm test | Backend tests | 120 existing + 4 new = 124+ all green | 126/126 passed (120 existing + 6 new TC-RTEC-GROUPS tests — 2 extra to cover RTEC_HEAD and a denied-role case, per the Task 1 scope extension above) | [x] | [ ] |
+| A3 | — | tsc -b | TypeScript check | Clean | Clean, no errors | [x] | [ ] |
+| A4 | — | seed (twice) | Idempotency | No errors, no duplicate rows | Ran twice clean; verified via SQL: 1 demo proposal, 5→6 assignments (see R4 note), no duplicates | [x] | [ ] |
+
+**Automated gate: 4/4 Pass (A1–A4). Manual gate: 8/8 Pass.**
+
+---
+
 ## Phase 10 — Complete focal workflow UI gate (2026-07-09)
 
 **Executed:** 2026-07-09. Environment: local Docker stack (backend healthy, frontend healthy). Automated via curl (API) + Playwright screenshots (UI render). `apps/frontend/src/lib/api.ts` (`workflowApi`), `apps/frontend/src/pages/proposals/ProposalDetailPage.tsx` (Focal Actions panel, 4 modals, Workflow History timeline), `apps/frontend/src/pages/proposals/ProposalDetailPage.test.tsx` (new).
@@ -210,9 +237,11 @@ Use **Staff Login** for every `@dev.local` account.
 
 | # | Account | URL | Expected | Pass | Fail |
 |---|---------|-----|----------|:----:|:----:|
-| R1 | rtec.member@dev.local | /rtec/queue | Endorsed proposals listed | [ ] | [ ] |
-| R2 | rtec.member@dev.local | /rtec/reviews | Submit review (Phase 11) | [ ] | [ ] |
-| R3 | rtec.head@dev.local | /rtec/consolidation | Consolidate (Phase 11) | [ ] | [ ] |
+| R1 | rtec.member@dev.local | /rtec/queue | Endorsed proposals listed | [x] | [ ] |
+| R2 | rtec.member@dev.local | /rtec/reviews | Submit review (Phase 11) | [x] | [ ] |
+| R3 | rtec.head@dev.local | /rtec/consolidation | Consolidate (Phase 11) | [x] | [ ] |
+
+See Phase 11 gate section above for the full R1–R8 results.
 
 ---
 

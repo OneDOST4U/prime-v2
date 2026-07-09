@@ -714,6 +714,107 @@ async function main() {
   console.log(
     `✓ Phase 21A: focal@dev.local assigned as PROJECT_FOCAL on proposal ${focalDemoProposal.id} (${focalDemoProposal.title})`,
   );
+
+  // ── Phase 11: UNDER_RTEC_REVIEW demo proposal + RTEC assignments ─────────────
+  // Unblocks the RTEC member/head UI demo path for rtec.member@dev.local and
+  // rtec.head@dev.local (the primary dev-login accounts named in
+  // DEV-TEST-ACCOUNTS.md), which are not otherwise members of the seeded
+  // "GIA RTEC Committee" (only rtec.member1/2/3 + rtec.head1 are).
+  const rtecGroupForDemo = await prisma.rtecGroup.findFirstOrThrow({ where: { name: "GIA RTEC Committee" } });
+
+  const rtecMemberDevUser = await prisma.user.findUniqueOrThrow({ where: { email: "rtec.member@dev.local" } });
+  const rtecHeadDevUser = await prisma.user.findUniqueOrThrow({ where: { email: "rtec.head@dev.local" } });
+  const rtecMember1User = await prisma.user.findUniqueOrThrow({ where: { email: "rtec.member1@dev.local" } });
+  const rtecMember2User = await prisma.user.findUniqueOrThrow({ where: { email: "rtec.member2@dev.local" } });
+  const rtecMember3User = await prisma.user.findUniqueOrThrow({ where: { email: "rtec.member3@dev.local" } });
+
+  // Ensure the primary dev accounts are active members of the demo committee
+  // (idempotent upsert — the Phase 11 RTEC group block above only seeds
+  // rtec.member1/2/3 and rtec.head1).
+  await prisma.rtecMembership.upsert({
+    where: { rtecGroupId_userId: { rtecGroupId: rtecGroupForDemo.id, userId: rtecMemberDevUser.id } },
+    update: { roleInGroup: "MEMBER", isActive: true },
+    create: { rtecGroupId: rtecGroupForDemo.id, userId: rtecMemberDevUser.id, roleInGroup: "MEMBER", isActive: true },
+  });
+  await prisma.rtecMembership.upsert({
+    where: { rtecGroupId_userId: { rtecGroupId: rtecGroupForDemo.id, userId: rtecHeadDevUser.id } },
+    update: { roleInGroup: "HEAD", isActive: true },
+    create: { rtecGroupId: rtecGroupForDemo.id, userId: rtecHeadDevUser.id, roleInGroup: "HEAD", isActive: true },
+  });
+
+  let rtecDemoProposal = await prisma.proposal.findFirst({
+    where: { status: "UNDER_RTEC_REVIEW", proposalTypeId: giaProposalType.id },
+  });
+
+  if (!rtecDemoProposal) {
+    const giaFormVersionForRtec = await prisma.formTemplateVersion.findFirstOrThrow({
+      where: { formTemplateId: giaProposalType.defaultFormTemplateId!, isCurrent: true },
+    });
+
+    const created = await prisma.proposal.create({
+      data: {
+        applicantUserId: applicantUser.id,
+        proposalTypeId: giaProposalType.id,
+        status: "UNDER_RTEC_REVIEW",
+        title: "Seeded GIA Proposal — RTEC Demo",
+        submittedAt: new Date(),
+      },
+    });
+
+    const version = await prisma.proposalVersion.create({
+      data: {
+        proposalId: created.id,
+        versionNumber: 1,
+        formTemplateVersionId: giaFormVersionForRtec.id,
+        createdBy: applicantUser.id,
+        statusAtCreation: "DRAFT",
+        isSubmitted: true,
+        submittedAt: new Date(),
+      },
+    });
+
+    rtecDemoProposal = await prisma.proposal.update({
+      where: { id: created.id },
+      data: { currentVersionId: version.id },
+    });
+  }
+
+  // Quorum (checkQuorumAndMaybeAdvance) requires a submitted review from every
+  // ACTIVE RtecMembership in the group, not just the proposal-level
+  // assignments — so all 4 active MEMBER memberships of "GIA RTEC Committee"
+  // (rtec.member, rtec.member1, rtec.member2, rtec.member3) must be assigned
+  // here, or quorum can never be reached for this demo proposal.
+  const rtecDemoAssignments: Array<{ userId: string; roleCode: string }> = [
+    { userId: rtecMemberDevUser.id, roleCode: "RTEC_MEMBER" },
+    { userId: rtecMember1User.id, roleCode: "RTEC_MEMBER" },
+    { userId: rtecMember2User.id, roleCode: "RTEC_MEMBER" },
+    { userId: rtecMember3User.id, roleCode: "RTEC_MEMBER" },
+    { userId: rtecHeadDevUser.id, roleCode: "RTEC_HEAD" },
+    { userId: focalUser.id, roleCode: "PROJECT_FOCAL" },
+  ];
+
+  for (const def of rtecDemoAssignments) {
+    const existing = await prisma.proposalAssignment.findFirst({
+      where: { proposalId: rtecDemoProposal.id, userId: def.userId, roleCode: def.roleCode },
+    });
+    if (existing) {
+      if (!existing.isActive) {
+        await prisma.proposalAssignment.update({ where: { id: existing.id }, data: { isActive: true } });
+      }
+    } else {
+      await prisma.proposalAssignment.create({
+        data: {
+          proposalId: rtecDemoProposal.id,
+          userId: def.userId,
+          roleCode: def.roleCode,
+          assignedBy: adminUser.id,
+          isActive: true,
+        },
+      });
+    }
+  }
+
+  console.log("✓ Phase 11: RTEC demo proposal seeded (status: UNDER_RTEC_REVIEW)");
 }
 
 main()

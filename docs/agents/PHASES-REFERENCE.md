@@ -64,7 +64,20 @@ The **21 phases (0–20)** are logically ordered, match the ObraTech framework, 
 
 ## Current Project Status (update as you progress)
 
-**You are here: Phase 11 — RTEC Review and Consolidation** (Phase 10 closed 2026-07-09 — see [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 10). Phase 21B closed 2026-07-09. **Phase 21A closed 2026-07-08** — 6/6 manual gate tests pass, automated suite green (127/127).
+**You are here: Phase 12 — Budget, Accounting, Regional Director** (Phase 11 closed 2026-07-09 — see [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 11). Phase 10 closed 2026-07-09. Phase 21B closed 2026-07-09. **Phase 21A closed 2026-07-08** — 6/6 manual gate tests pass, automated suite green (127/127).
+
+| Phase 11 item | Status |
+|---|---|
+| `GET /api/admin/rtec-groups` role fix (ADMIN, PROJECT_FOCAL, RTEC_MEMBER, RTEC_HEAD) | ✅ Done — `apps/backend/src/routes/adminRtecGroups.ts`; extended beyond the task's literal ADMIN+PROJECT_FOCAL spec to also cover RTEC_MEMBER/RTEC_HEAD, who hit the identical own-group-lookup gap (user-approved during implementation) |
+| `rtecApi` (saveReview, submitReview, getMyReview, getAllReviews, saveConsolidation, getConsolidation, submitConsolidation, beginConsolidation, reopenReview) | ✅ Done — `apps/frontend/src/lib/api.ts` |
+| `RtecMemberReviewPage` (review form, autosave, submit) | ✅ Done — `apps/frontend/src/pages/rtec/RtecMemberReviewPage.tsx` |
+| `RtecHeadConsolidationPage` (begin consolidation, consolidation form, member reviews panel, reopen) | ✅ Done — `apps/frontend/src/pages/rtec/RtecHeadConsolidationPage.tsx` |
+| RTEC-specific queue row navigation | ✅ Done — `apps/frontend/src/pages/queues/QueuePage.tsx` |
+| RTEC demo proposal seed (UNDER_RTEC_REVIEW, full committee assigned) | ✅ Done — `apps/backend/prisma/seed.ts`, idempotent, verified via double-seed |
+| Backend tests (adminRtecGroups.test.ts) | ✅ Done — 6/6 pass |
+| Frontend tests (RtecMemberReviewPage.test.tsx) | ✅ Done — 3/3 pass (TC-RTEC-UI-01..03) |
+| Latent Phase 10 bug fixed in passing: `listRtecGroups()` response shape (`{groups:[]}` vs bare array) | ✅ Fixed — `api.ts` + `ProposalDetailPage.tsx` |
+| Phase 11 approval gate | ✅ **Closed 2026-07-09** — automated 4/4 (vitest/npm test/tsc/seed), manual 8/8 (R1–R8) |
 
 Implementation is open to **all developers**. Follow agent consultation ([AGENTS.md](../../AGENTS.md)), [DEVELOPER-EXECUTION-PLAN.md](DEVELOPER-EXECUTION-PLAN.md), [TEST-MATRIX.md](TEST-MATRIX.md), and [QA-PUSH-GATE.md](QA-PUSH-GATE.md).
 
@@ -165,7 +178,7 @@ Phases 0, 1, and 2 approved by supervisor 2026-07-01 (B-01..B-04). Phase 3 form 
 
 ## One Rule
 
-> Phases 0–4 planning gates are **closed**. Phase 21A is **closed** (2026-07-08). Active work: **Phase 21B**, then Phases 10–13, then harden and deploy (14–20). All developers may implement when following [AGENTS.md](../../AGENTS.md) and the current phase checklist.
+> Phases 0–4 planning gates are **closed**. Phase 21A, 21B, 10, and 11 are **closed**. Active work: **Phase 12**, then Phase 13, then harden and deploy (14–20). All developers may implement when following [AGENTS.md](../../AGENTS.md) and the current phase checklist.
 
 **Start here after git pull:** [../../DEVELOPERS.md](../../DEVELOPERS.md) → [DEVELOPER-EXECUTION-PLAN.md](DEVELOPER-EXECUTION-PLAN.md) → [TEST-MATRIX.md](TEST-MATRIX.md).
 

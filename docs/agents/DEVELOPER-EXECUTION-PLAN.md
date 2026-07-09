@@ -30,11 +30,12 @@ Related docs:
 | Admin / queues / notifications / profile pages | Done (API wired) |
 | Focal workflow | Backend done; **UI done** (Phase 10, closed 2026-07-09) |
 | Proposal staff assignment | Done — seed + admin API + admin UI (Phase 21A) |
-| RTEC / Budget / RD workflow | Backend routes done (`rtec.ts`, `budget.ts`, `accounting.ts`, `rd.ts`); UI not verified this round |
+| RTEC workflow | Backend + UI done (Phase 11, closed 2026-07-09) — `RtecMemberReviewPage.tsx`, `RtecHeadConsolidationPage.tsx` |
+| Budget / RD workflow | Backend routes done (`budget.ts`, `accounting.ts`, `rd.ts`); UI not built (Phase 12) |
 | Full fillable forms (21 specs) | Partial (3 short stubs in seed) |
 | Staging deploy | Pending |
 
-**You are here:** **Phase 11** (RTEC review + consolidation) — **Phase 10 closed 2026-07-09**, automated 3/3 + manual 7/7 (F4 caveated, see [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 10); **Phase 21B closed 2026-07-09**, automated gates 13/13 Pass; **Phase 21A closed 2026-07-08**, all 6 gate tests pass.
+**You are here:** **Phase 12** (Budget, Accounting, RD) — **Phase 11 closed 2026-07-09**, automated 4/4 + manual 8/8, see [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 11; **Phase 10 closed 2026-07-09**, automated 3/3 + manual 7/7 (F4 caveated); **Phase 21B closed 2026-07-09**, automated gates 13/13 Pass; **Phase 21A closed 2026-07-08**, all 6 gate tests pass.
 
 ---
 
@@ -196,6 +197,8 @@ Known gap (not fixed, flagged during implementation): `GET /api/admin/rtec-group
 - Seed assignments + UNDER_RTEC_REVIEW proposals
 
 **Test accounts:** rtec.member@dev.local, rtec.head@dev.local, focal@dev.local
+
+**Status:** ✅ **Closed 2026-07-09.** `rtecApi` added to `apps/frontend/src/lib/api.ts`; `RtecMemberReviewPage.tsx` and `RtecHeadConsolidationPage.tsx` built with autosave, submit, and (for the head) a member-reviews panel with reopen. `GET /api/admin/rtec-groups` opened to `RTEC_MEMBER`/`RTEC_HEAD` in addition to the Phase 10 `PROJECT_FOCAL` fix — all three roles hit the same "no way to learn my own rtecGroupId before a first draft" gap, so the same relaxation was applied to all of them (one route, `apps/backend/src/routes/adminRtecGroups.ts`). Seed extended with an idempotent `UNDER_RTEC_REVIEW` demo proposal with the full committee assigned. Full results in [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 11.
 
 ---
 
