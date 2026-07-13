@@ -4,6 +4,7 @@ import {
   api,
   phase9Api,
   proposalTypesApi,
+  formTemplatesApi,
   type FormField,
   type FormSection,
   type FormTemplateVersionResponse,
@@ -64,6 +65,9 @@ export default function ProposalFormPage() {
   const [proposalStatus, setProposalStatus] = useState<string>("DRAFT");
   const [sections, setSections] = useState<FormSection[]>([]);
   const [requiredForms, setRequiredForms] = useState<ProposalRequiredForm[]>([]);
+  const [currentFormTemplateId, setCurrentFormTemplateId] = useState<string | null>(null);
+  const [currentFormTitle, setCurrentFormTitle] = useState<string>("");
+  const [selectedFormId, setSelectedFormId] = useState<string>("");
   const [fieldValues, setFieldValues] = useState<FieldValues>({});
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
@@ -110,6 +114,8 @@ export default function ProposalFormPage() {
           setError("This proposal type has no form template configured.");
           return;
         }
+        setCurrentFormTemplateId(formTemplateId);
+        setSelectedFormId(formTemplateId);
 
         // Step 3: Get current form template version / schema
         const schema = await api.get<FormTemplateVersionResponse>(
@@ -124,9 +130,18 @@ export default function ProposalFormPage() {
         });
         setSections(sorted);
 
-        // Step 4: List of all forms this proposal type requires (informational
-        // only — only FORM-001's fields are rendered above until the other
-        // forms are wired up). A failure here shouldn't block the main form.
+        // Step 4: Title of the form being filled below, for the combo box.
+        try {
+          const formTemplate = await formTemplatesApi.get(formTemplateId);
+          setCurrentFormTitle(formTemplate.title);
+        } catch {
+          setCurrentFormTitle("");
+        }
+
+        // Step 5: List of all other forms this proposal type requires
+        // (informational only — only the form above has fillable fields
+        // until the rest are wired up). A failure here shouldn't block the
+        // main form.
         try {
           const forms = await proposalTypesApi.requiredForms(typeId);
           setRequiredForms(forms);
@@ -363,7 +378,7 @@ export default function ProposalFormPage() {
         />
       </div>
 
-      {requiredForms.length > 0 && (
+      {(currentFormTemplateId || requiredForms.length > 0) && (
         <div
           style={{
             marginBottom: "1rem",
@@ -373,17 +388,35 @@ export default function ProposalFormPage() {
             backgroundColor: "#f9fafb",
           }}
         >
-          <p style={{ margin: "0 0 0.5rem", fontWeight: 500, fontSize: "0.875rem" }}>
+          <label
+            htmlFor="required-form-select"
+            style={{ display: "block", marginBottom: "0.5rem", fontWeight: 500, fontSize: "0.875rem" }}
+          >
             Forms required for this proposal
-          </p>
-          <ul style={{ margin: 0, paddingLeft: "1.25rem", fontSize: "0.8125rem", color: "#374151" }}>
+          </label>
+          <select
+            id="required-form-select"
+            value={selectedFormId}
+            onChange={(e) => setSelectedFormId(e.target.value)}
+            style={inputStyle}
+          >
+            {currentFormTemplateId && (
+              <option value={currentFormTemplateId}>
+                {currentFormTitle || "Loading…"} (currently open below)
+              </option>
+            )}
             {requiredForms.map((f) => (
-              <li key={f.id}>
+              <option key={f.id} value={f.formTemplate.id}>
                 {f.formTemplate.title}
                 {!f.isRequired && " (optional)"}
-              </li>
+              </option>
             ))}
-          </ul>
+          </select>
+          {selectedFormId && selectedFormId !== currentFormTemplateId && (
+            <p style={{ margin: "0.5rem 0 0", fontSize: "0.8125rem", color: "#6b7280" }}>
+              This form isn't available to fill online yet.
+            </p>
+          )}
         </div>
       )}
 
