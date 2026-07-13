@@ -74,11 +74,10 @@ export default async function proposalsRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       const currentUser = request.currentUser!;
 
-      // Only APPLICANT may create proposals; any other role → 403.
-      const isApplicantOnly =
-        currentUser.roles.includes("APPLICANT") &&
-        currentUser.roles.every((r) => r === "APPLICANT");
-      if (!isApplicantOnly) {
+      // User must hold the APPLICANT role to create proposals. Multi-role
+      // users (e.g. APPLICANT + PROJECT_FOCAL) are allowed — only users with
+      // no APPLICANT role at all get 403.
+      if (!currentUser.roles.includes("APPLICANT")) {
         return reply.status(403).send({ error: "Forbidden", statusCode: 403 });
       }
 

@@ -413,6 +413,74 @@ async function main() {
 
   console.log("Phase 8 seed: Office, Programs, Form Templates, and Proposal Types upserted.");
 
+  // ── Phase 21C Task 4: FORM-002–020 shared across GIA/CEST/SSCP ─────────────────
+  // Per docs/forms/FORM-INVENTORY.md, these 19 forms apply to all three proposal
+  // types generally ("exact per-program mapping to be verified with Process
+  // Owner"). Unlike FORM-001 above (one FormTemplate per program), these are
+  // seeded as a single shared FormTemplate per form, linked to all 3
+  // ProposalTypes via ProposalTypeForm. Placeholder only — no sections/fields,
+  // since the UI doesn't yet render anything beyond the default form template.
+  const sharedFormDefs = [
+    { formCode: "FORM-002", title: "DOST-GIA Form 2 — Project Concept Proposal", sourceType: "Word" },
+    { formCode: "FORM-003", title: "DOST-GIA Form 3 — Detailed R&D Program Proposal", sourceType: "Word" },
+    { formCode: "FORM-004", title: "DOST-GIA Form 4.A — Detailed Project Proposal (R&D)", sourceType: "Word" },
+    { formCode: "FORM-005", title: "DOST-GIA Form 4.B — Detailed Project Proposal (Non-R&D)", sourceType: "Word" },
+    { formCode: "FORM-006", title: "DOST-GIA Form 4.C — Detailed Project Proposal (Innovative Startups)", sourceType: "Word" },
+    { formCode: "FORM-007", title: "DOST-GIA Form 5 — Project Work Plan", sourceType: "Word" },
+    { formCode: "FORM-008", title: "DOST-GIA Form 6 — Project Line Item Budget", sourceType: "Excel" },
+    { formCode: "FORM-009", title: "DOST-GIA Form 7 — Clearance Form for Project Leaders", sourceType: "Word" },
+    { formCode: "FORM-010", title: "DOST-GIA Form 8 — List of Personnel Involved", sourceType: "Word" },
+    { formCode: "FORM-011", title: "DOST-GIA Form 9 — List of Equipment Purchased", sourceType: "Excel" },
+    { formCode: "FORM-012", title: "DOST-GIA Form 10 — Executive Summary of Technical Progress Report", sourceType: "Word" },
+    { formCode: "FORM-013", title: "DOST-GIA Form 11 — Financial Report", sourceType: "Excel" },
+    { formCode: "FORM-014", title: "DOST Form 12 — Fund Utilization Report", sourceType: "Excel" },
+    { formCode: "FORM-015", title: "DOST-GIA Form 13 — Schedule of Accounts Payable", sourceType: "Excel" },
+    { formCode: "FORM-016", title: "DOST-GIA Form 14 — Report of Income Generated / Earned", sourceType: "Excel" },
+    { formCode: "FORM-017", title: "DOST-GIA Form 15 — Project Monitoring and Field Evaluation Report", sourceType: "Word" },
+    { formCode: "FORM-018", title: "DOST-GIA Form 16 — Appraisal Assessment Report", sourceType: "Word" },
+    { formCode: "FORM-019", title: "DOST-GIA Form 17 — Executive Summary of Terminal Accomplishment Report", sourceType: "Word" },
+    { formCode: "FORM-020", title: "DOST-GIA Form 18 — Terminal Financial Report", sourceType: "Excel" },
+  ];
+
+  const sharedFormTemplates: Record<string, { id: string }> = {};
+  for (const def of sharedFormDefs) {
+    const formTemplate = await prisma.formTemplate.upsert({
+      where: { formCode: def.formCode },
+      update: {},
+      create: {
+        formCode: def.formCode,
+        title: def.title,
+        sourceType: def.sourceType,
+        isActive: true,
+      },
+    });
+    sharedFormTemplates[def.formCode] = formTemplate;
+  }
+
+  const sharedProposalTypeCodes = ["GIA-PROPOSAL", "CEST-PROPOSAL", "SSCP-PROPOSAL"];
+  for (const ptCode of sharedProposalTypeCodes) {
+    const proposalType = await prisma.proposalType.findUniqueOrThrow({ where: { code: ptCode } });
+    for (const [i, def] of sharedFormDefs.entries()) {
+      await prisma.proposalTypeForm.upsert({
+        where: {
+          proposalTypeId_formTemplateId: {
+            proposalTypeId: proposalType.id,
+            formTemplateId: sharedFormTemplates[def.formCode].id,
+          },
+        },
+        update: {},
+        create: {
+          proposalTypeId: proposalType.id,
+          formTemplateId: sharedFormTemplates[def.formCode].id,
+          displayOrder: i + 2, // FORM-002 => 2, FORM-003 => 3, ...
+          isRequired: true,
+        },
+      });
+    }
+  }
+
+  console.log("Phase 21C Task 4 seed: FORM-002–020 linked to GIA/CEST/SSCP proposal types.");
+
   // ── Phase 10: Workflow definitions ────────────────────────────────────────────
   const proposalWorkflow = await prisma.workflowDefinition.upsert({
     where: { code: "PROPOSAL_LIFECYCLE" },

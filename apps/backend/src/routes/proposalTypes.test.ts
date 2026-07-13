@@ -118,6 +118,8 @@ const TEST_EMAILS = [
   "admin-create-type@test.local",
   "applicant-post-type@test.local",
   "admin-patch-type@test.local",
+  "admin-required-forms@test.local",
+  "admin-required-forms-404@test.local",
 ];
 
 const TEST_TYPE_CODES = [
@@ -126,20 +128,42 @@ const TEST_TYPE_CODES = [
   "TYPE-GET-02",
   "TYPE-POST-01",
   "TYPE-PATCH-01",
+  "TYPE-REQFORMS-01",
 ];
 
-const TEST_OFFICE_CODES = ["OFF-LIST01", "OFF-GET02", "OFF-POST01", "OFF-POST02", "OFF-PATCH01"];
+const TEST_OFFICE_CODES = [
+  "OFF-LIST01",
+  "OFF-GET02",
+  "OFF-POST01",
+  "OFF-POST02",
+  "OFF-PATCH01",
+  "OFF-REQFORMS01",
+];
 
 async function cleanupTestData() {
+  // Remove ProposalTypeForm links for the required-forms test's proposal type
+  const reqFormsType = await db.proposalType.findUnique({
+    where: { code: "TYPE-REQFORMS-01" },
+  });
+  if (reqFormsType) {
+    await db.proposalTypeForm.deleteMany({ where: { proposalTypeId: reqFormsType.id } });
+  }
+
   // Remove proposal types created by tests
   await db.proposalType.deleteMany({ where: { code: { in: TEST_TYPE_CODES } } });
 
   // Remove form templates created by tests
-  await db.formTemplate.deleteMany({ where: { formCode: "FT-GET02" } });
+  await db.formTemplate.deleteMany({
+    where: { formCode: { in: ["FT-GET02", "FT-REQFORMS-01", "FT-REQFORMS-02"] } },
+  });
 
   // Remove programs and offices created by tests
   await db.program.deleteMany({
-    where: { code: { in: ["PRG-LIST01", "PRG-GET02", "PRG-POST01", "PRG-POST02", "PRG-PATCH01"] } },
+    where: {
+      code: {
+        in: ["PRG-LIST01", "PRG-GET02", "PRG-POST01", "PRG-POST02", "PRG-PATCH01", "PRG-REQFORMS01"],
+      },
+    },
   });
   await db.office.deleteMany({ where: { code: { in: TEST_OFFICE_CODES } } });
 
@@ -357,6 +381,64 @@ describe("Proposal Types routes", () => {
       where: { action: "PROPOSAL_TYPE_UPDATED", entityId: proposalType.id },
     });
     expect(auditRow).not.toBeNull();
+  });
+
+  it("TC-GET-REQFORMS-01: GET /api/proposal-types/:id/required-forms returns forms ordered by displayOrder", async () => {
+    const adminCookie = await createAdminSession(app, "admin-required-forms@test.local");
+    const { program } = await seedOfficeAndProgram("REQFORMS01");
+
+    const proposalType = await db.proposalType.create({
+      data: {
+        code: "TYPE-REQFORMS-01",
+        name: "Required Forms Test Type",
+        programId: program.id,
+        isActive: true,
+      },
+    });
+
+    const formB = await db.formTemplate.create({
+      data: { formCode: "FT-REQFORMS-02", title: "Form B", isActive: true },
+    });
+    const formA = await db.formTemplate.create({
+      data: { formCode: "FT-REQFORMS-01", title: "Form A", isActive: true },
+    });
+
+    // Insert out of display order to verify the endpoint sorts them.
+    await db.proposalTypeForm.create({
+      data: { proposalTypeId: proposalType.id, formTemplateId: formB.id, displayOrder: 2 },
+    });
+    await db.proposalTypeForm.create({
+      data: { proposalTypeId: proposalType.id, formTemplateId: formA.id, displayOrder: 1 },
+    });
+
+    const response = await app.inject({
+      method: "GET",
+      url: `/api/proposal-types/${proposalType.id}/required-forms`,
+      headers: { cookie: adminCookie },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = response.json() as Array<{
+      displayOrder: number;
+      isRequired: boolean;
+      formTemplate: { formCode: string; title: string };
+    }>;
+    expect(body).toHaveLength(2);
+    expect(body[0].formTemplate.formCode).toBe("FT-REQFORMS-01");
+    expect(body[1].formTemplate.formCode).toBe("FT-REQFORMS-02");
+    expect(body[0].isRequired).toBe(true);
+  });
+
+  it("TC-GET-REQFORMS-02: GET /api/proposal-types/:id/required-forms returns 404 for unknown id", async () => {
+    const adminCookie = await createAdminSession(app, "admin-required-forms-404@test.local");
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/proposal-types/00000000-0000-0000-0000-000000000000/required-forms",
+      headers: { cookie: adminCookie },
+    });
+
+    expect(response.statusCode).toBe(404);
   });
 
   it("TC-AUTH-REQUIRED: GET /api/proposal-types without auth returns 401", async () => {

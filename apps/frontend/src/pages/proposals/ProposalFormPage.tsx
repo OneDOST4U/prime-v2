@@ -3,11 +3,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   api,
   phase9Api,
+  proposalTypesApi,
   type FormField,
   type FormSection,
   type FormTemplateVersionResponse,
   type ProposalTypeSummary,
   type AttachmentMeta,
+  type ProposalRequiredForm,
 } from "../../lib/api";
 
 type SaveStatus = "idle" | "saving" | "saved" | "failed";
@@ -61,6 +63,7 @@ export default function ProposalFormPage() {
   const [proposalTitle, setProposalTitle] = useState("Draft Proposal");
   const [proposalStatus, setProposalStatus] = useState<string>("DRAFT");
   const [sections, setSections] = useState<FormSection[]>([]);
+  const [requiredForms, setRequiredForms] = useState<ProposalRequiredForm[]>([]);
   const [fieldValues, setFieldValues] = useState<FieldValues>({});
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
@@ -120,6 +123,16 @@ export default function ProposalFormPage() {
           section.fields.sort((a, b) => a.displayOrder - b.displayOrder);
         });
         setSections(sorted);
+
+        // Step 4: List of all forms this proposal type requires (informational
+        // only — only FORM-001's fields are rendered above until the other
+        // forms are wired up). A failure here shouldn't block the main form.
+        try {
+          const forms = await proposalTypesApi.requiredForms(typeId);
+          setRequiredForms(forms);
+        } catch {
+          setRequiredForms([]);
+        }
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : "Failed to initialize form";
         setError(message);
@@ -349,6 +362,30 @@ export default function ProposalFormPage() {
           required
         />
       </div>
+
+      {requiredForms.length > 0 && (
+        <div
+          style={{
+            marginBottom: "1rem",
+            padding: "0.75rem 1rem",
+            border: "1px solid #e5e7eb",
+            borderRadius: "0.375rem",
+            backgroundColor: "#f9fafb",
+          }}
+        >
+          <p style={{ margin: "0 0 0.5rem", fontWeight: 500, fontSize: "0.875rem" }}>
+            Forms required for this proposal
+          </p>
+          <ul style={{ margin: 0, paddingLeft: "1.25rem", fontSize: "0.8125rem", color: "#374151" }}>
+            {requiredForms.map((f) => (
+              <li key={f.id}>
+                {f.formTemplate.title}
+                {!f.isRequired && " (optional)"}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Save status */}
       <div
