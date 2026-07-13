@@ -64,7 +64,19 @@ The **21 phases (0–20)** are logically ordered, match the ObraTech framework, 
 
 ## Current Project Status (update as you progress)
 
-**You are here: Phase 14 — Security Hardening** (Phase 13 closed 2026-07-09 — see [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 13). Phase 12 closed 2026-07-09. Phase 11 closed 2026-07-09. Phase 10 closed 2026-07-09. Phase 21B closed 2026-07-09. **Phase 21A closed 2026-07-08** — 6/6 manual gate tests pass, automated suite green (127/127).
+**You are here: Phase 16 — Staging Deployment** (Phase 14–15 closed 2026-07-13 — see [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 14–15). Phase 13 closed 2026-07-09. Phase 12 closed 2026-07-09. Phase 11 closed 2026-07-09. Phase 10 closed 2026-07-09. Phase 21B closed 2026-07-09. **Phase 21A closed 2026-07-08** — 6/6 manual gate tests pass, automated suite green (127/127).
+
+| Phase 14–15 item | Status |
+|---|---|
+| RBAC audit vs. Roles-and-Permissions matrix (13 route files) | ✅ Done — see TEST-MATRIX.md § Phase 14–15 for the full findings table |
+| **HIGH finding, fixed**: `canAccessProposal()` (5 duplicated copies) was owner-or-assigned-only, blocking REGIONAL_DIRECTOR from viewing any proposal not separately assigned — made the RD approve/reject/defer/return flow unreachable in the normal case (RD is notified, not assigned) | ✅ Fixed — `proposals.ts`, `comments.ts`, `versions.ts`, `export.ts`, `attachments.ts` |
+| **MEDIUM finding, fixed**: comment resolve/reopen was author-or-admin-only, under-permissioning assigned Focal/RTEC Head/Budget/Accountant and RD per §3.3 | ✅ Fixed — `comments.ts` |
+| **LOW finding, fixed**: `fastifyMultipart` fileSize:Infinity buffered unbounded uploads into memory before the app-level 50MB check | ✅ Fixed — capped at 60MB in `app.ts` |
+| **MEDIUM finding, logged only**: comment visibility is a flat PUBLIC/INTERNAL enum vs. the approved 6-tier model in §4 — over-exposes INTERNAL comments among staff roles (applicant-safety guarantee still holds; real RTEC-sensitive data lives in the correctly-scoped rtec.ts endpoints) | ⚠️ Logged — needs a schema migration, deferred |
+| RISK-16 (Vitest parallel-mode DB collision) | ⚠️ Re-confirmed still open — `--no-file-parallelism` stays; see Risk Register |
+| Security spot checks S1–S4 | ✅ Re-verified 2026-07-13, all Pass |
+| Full regression (backend + frontend) | ✅ 132/132 backend, 20/20 frontend, both `tsc` clean |
+| Phase 14–15 approval gate | ✅ **Closed 2026-07-13** |
 
 | Phase 13 item | Status |
 |---|---|
@@ -200,7 +212,7 @@ Phases 0, 1, and 2 approved by supervisor 2026-07-01 (B-01..B-04). Phase 3 form 
 
 ## One Rule
 
-> Phases 0–4 planning gates are **closed**. Phase 21A, 21B, 10, 11, 12, and 13 are **closed**. Active work: **Phase 14**, then harden and deploy (15–20). All developers may implement when following [AGENTS.md](../../AGENTS.md) and the current phase checklist.
+> Phases 0–4 planning gates are **closed**. Phase 21A, 21B, 10, 11, 12, 13, and 14–15 are **closed**. Active work: **Phase 16**, then deploy (17–20). All developers may implement when following [AGENTS.md](../../AGENTS.md) and the current phase checklist.
 
 **Start here after git pull:** [../../DEVELOPERS.md](../../DEVELOPERS.md) → [DEVELOPER-EXECUTION-PLAN.md](DEVELOPER-EXECUTION-PLAN.md) → [TEST-MATRIX.md](TEST-MATRIX.md).
 

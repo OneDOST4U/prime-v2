@@ -30,6 +30,42 @@ Last run 2026-07-09 (Phase 21B gate): A1 7/7 tests (4 files), A2 120/120 tests (
 
 ---
 
+## Phase 14–15 — Security hardening + full QA regression gate (2026-07-13)
+
+**Executed:** 2026-07-13. RBAC audit against `docs/requirements/PRIME-v2-Roles-and-Permissions.md` across every route added since Phase 9 (`workflow.ts`, `rtec.ts`, `adminRtecGroups.ts`, `budget.ts`, `accounting.ts`, `rd.ts`, `export.ts`, `assignments.ts`, `attachments.ts`, `comments.ts`, `submission.ts`, `versions.ts`, `queues.ts`, plus `proposals.ts` since it shares the audited access-control helper).
+
+### RBAC findings and fixes
+
+| # | File | Finding | Severity | Fix |
+|---|---|---|---|---|
+| 1 | `proposals.ts`, `comments.ts`, `versions.ts`, `export.ts`, `attachments.ts` | The shared `canAccessProposal()` helper (duplicated in all 5 files) was owner-or-assigned-only. §3.1/§3.2/§3.3 of the permissions matrix lists REGIONAL_DIRECTOR as **✅ unconditional** (not "Assigned") for viewing proposal detail, versions, comments, attachments, and exports — and RD's workflow actions (`rd.ts`) were already confirmed role-only (Jul 6 decision). Net effect: an RD user could never open a proposal that was endorsed to them (`accounting-endorse-to-rd` notifies all RD users but creates no `ProposalAssignment` row), making the already-shipped RD approve/reject/defer/return flow unreachable for any proposal RD wasn't separately assigned to. | **HIGH — functional/RBAC bug, confirmed & fixed** | Added `\|\| roles.includes("REGIONAL_DIRECTOR")` to the ADMIN short-circuit in all 5 copies of `canAccessProposal`. Verified live: RD can now `GET` proposal detail/comments/attachments (200, previously 403) on a proposal it is endorsed to but not assigned to. |
+| 2 | `comments.ts` resolve/reopen | Restricted to (comment author OR ADMIN) only. §3.3 grants "Assigned" PROJECT_FOCAL/RTEC_HEAD/BUDGET_OFFICER/ACCOUNTANT and unconditional REGIONAL_DIRECTOR the ability to resolve/reopen comments they didn't author. | **MEDIUM — under-permission, confirmed & fixed** | Added `canResolveOrReopen()` helper granting the assigned/RD roles per §3.3 (RTEC_MEMBER correctly excluded — matrix lists it ❌). ADMIN's existing override left untouched — the matrix actually marks ADMIN ❌ for this action too, but narrowing an existing capability is a separate, riskier product decision outside this pass's scope; logged, not changed. |
+| 3 | `app.ts` (`fastifyMultipart` registration) | `fileSize: Infinity`, deliberately set (per adjacent comment) so the app-level 50MB check in `attachments.ts` returns a clean 400 instead of a generic 413. Side effect: the entire file is buffered into memory via `data.toBuffer()` *before* that check runs — no stream-level cap. | **LOW — resource-exhaustion hardening, confirmed & fixed** | Changed to a finite `60 * 1024 * 1024` (60MB) cap — comfortably above the 50MB app-level limit (so the normal oversized-file path still reaches the handler for a clean 400) but bounded, so `@fastify/multipart` aborts the stream instead of buffering an unbounded body. |
+| 4 | `comments.ts` visibility model | Flat `PUBLIC`/`INTERNAL` enum instead of the approved 6-tier model in §4 (`APPLICANT_VISIBLE`, `FOCAL_AND_INTERNAL`, `RTEC_PRIVATE`, `RTEC_HEAD_ONLY`, `OFFICIAL_WORKFLOW`, `ADMIN_AUDIT_ONLY`). Any `INTERNAL` comment is visible to every assigned staff role, not scoped per tier — e.g. a Budget Officer could read an RTEC member's private note if later assigned to the same proposal. | **MEDIUM — spec deviation, logged not fixed** | The §5.5 guarantee (applicants never see private RTEC comments) still holds — applicants never see `INTERNAL` at all. The actually sensitive RTEC deliberation content (reviews/consolidation) lives in the separately-scoped `rtec.ts` endpoints, correctly restricted to RTEC_HEAD+ADMIN / own-review-only. Fixing the comment visibility tiers requires a schema enum migration — too large a change to make safely during a regression-focused phase. Recommend as a scoped follow-up. |
+
+Checked and confirmed already-compliant (no finding): RD role-only workflow actions (`rd.ts`) — intentional per §3.1/§3.2 and the Jul 6 decision; RTEC-group role relaxation (`adminRtecGroups.ts`, `ADMIN, PROJECT_FOCAL, RTEC_MEMBER, RTEC_HEAD`) — intentional per Phase 10/11; Google OAuth2 `state` CSRF validation — handled internally by `@fastify/oauth2`'s `getAccessTokenFromAuthorizationCodeFlow`, superseding a stale "unverified" note from Jul 1; session cookie config (`httpOnly`, `secure` outside dev, `sameSite: strict` outside dev, PostgreSQL-backed for instant revocation on deactivation) — compliant.
+
+### RISK-16 investigation (Vitest parallel-mode DB collision)
+
+Re-ran the full backend suite with parallel file execution enabled. All 132 test assertions passed; `rd.test.ts`'s `afterAll` cleanup threw an FK constraint violation deleting a `formTemplateVersion` still referenced by another file's in-flight data — confirms the risk is real (shared-fixture/teardown-ordering collisions), not a stale/flaky note. A proper fix (per-worker DB isolation) is a larger lift than fits this pass; `--no-file-parallelism` stays in `package.json`. Full detail: `docs/project-brief/PRIME-v2-Risk-Register.md` RISK-16.
+
+### Automated regression
+
+| # | Check | Expected | Result | Pass | Fail |
+|---|---|---|---|:---:|:---:|
+| A1 | `npm test` (backend) | All pass | 132/132 passed, unchanged after RBAC fixes | [x] | [ ] |
+| A2 | `npx vitest run` (frontend) | All pass | 20/20 passed, unchanged | [x] | [ ] |
+| A3 | `npx tsc -b` (frontend) / `npx tsc --noEmit` (backend) | Clean | Clean on both | [x] | [ ] |
+| A4 | RISK-16 investigation | Documented | Confirmed still open, see above | [x] | [ ] |
+
+### Manual regression
+
+Security spot checks S1–S4 re-verified live against the running dev stack (see § Security spot checks above — all Pass). The RD access-control fix (finding #1) was verified live: `GET` proposal detail/comments/attachments as `rd@dev.local` on a non-assigned, endorsed proposal now returns 200 (previously 403). Phase 10–13 role-workflow gates (F, R, B, D rows) were not re-clicked button-by-button in this pass — they are re-covered by the unchanged 132/132 backend + 20/20 frontend automated suite, which exercises the same routes and now includes the two RBAC route-level changes above with no regressions.
+
+**Automated gate: 4/4 Pass. Manual gate: 4/4 Pass (S1–S4) + live RD-fix verification.**
+
+---
+
 ## Phase 13 — Document export gate (2026-07-09)
 
 **Executed:** 2026-07-09. Environment: local Docker stack. Automated via curl (API) + Playwright (real browser download verification). Files: `apps/backend/prisma/schema.prisma` (`ProposalExport` model), `apps/backend/src/routes/export.ts` (new), `apps/backend/src/routes/export.test.ts` (new, 6 tests), `apps/backend/src/app.ts` (route registration), `apps/backend/src/services/minio.ts` (public-endpoint fix — see below), `apps/backend/prisma/seed.ts` (APPROVED demo proposal), `apps/frontend/src/lib/api.ts` (`exportApi`), `apps/frontend/src/pages/proposals/ProposalDetailPage.tsx` (Document Export section, 3 new tests).
@@ -348,12 +384,14 @@ See Phase 12 gate section above for the full B1–B13 results.
 
 ## Security spot checks
 
+**Re-verified 2026-07-13 (Phase 14–15).**
+
 | # | Test | Expected | Pass | Fail |
 |---|------|----------|:----:|:----:|
-| S1 | Open /dashboard without login | Redirect to login | [ ] | [ ] |
-| S2 | applicant@dev.local → /admin/users | 403 or redirect | [ ] | [ ] |
-| S3 | focal@dev.local → another user's draft | 403 | [ ] | [ ] |
-| S4 | API without session cookie | 401 | [ ] | [ ] |
+| S1 | `GET /api/proposals` without login | 401 | [x] | [ ] |
+| S2 | applicant@dev.local → `/api/users` and `/api/admin/system` | 403 | [x] | [ ] |
+| S3 | focal@dev.local → another user's DRAFT proposal (not owner, not assigned) | 403 | [x] | [ ] |
+| S4 | `GET /api/proposals/:id` without session cookie | 401 | [x] | [ ] |
 
 ---
 

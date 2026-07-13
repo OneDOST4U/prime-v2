@@ -12,7 +12,10 @@ async function canAccessProposal(
   currentUserId: string,
   roles: string[],
 ): Promise<{ allowed: boolean; proposal: Proposal | null }> {
-  if (roles.includes("ADMIN")) {
+  // ADMIN and REGIONAL_DIRECTOR both get unconditional access — see
+  // proposals.ts canAccessProposal for the full rationale (Roles-and-
+  // Permissions §3.3 lists RD as "✅", not "Assigned", for comment actions).
+  if (roles.includes("ADMIN") || roles.includes("REGIONAL_DIRECTOR")) {
     const proposal = await prisma.proposal.findUnique({ where: { id: proposalId } });
     return { allowed: true, proposal };
   }
@@ -37,6 +40,25 @@ const commentParamSchema = z.object({
   id: z.string().uuid(),
   commentId: z.string().uuid(),
 });
+
+// Roles-and-Permissions §3.3: "Resolve comment" / "Reopen comment" are
+// Assigned for PROJECT_FOCAL, RTEC_HEAD, BUDGET_OFFICER, ACCOUNTANT
+// (RTEC_MEMBER is ❌ despite being an assignable role). REGIONAL_DIRECTOR is
+// unconditional ✅.
+const RESOLVE_REOPEN_ROLES = ["PROJECT_FOCAL", "RTEC_HEAD", "BUDGET_OFFICER", "ACCOUNTANT"];
+
+function canResolveOrReopen(
+  currentUser: { id: string; roles: string[] },
+  comment: { authorUserId: string },
+  allowed: boolean,
+): boolean {
+  const isAuthor = comment.authorUserId === currentUser.id;
+  const isAdmin = currentUser.roles.includes("ADMIN");
+  const isRd = currentUser.roles.includes("REGIONAL_DIRECTOR");
+  const hasAssignedResolveRole =
+    allowed && currentUser.roles.some((r) => RESOLVE_REOPEN_ROLES.includes(r));
+  return isAuthor || isAdmin || isRd || hasAssignedResolveRole;
+}
 
 const createCommentSchema = z.object({
   commentType: z.enum(["FIELD", "SECTION", "GENERAL"]),
@@ -206,10 +228,7 @@ export default async function commentsRoutes(fastify: FastifyInstance) {
         return reply.status(404).send({ error: "Not Found", statusCode: 404 });
       }
 
-      // Only comment author or ADMIN may resolve
-      const isAuthor = comment.authorUserId === currentUser.id;
-      const isAdmin = currentUser.roles.includes("ADMIN");
-      if (!isAuthor && !isAdmin) {
+      if (!canResolveOrReopen(currentUser, comment, allowed)) {
         return reply.status(403).send({ error: "Forbidden", statusCode: 403 });
       }
 
@@ -265,10 +284,7 @@ export default async function commentsRoutes(fastify: FastifyInstance) {
         return reply.status(404).send({ error: "Not Found", statusCode: 404 });
       }
 
-      // Only comment author or ADMIN may reopen
-      const isAuthor = comment.authorUserId === currentUser.id;
-      const isAdmin = currentUser.roles.includes("ADMIN");
-      if (!isAuthor && !isAdmin) {
+      if (!canResolveOrReopen(currentUser, comment, allowed)) {
         return reply.status(403).send({ error: "Forbidden", statusCode: 403 });
       }
 
