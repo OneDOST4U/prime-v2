@@ -201,6 +201,7 @@ export default function RtecMemberReviewPage() {
   }
 
   const isSubmitted = review?.isSubmitted === true;
+  const fieldValues = proposal.currentVersion?.fieldValues ?? [];
 
   const saveStatusLabel =
     saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "Saved" : saveStatus === "failed" ? "Save failed" : "";
@@ -237,6 +238,47 @@ export default function RtecMemberReviewPage() {
         <p style={{ color: "#16a34a", fontSize: "0.875rem", fontWeight: 500, marginBottom: "1rem" }}>
           Review submitted
         </p>
+      )}
+
+      {fieldValues.length > 0 && (
+        <section style={{ marginBottom: "1.5rem" }}>
+          <h3
+            style={{
+              margin: "0 0 0.75rem 0",
+              fontSize: "1rem",
+              fontWeight: 600,
+              borderBottom: "1px solid #e5e7eb",
+              paddingBottom: "0.5rem",
+            }}
+          >
+            Form Responses
+          </h3>
+          <dl style={{ margin: 0 }}>
+            {fieldValues.map(({ formFieldId, value }) => (
+              <div key={formFieldId} style={{ marginBottom: "0.75rem" }}>
+                <dt
+                  style={{
+                    fontSize: "0.8125rem",
+                    fontWeight: 500,
+                    color: "#6b7280",
+                    marginBottom: "0.125rem",
+                  }}
+                >
+                  {formFieldId}
+                </dt>
+                <dd
+                  style={{
+                    margin: 0,
+                    fontSize: "0.9375rem",
+                    color: value ? "#111827" : "#9ca3af",
+                  }}
+                >
+                  {value ?? "—"}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
       )}
 
       <div style={{ marginBottom: "1rem" }}>

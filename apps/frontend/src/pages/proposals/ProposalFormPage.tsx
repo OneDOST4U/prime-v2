@@ -181,8 +181,20 @@ export default function ProposalFormPage() {
   }
 
   function handleFieldChange(formFieldId: string, value: string, fieldLabel?: string) {
-    const nextValues = { ...fieldValues, [formFieldId]: value };
-    setFieldValues(nextValues);
+    setFieldValues((prev) => {
+      const nextValues = { ...prev, [formFieldId]: value };
+
+      if (proposalId) {
+        if (debounceTimer.current !== null) {
+          clearTimeout(debounceTimer.current);
+        }
+        debounceTimer.current = setTimeout(() => {
+          saveFields(nextValues, proposalId);
+        }, 1500);
+      }
+
+      return nextValues;
+    });
 
     if (fieldErrors[formFieldId]) {
       setFieldErrors((prev) => {
@@ -200,15 +212,6 @@ export default function ProposalFormPage() {
       setProposalTitle(value.trim());
       void api.patch(`/api/proposals/${proposalId}`, { title: value.trim() });
     }
-
-    if (!proposalId) return;
-
-    if (debounceTimer.current !== null) {
-      clearTimeout(debounceTimer.current);
-    }
-    debounceTimer.current = setTimeout(() => {
-      saveFields(nextValues, proposalId);
-    }, 1500);
   }
 
   function handleSaveNow() {
@@ -237,7 +240,10 @@ export default function ProposalFormPage() {
   }
 
   function handleTableRowChange(field: FormField, rowIndex: number, columnKey: string, value: string) {
-    const rows = parseTableRows(fieldValues[field.id]);
+    const existingRows = parseTableRows(fieldValues[field.id]);
+    const rows = existingRows.length > 0
+      ? existingRows
+      : [Object.fromEntries(parseTableColumns(field.validationRules).map((c) => [c.key, ""]))];
     const nextRows = rows.map((row, i) => (i === rowIndex ? { ...row, [columnKey]: value } : row));
     handleFieldChange(field.id, JSON.stringify(nextRows), field.label);
   }

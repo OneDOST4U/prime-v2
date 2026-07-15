@@ -189,6 +189,14 @@ export async function performRtecSubmitRecommendation(
     data: { isSubmitted: true, submittedAt: new Date() },
   });
 
+  const recommendationLabels: Record<string, string> = {
+    FOR_APPROVAL: "Recommend for Approval",
+    FOR_REVISION: "Return for Revision",
+    NOT_RECOMMENDED: "Not Recommended",
+  };
+  const recommendationLabel =
+    recommendationLabels[consolidation.recommendation ?? ""] ?? consolidation.recommendation;
+
   await tx.proposalWorkflowHistory.create({
     data: {
       proposalId,
@@ -198,6 +206,7 @@ export async function performRtecSubmitRecommendation(
       actorRole: "RTEC_HEAD",
       workflowAction: "RTEC_SUBMIT_RECOMMENDATION",
       proposalVersionNumber: versionNumber,
+      comment: `${recommendationLabel}: ${consolidation.consolidatedRemarks}`,
     },
   });
 
