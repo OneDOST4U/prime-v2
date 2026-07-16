@@ -101,11 +101,13 @@ export async function buildApp() {
     global: false,
   });
 
-  // 6b. Multipart file upload support — fileSize set to Infinity so files always
-  //     reach the route handler, which enforces the 50 MB cap and returns 400.
-  //     (Without Infinity, @fastify/multipart falls back to Fastify's bodyLimit
-  //     default of 1 MB and returns 413 before the handler can check.)
-  await app.register(fastifyMultipart, { limits: { fileSize: Infinity } });
+  // 6b. Multipart file upload support. fileSize is capped at 60 MB — comfortably
+  //     above the 50 MB application-level limit in attachments.ts (so the normal
+  //     oversized-file case still reaches the handler and gets a clean 400) but
+  //     finite, so @fastify/multipart aborts the stream instead of buffering an
+  //     unbounded body into memory (Phase 14 security review: Infinity here was
+  //     a memory-exhaustion DoS vector for authenticated uploads).
+  await app.register(fastifyMultipart, { limits: { fileSize: 60 * 1024 * 1024 } });
 
   // 7. Routes
   await app.register(healthRoutes);

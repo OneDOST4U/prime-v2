@@ -76,6 +76,35 @@ export interface ProposalTypeSummary {
   isActive: boolean;
 }
 
+export interface ProposalRequiredForm {
+  id: string;
+  displayOrder: number;
+  isRequired: boolean;
+  formTemplate: {
+    id: string;
+    formCode: string;
+    title: string;
+    sourceType: string | null;
+  };
+}
+
+export const proposalTypesApi = {
+  requiredForms: (proposalTypeId: string) =>
+    api.get<ProposalRequiredForm[]>(`/api/proposal-types/${proposalTypeId}/required-forms`),
+};
+
+export interface FormTemplateSummary {
+  id: string;
+  formCode: string;
+  title: string;
+  sourceType: string | null;
+}
+
+export const formTemplatesApi = {
+  get: (formTemplateId: string) =>
+    api.get<FormTemplateSummary>(`/api/form-templates/${formTemplateId}`),
+};
+
 export interface FormField {
   id: string;
   fieldCode: string;

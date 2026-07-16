@@ -1,0 +1,81 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.hero {
+  background: linear-gradient(
+    120deg,
+    var(--prime-navy) 0%,
+    #175081 55%,
+    var(--prime-primary) 130%
+  );
+  color: #fff;
+  border-radius: var(--prime-radius);
+  padding: 1.4rem 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.heroTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.heroSub {
+  font-size: 0.85rem;
+  color: #cfe4f3;
+  margin: 0.15rem 0 0;
+}
+
+.quickGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1rem;
+}
+
+.quickCard {
+  display: block;
+  background: var(--prime-surface);
+  border: 1px solid var(--prime-border);
+  border-radius: var(--prime-radius);
+  padding: 1.1rem 1.2rem;
+  box-shadow: var(--prime-shadow-1);
+  text-decoration: none;
+  transition: box-shadow var(--prime-t), transform var(--prime-t),
+    border-color var(--prime-t);
+}
+
+.quickCard:hover {
+  box-shadow: var(--prime-shadow-2);
+  transform: translateY(-2px);
+  border-color: rgba(0, 152, 219, 0.4);
+}
+
+.quickCard::before {
+  content: "";
+  display: block;
+  width: 34px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--prime-cyan);
+  margin-bottom: 0.7rem;
+}
+
+.quickLabel {
+  font-weight: 700;
+  color: var(--prime-heading);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.quickHint {
+  color: var(--prime-text-muted);
+  font-size: 0.8rem;
+  margin: 0.25rem 0 0;
+}

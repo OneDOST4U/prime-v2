@@ -11,7 +11,14 @@ async function canAccessProposal(
   currentUserId: string,
   roles: string[],
 ): Promise<{ allowed: boolean; proposal: Proposal | null }> {
-  if (roles.includes("ADMIN")) {
+  // ADMIN and REGIONAL_DIRECTOR both get unconditional access (not
+  // assignment-gated) — Roles-and-Permissions §3.1/§3.2/§3.3 lists RD as "✅"
+  // for viewing versions/comments/attachments/exports and confirms RD's
+  // workflow actions (rd.ts) are role-only, not assignment-based. Requiring
+  // an assignment here would block RD from ever opening a proposal that
+  // was endorsed to them (accounting-endorse-to-rd notifies all RD users
+  // but does not create a ProposalAssignment row).
+  if (roles.includes("ADMIN") || roles.includes("REGIONAL_DIRECTOR")) {
     const proposal = await prisma.proposal.findUnique({ where: { id: proposalId } });
     return { allowed: true, proposal };
   }
@@ -67,11 +74,10 @@ export default async function proposalsRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       const currentUser = request.currentUser!;
 
-      // Only APPLICANT may create proposals; any other role → 403.
-      const isApplicantOnly =
-        currentUser.roles.includes("APPLICANT") &&
-        currentUser.roles.every((r) => r === "APPLICANT");
-      if (!isApplicantOnly) {
+      // User must hold the APPLICANT role to create proposals. Multi-role
+      // users (e.g. APPLICANT + PROJECT_FOCAL) are allowed — only users with
+      // no APPLICANT role at all get 403.
+      if (!currentUser.roles.includes("APPLICANT")) {
         return reply.status(403).send({ error: "Forbidden", statusCode: 403 });
       }
 

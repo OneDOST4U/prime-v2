@@ -86,6 +86,44 @@ export default async function proposalTypesRoutes(fastify: FastifyInstance) {
     },
   );
 
+  // GET /api/proposal-types/:id/required-forms — ordered list of forms
+  // applicants must fill out for this proposal type (Phase 21C multi-form
+  // linkage; separate from the single defaultFormTemplateId used to create
+  // the initial ProposalVersion).
+  fastify.get(
+    "/api/proposal-types/:id/required-forms",
+    { preHandler: requireAuth() },
+    async (request, reply) => {
+      const params = idParamSchema.parse(request.params);
+      const proposalType = await prisma.proposalType.findUnique({
+        where: { id: params.id },
+      });
+      if (!proposalType) {
+        return reply.status(404).send({ error: "Not Found", statusCode: 404 });
+      }
+
+      const links = await prisma.proposalTypeForm.findMany({
+        where: { proposalTypeId: params.id },
+        include: { formTemplate: true },
+        orderBy: { displayOrder: "asc" },
+      });
+
+      return reply.status(200).send(
+        links.map((link) => ({
+          id: link.id,
+          displayOrder: link.displayOrder,
+          isRequired: link.isRequired,
+          formTemplate: {
+            id: link.formTemplate.id,
+            formCode: link.formTemplate.formCode,
+            title: link.formTemplate.title,
+            sourceType: link.formTemplate.sourceType,
+          },
+        })),
+      );
+    },
+  );
+
   // POST /api/proposal-types — create (ADMIN only)
   fastify.post(
     "/api/proposal-types",

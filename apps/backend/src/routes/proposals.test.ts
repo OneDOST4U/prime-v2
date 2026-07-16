@@ -106,6 +106,37 @@ async function createFocalSession(app: FastifyInstance, email: string) {
   return sessionCookieHeader(loginResponse);
 }
 
+async function createApplicantFocalSession(app: FastifyInstance, email: string) {
+  const passwordHash = await bcrypt.hash("MultiRolePassw0rd!", 12);
+  const applicantRole = await db.role.findUniqueOrThrow({ where: { code: "APPLICANT" } });
+  const focalRole = await db.role.findUniqueOrThrow({ where: { code: "PROJECT_FOCAL" } });
+  const user = await db.user.create({
+    data: {
+      email,
+      passwordHash,
+      firstName: "Multi",
+      lastName: "Role",
+      isActive: true,
+      mustChangePassword: false,
+      userRoles: { create: [{ roleId: applicantRole.id }, { roleId: focalRole.id }] },
+    },
+  });
+  await db.applicantProfile.create({
+    data: {
+      userId: user.id,
+      privacyConsentGiven: true,
+      privacyConsentAt: new Date(),
+    },
+  });
+  const loginResponse = await app.inject({
+    method: "POST",
+    url: "/api/auth/staff/login",
+    remoteAddress: nextIp(),
+    payload: { email, password: "MultiRolePassw0rd!" },
+  });
+  return sessionCookieHeader(loginResponse);
+}
+
 // ── Emails / identifiers for cleanup ────────────────────────────────────────
 
 const TEST_APPLICANT_EMAILS = [
@@ -113,7 +144,12 @@ const TEST_APPLICANT_EMAILS = [
   "applicant2-prop@test.local",
 ];
 const TEST_STAFF_EMAILS = ["focal-prop-05@test.local"];
-const ALL_TEST_EMAILS = [...TEST_APPLICANT_EMAILS, ...TEST_STAFF_EMAILS];
+const TEST_MULTI_ROLE_EMAILS = ["applicant-focal-prop-06@test.local"];
+const ALL_TEST_EMAILS = [
+  ...TEST_APPLICANT_EMAILS,
+  ...TEST_STAFF_EMAILS,
+  ...TEST_MULTI_ROLE_EMAILS,
+];
 
 const TEST_PROPOSAL_TYPE_CODE = "PT-PROP-TEST-01";
 const TEST_OFFICE_CODE = "OFFICE-PROP-TEST-01";
@@ -508,5 +544,24 @@ describe("Proposals routes", () => {
     });
 
     expect(response.statusCode).toBe(403);
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // TC-PROP-06: POST /api/proposals as APPLICANT + PROJECT_FOCAL succeeds
+  // ─────────────────────────────────────────────────────────────────────────
+  it("TC-PROP-06: POST /api/proposals as multi-role user (APPLICANT + PROJECT_FOCAL) creates DRAFT", async () => {
+    const cookie = await createApplicantFocalSession(app, "applicant-focal-prop-06@test.local");
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/proposals",
+      headers: { cookie },
+      payload: {
+        proposalTypeId,
+        title: "Multi-Role Draft",
+      },
+    });
+
+    expect(response.statusCode).toBe(201);
   });
 });

@@ -11,7 +11,11 @@ async function canAccessProposal(
   currentUserId: string,
   roles: string[],
 ): Promise<{ allowed: boolean; proposal: Proposal | null }> {
-  if (roles.includes("ADMIN")) {
+  // ADMIN and REGIONAL_DIRECTOR both get unconditional access — see
+  // proposals.ts canAccessProposal for the full rationale (Roles-and-
+  // Permissions §3.1 lists RD as "✅", not "Assigned", for viewing/comparing
+  // versions).
+  if (roles.includes("ADMIN") || roles.includes("REGIONAL_DIRECTOR")) {
     const proposal = await prisma.proposal.findUnique({ where: { id: proposalId } });
     return { allowed: true, proposal };
   }

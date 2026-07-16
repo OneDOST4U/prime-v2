@@ -216,9 +216,10 @@ model ProposalType {
   isActive              Boolean  @default(true) @map("is_active")
   createdAt             DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
-  program             Program       @relation(fields: [programId], references: [id])
-  defaultFormTemplate FormTemplate? @relation(fields: [defaultFormTemplateId], references: [id])
+  program             Program            @relation(fields: [programId], references: [id])
+  defaultFormTemplate FormTemplate?      @relation(fields: [defaultFormTemplateId], references: [id])
   proposals           Proposal[]
+  requiredForms       ProposalTypeForm[]
 
   @@map("proposal_types")
 }
@@ -235,8 +236,27 @@ model FormTemplate {
 
   versions      FormTemplateVersion[]
   proposalTypes ProposalType[]
+  usedByTypes   ProposalTypeForm[]
 
   @@map("form_templates")
+}
+
+// Links a ProposalType to every FormTemplate its applicants must fill out
+// (beyond the single defaultFormTemplateId), e.g. GIA needs FORM-001..020.
+model ProposalTypeForm {
+  id             String   @id @default(uuid()) @db.Uuid
+  proposalTypeId String   @map("proposal_type_id") @db.Uuid
+  formTemplateId String   @map("form_template_id") @db.Uuid
+  displayOrder   Int      @default(0) @map("display_order")
+  isRequired     Boolean  @default(true) @map("is_required")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  proposalType ProposalType @relation(fields: [proposalTypeId], references: [id])
+  formTemplate FormTemplate @relation(fields: [formTemplateId], references: [id])
+
+  @@unique([proposalTypeId, formTemplateId])
+  @@index([proposalTypeId])
+  @@map("proposal_type_forms")
 }
 
 model FormTemplateVersion {

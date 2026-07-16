@@ -804,10 +804,11 @@ export default async function workflowRoutes(fastify: FastifyInstance) {
       }
 
       const isAdmin = currentUser.roles.includes("ADMIN");
+      const isRegionalDirector = currentUser.roles.includes("REGIONAL_DIRECTOR");
       const isOwner = proposal.applicantUserId === currentUser.id;
       const isAssigned = (proposal as any).assignments?.length > 0;
 
-      if (!isAdmin && !isOwner && !isAssigned) {
+      if (!isAdmin && !isRegionalDirector && !isOwner && !isAssigned) {
         return reply.status(403).send({ error: "Forbidden", statusCode: 403 });
       }
 

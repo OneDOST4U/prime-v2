@@ -3,11 +3,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   api,
   phase9Api,
+  proposalTypesApi,
+  formTemplatesApi,
   type FormField,
   type FormSection,
   type FormTemplateVersionResponse,
   type ProposalTypeSummary,
   type AttachmentMeta,
+  type ProposalRequiredForm,
 } from "../../lib/api";
 
 type SaveStatus = "idle" | "saving" | "saved" | "failed";
@@ -61,6 +64,10 @@ export default function ProposalFormPage() {
   const [proposalTitle, setProposalTitle] = useState("Draft Proposal");
   const [proposalStatus, setProposalStatus] = useState<string>("DRAFT");
   const [sections, setSections] = useState<FormSection[]>([]);
+  const [requiredForms, setRequiredForms] = useState<ProposalRequiredForm[]>([]);
+  const [currentFormTemplateId, setCurrentFormTemplateId] = useState<string | null>(null);
+  const [currentFormTitle, setCurrentFormTitle] = useState<string>("");
+  const [selectedFormId, setSelectedFormId] = useState<string>("");
   const [fieldValues, setFieldValues] = useState<FieldValues>({});
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
@@ -107,6 +114,8 @@ export default function ProposalFormPage() {
           setError("This proposal type has no form template configured.");
           return;
         }
+        setCurrentFormTemplateId(formTemplateId);
+        setSelectedFormId(formTemplateId);
 
         // Step 3: Get current form template version / schema
         const schema = await api.get<FormTemplateVersionResponse>(
@@ -120,6 +129,25 @@ export default function ProposalFormPage() {
           section.fields.sort((a, b) => a.displayOrder - b.displayOrder);
         });
         setSections(sorted);
+
+        // Step 4: Title of the form being filled below, for the combo box.
+        try {
+          const formTemplate = await formTemplatesApi.get(formTemplateId);
+          setCurrentFormTitle(formTemplate.title);
+        } catch {
+          setCurrentFormTitle("");
+        }
+
+        // Step 5: List of all other forms this proposal type requires
+        // (informational only — only the form above has fillable fields
+        // until the rest are wired up). A failure here shouldn't block the
+        // main form.
+        try {
+          const forms = await proposalTypesApi.requiredForms(typeId);
+          setRequiredForms(forms);
+        } catch {
+          setRequiredForms([]);
+        }
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : "Failed to initialize form";
         setError(message);
@@ -153,8 +181,20 @@ export default function ProposalFormPage() {
   }
 
   function handleFieldChange(formFieldId: string, value: string, fieldLabel?: string) {
-    const nextValues = { ...fieldValues, [formFieldId]: value };
-    setFieldValues(nextValues);
+    setFieldValues((prev) => {
+      const nextValues = { ...prev, [formFieldId]: value };
+
+      if (proposalId) {
+        if (debounceTimer.current !== null) {
+          clearTimeout(debounceTimer.current);
+        }
+        debounceTimer.current = setTimeout(() => {
+          saveFields(nextValues, proposalId);
+        }, 1500);
+      }
+
+      return nextValues;
+    });
 
     if (fieldErrors[formFieldId]) {
       setFieldErrors((prev) => {
@@ -172,15 +212,6 @@ export default function ProposalFormPage() {
       setProposalTitle(value.trim());
       void api.patch(`/api/proposals/${proposalId}`, { title: value.trim() });
     }
-
-    if (!proposalId) return;
-
-    if (debounceTimer.current !== null) {
-      clearTimeout(debounceTimer.current);
-    }
-    debounceTimer.current = setTimeout(() => {
-      saveFields(nextValues, proposalId);
-    }, 1500);
   }
 
   function handleSaveNow() {
@@ -209,7 +240,10 @@ export default function ProposalFormPage() {
   }
 
   function handleTableRowChange(field: FormField, rowIndex: number, columnKey: string, value: string) {
-    const rows = parseTableRows(fieldValues[field.id]);
+    const existingRows = parseTableRows(fieldValues[field.id]);
+    const rows = existingRows.length > 0
+      ? existingRows
+      : [Object.fromEntries(parseTableColumns(field.validationRules).map((c) => [c.key, ""]))];
     const nextRows = rows.map((row, i) => (i === rowIndex ? { ...row, [columnKey]: value } : row));
     handleFieldChange(field.id, JSON.stringify(nextRows), field.label);
   }
@@ -349,6 +383,48 @@ export default function ProposalFormPage() {
           required
         />
       </div>
+
+      {(currentFormTemplateId || requiredForms.length > 0) && (
+        <div
+          style={{
+            marginBottom: "1rem",
+            padding: "0.75rem 1rem",
+            border: "1px solid #e5e7eb",
+            borderRadius: "0.375rem",
+            backgroundColor: "#f9fafb",
+          }}
+        >
+          <label
+            htmlFor="required-form-select"
+            style={{ display: "block", marginBottom: "0.5rem", fontWeight: 500, fontSize: "0.875rem" }}
+          >
+            Forms required for this proposal
+          </label>
+          <select
+            id="required-form-select"
+            value={selectedFormId}
+            onChange={(e) => setSelectedFormId(e.target.value)}
+            style={inputStyle}
+          >
+            {currentFormTemplateId && (
+              <option value={currentFormTemplateId}>
+                {currentFormTitle || "Loading…"} (currently open below)
+              </option>
+            )}
+            {requiredForms.map((f) => (
+              <option key={f.id} value={f.formTemplate.id}>
+                {f.formTemplate.title}
+                {!f.isRequired && " (optional)"}
+              </option>
+            ))}
+          </select>
+          {selectedFormId && selectedFormId !== currentFormTemplateId && (
+            <p style={{ margin: "0.5rem 0 0", fontSize: "0.8125rem", color: "#6b7280" }}>
+              This form isn't available to fill online yet.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Save status */}
       <div

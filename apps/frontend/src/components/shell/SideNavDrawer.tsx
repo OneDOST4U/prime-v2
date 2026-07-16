@@ -1,8 +1,5 @@
 import { useEffect, useRef } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { navConfig } from "./navConfig";
-import { useAuth } from "../../hooks/useAuth";
-import { navLinkClass } from "./navLinkClass";
+import SideNavContent from "./SideNavContent";
 import styles from "./AppShell.module.css";
 
 export interface SideNavDrawerProps {
@@ -17,18 +14,6 @@ export default function SideNavDrawer({
   onClose,
 }: SideNavDrawerProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
-  const items = navConfig[role] ?? navConfig.ADMIN ?? [];
-  const displayName = user
-    ? `${user.firstName} ${user.lastName}`.trim() || user.email
-    : "User";
-
-  const handleLogout = async () => {
-    await logout();
-    onClose();
-    navigate("/", { replace: true });
-  };
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -72,36 +57,7 @@ export default function SideNavDrawer({
         >
           ×
         </button>
-
-        <p className={styles.brand}>PRIME v2</p>
-
-        <ul className={styles.navList}>
-          {items.map((item) => (
-            <li key={item.path}>
-              <NavLink
-                to={item.path}
-                className={navLinkClass}
-                aria-label={item.label}
-                onClick={onClose}
-              >
-                {item.label}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-
-        <div className={styles.userArea}>
-          <p className={styles.userName}>{displayName}</p>
-          <p className={styles.userRole}>{role.replaceAll("_", " ").toLowerCase()}</p>
-          <button
-            type="button"
-            className={styles.logoutButton}
-            aria-label="Log out"
-            onClick={handleLogout}
-          >
-            Log out
-          </button>
-        </div>
+        <SideNavContent role={role} onNavigate={onClose} />
       </div>
     </dialog>
   );

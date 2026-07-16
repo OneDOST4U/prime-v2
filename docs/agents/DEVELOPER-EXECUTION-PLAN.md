@@ -36,7 +36,7 @@ Related docs:
 | Document export | Done (Phase 13, closed 2026-07-09) — HTML export (pdfkit not installed), `export.ts` |
 | Staging deploy | Pending |
 
-**You are here:** **Phase 14–15** (Security hardening + full QA regression) — **Phase 13 closed 2026-07-09**, automated 4/4 + manual 7/7, see [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 13; **Phase 12 closed 2026-07-09**, automated 4/4 + manual 13/13; **Phase 11 closed 2026-07-09**, automated 4/4 + manual 8/8; **Phase 10 closed 2026-07-09**, automated 3/3 + manual 7/7 (F4 caveated); **Phase 21B closed 2026-07-09**, automated gates 13/13 Pass; **Phase 21A closed 2026-07-08**, all 6 gate tests pass.
+**You are here:** **Phase 16–18** (Staging, UAT, production readiness) — **Phase 14–15 closed 2026-07-13**, automated 4/4 + manual 4/4 (S1–S4) + RBAC audit (3 fixed, 1 logged), see [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 14–15; **Phase 13 closed 2026-07-09**, automated 4/4 + manual 7/7; **Phase 12 closed 2026-07-09**, automated 4/4 + manual 13/13; **Phase 11 closed 2026-07-09**, automated 4/4 + manual 8/8; **Phase 10 closed 2026-07-09**, automated 3/3 + manual 7/7 (F4 caveated); **Phase 21B closed 2026-07-09**, automated gates 13/13 Pass; **Phase 21A closed 2026-07-08**, all 6 gate tests pass.
 
 ---
 
@@ -234,6 +234,8 @@ Two real bugs found and fixed during manual verification (both pre-existing, not
 - RBAC review on all new routes
 - Full regression (backend + frontend tests)
 - Complete [TEST-MATRIX.md](TEST-MATRIX.md) full pass
+
+**Status:** ✅ **Closed 2026-07-13.** RBAC audit against `docs/requirements/PRIME-v2-Roles-and-Permissions.md` covered all 13 route files added since Phase 9. One HIGH finding fixed: the shared `canAccessProposal()` helper (5 duplicated copies) was owner-or-assigned-only, blocking REGIONAL_DIRECTOR from viewing proposals it wasn't separately assigned to — made the already-shipped RD decision flow unreachable in the normal case, since `accounting-endorse-to-rd` notifies RD without assigning it. Fixed by granting RD the same unconditional short-circuit ADMIN already had, matching §3.1/§3.2/§3.3 and the Phase 12 RD role-only decision. Two more fixes (comment resolve/reopen under-permission, multipart upload memory-exhaustion hardening) and one logged-not-fixed gap (comment visibility collapsed to 2 tiers vs. the approved 6-tier model — schema migration required, deferred). RISK-16 (Vitest parallel-mode DB collision) re-confirmed still open via a live re-run; `--no-file-parallelism` stays. Full findings table and regression results: [TEST-MATRIX.md](TEST-MATRIX.md) § Phase 14–15.
 
 ---
 
