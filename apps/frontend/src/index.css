@@ -21,6 +21,10 @@
   --prime-shadow-2: 0 4px 14px rgba(11, 18, 32, 0.1);
   --prime-shadow: var(--prime-shadow-2);
   --prime-t: 180ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  --prime-t-fast: 120ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  --prime-t-slow: 260ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  --prime-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --prime-ease-in: cubic-bezier(0.4, 0, 1, 1);
   font-family: "Public Sans", system-ui, "Segoe UI", Roboto, sans-serif;
   line-height: 1.55;
   font-weight: 400;
@@ -73,6 +77,62 @@ a {
 :focus-visible {
   outline: 2px solid var(--prime-primary);
   outline-offset: 2px;
+}
+
+@keyframes prime-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes prime-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes prime-scale-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes prime-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes prime-pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

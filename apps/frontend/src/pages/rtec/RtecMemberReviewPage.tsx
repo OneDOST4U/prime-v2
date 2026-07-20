@@ -8,6 +8,9 @@ import {
   type RtecReview,
 } from "../../lib/api";
 import { useAuth } from "../../hooks/useAuth";
+import StatusBadge from "../../components/ui/StatusBadge";
+import shared from "../shared.module.css";
+import styles from "./RtecMemberReviewPage.module.css";
 
 type SaveStatus = "idle" | "saving" | "saved" | "failed";
 
@@ -15,16 +18,6 @@ interface ItemRow {
   formSectionId: string;
   remarks: string;
 }
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "0.5rem 0.75rem",
-  border: "1px solid #d1d5db",
-  borderRadius: "0.375rem",
-  fontSize: "0.875rem",
-  boxSizing: "border-box",
-  resize: "vertical",
-};
 
 export default function RtecMemberReviewPage() {
   const { proposalId } = useParams<{ proposalId: string }>();
@@ -181,12 +174,17 @@ export default function RtecMemberReviewPage() {
   }
 
   if (loading) {
-    return <p style={{ padding: "1rem" }}>Loading review…</p>;
+    return (
+      <div className={styles.loadingState}>
+        <span className={shared.spinner} aria-hidden="true" />
+        Loading review…
+      </div>
+    );
   }
 
   if (notAssigned) {
     return (
-      <p role="alert" style={{ padding: "1rem", color: "#dc2626" }}>
+      <p role="alert" className={`${shared.error} ${styles.pageError}`}>
         You are not assigned to review this proposal.
       </p>
     );
@@ -194,7 +192,7 @@ export default function RtecMemberReviewPage() {
 
   if (error || !proposal) {
     return (
-      <p role="alert" style={{ padding: "1rem", color: "#dc2626" }}>
+      <p role="alert" className={`${shared.error} ${styles.pageError}`}>
         Error: {error ?? "Proposal not found"}
       </p>
     );
@@ -205,85 +203,46 @@ export default function RtecMemberReviewPage() {
 
   const saveStatusLabel =
     saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "Saved" : saveStatus === "failed" ? "Save failed" : "";
-  const saveStatusColor = saveStatus === "failed" ? "#dc2626" : saveStatus === "saved" ? "#16a34a" : "#6b7280";
+  const saveStatusClass =
+    saveStatus === "failed"
+      ? styles.saveStatusFailed
+      : saveStatus === "saved"
+        ? styles.saveStatusSaved
+        : styles.saveStatusMuted;
 
   return (
-    <div style={{ padding: "1rem", maxWidth: "720px" }}>
-      <div style={{ marginBottom: "1.5rem" }}>
-        <h2 style={{ margin: "0 0 0.5rem 0" }}>{proposal.title}</h2>
-        <span
-          style={{
-            display: "inline-block",
-            padding: "0.25rem 0.625rem",
-            borderRadius: "9999px",
-            fontSize: "0.75rem",
-            fontWeight: 600,
-            color: "#fff",
-            backgroundColor: "#d97706",
-          }}
-        >
-          {proposal.status.replace(/_/g, " ")}
-        </span>
+    <div className={styles.page}>
+      <div className={styles.header}>
+        <h2 className={styles.title}>{proposal.title}</h2>
+        <StatusBadge status={proposal.status} />
       </div>
 
-      <div
-        aria-live="polite"
-        aria-atomic="true"
-        style={{ fontSize: "0.8125rem", color: saveStatusColor, minHeight: "1.25rem", marginBottom: "0.5rem" }}
-      >
+      <div aria-live="polite" aria-atomic="true" className={`${styles.saveStatus} ${saveStatusClass}`}>
         {saveStatusLabel}
       </div>
 
-      {isSubmitted && (
-        <p style={{ color: "#16a34a", fontSize: "0.875rem", fontWeight: 500, marginBottom: "1rem" }}>
-          Review submitted
-        </p>
-      )}
+      {isSubmitted && <p className={styles.submittedNotice}>Review submitted</p>}
 
       {fieldValues.length > 0 && (
-        <section style={{ marginBottom: "1.5rem" }}>
-          <h3
-            style={{
-              margin: "0 0 0.75rem 0",
-              fontSize: "1rem",
-              fontWeight: 600,
-              borderBottom: "1px solid #e5e7eb",
-              paddingBottom: "0.5rem",
-            }}
-          >
-            Form Responses
-          </h3>
-          <dl style={{ margin: 0 }}>
+        <section className={styles.section}>
+          <h3 className={styles.sectionHeading}>Form Responses</h3>
+          <dl className={styles.fieldList}>
             {fieldValues.map(({ formFieldId, value }) => (
-              <div key={formFieldId} style={{ marginBottom: "0.75rem" }}>
-                <dt
-                  style={{
-                    fontSize: "0.8125rem",
-                    fontWeight: 500,
-                    color: "#6b7280",
-                    marginBottom: "0.125rem",
-                  }}
-                >
-                  {formFieldId}
-                </dt>
-                <dd
-                  style={{
-                    margin: 0,
-                    fontSize: "0.9375rem",
-                    color: value ? "#111827" : "#9ca3af",
-                  }}
-                >
-                  {value ?? "—"}
-                </dd>
+              <div key={formFieldId} className={styles.fieldRow}>
+                <dt className={styles.fieldLabel}>{formFieldId}</dt>
+                <dd className={`${styles.fieldValue} ${value ? "" : styles.fieldValueEmpty}`}>{value ?? "—"}</dd>
               </div>
             ))}
           </dl>
         </section>
       )}
 
-      <div style={{ marginBottom: "1rem" }}>
-        <label htmlFor="overall-remarks" style={{ display: "block", marginBottom: "0.25rem", fontWeight: 500, fontSize: "0.875rem" }}>
-          Overall Remarks<span style={{ color: "#dc2626", marginLeft: "0.25rem" }} aria-hidden="true">*</span>
+      <div className={shared.field}>
+        <label htmlFor="overall-remarks" className={shared.label}>
+          Overall Remarks
+          <span className={styles.requiredMark} aria-hidden="true">
+            *
+          </span>
         </label>
         <textarea
           id="overall-remarks"
@@ -292,18 +251,15 @@ export default function RtecMemberReviewPage() {
           onChange={(e) => handleRemarksChange(e.target.value)}
           rows={5}
           disabled={isSubmitted}
-          style={inputStyle}
+          className={shared.textarea}
         />
       </div>
 
-      <div style={{ marginBottom: "1rem" }}>
-        <h3 style={{ fontSize: "0.9375rem", fontWeight: 600, marginBottom: "0.5rem" }}>Section Remarks</h3>
+      <div className={styles.section}>
+        <h3 className={styles.itemsHeading}>Section Remarks</h3>
         {items.map((item, index) => (
-          <div
-            key={index}
-            style={{ border: "1px solid #e5e7eb", borderRadius: "0.375rem", padding: "0.75rem", marginBottom: "0.5rem" }}
-          >
-            <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem", alignItems: "center" }}>
+          <div key={index} className={styles.itemCard}>
+            <div className={styles.itemHeaderRow}>
               <input
                 type="text"
                 aria-label={`Section label for item ${index + 1}`}
@@ -311,21 +267,14 @@ export default function RtecMemberReviewPage() {
                 value={item.formSectionId}
                 onChange={(e) => handleItemChange(index, "formSectionId", e.target.value)}
                 disabled={isSubmitted}
-                style={{ ...inputStyle, flex: 1 }}
+                className={`${shared.input} ${styles.itemLabelInput}`}
               />
               <button
                 type="button"
                 onClick={() => handleRemoveItem(index)}
                 disabled={isSubmitted}
                 aria-label={`Remove item ${index + 1}`}
-                style={{
-                  minHeight: "44px",
-                  minWidth: "44px",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#fff",
-                  cursor: isSubmitted ? "not-allowed" : "pointer",
-                }}
+                className={styles.removeButton}
               >
                 ×
               </button>
@@ -337,7 +286,7 @@ export default function RtecMemberReviewPage() {
               onChange={(e) => handleItemChange(index, "remarks", e.target.value)}
               rows={3}
               disabled={isSubmitted}
-              style={inputStyle}
+              className={shared.textarea}
             />
           </div>
         ))}
@@ -346,42 +295,25 @@ export default function RtecMemberReviewPage() {
           onClick={handleAddItem}
           disabled={isSubmitted}
           aria-label="Add item"
-          style={{
-            minHeight: "44px",
-            padding: "0.5rem 1rem",
-            border: "1px solid #d1d5db",
-            borderRadius: "0.375rem",
-            backgroundColor: "#fff",
-            cursor: isSubmitted ? "not-allowed" : "pointer",
-            fontSize: "0.875rem",
-          }}
+          className={`${shared.button} ${styles.addButton}`}
         >
           + Add Item
         </button>
       </div>
 
       {submitError && (
-        <p role="alert" style={{ color: "#dc2626", fontSize: "0.875rem", marginBottom: "0.75rem" }}>
+        <p role="alert" className={`${shared.error} ${styles.inlineError}`}>
           {submitError}
         </p>
       )}
 
-      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+      <div className={styles.actions}>
         <button
           type="button"
           onClick={handleSaveNow}
           disabled={isSubmitted}
           aria-label="Save Draft"
-          style={{
-            minHeight: "44px",
-            padding: "0.5rem 1rem",
-            border: "1px solid #d1d5db",
-            borderRadius: "0.375rem",
-            backgroundColor: "#fff",
-            cursor: isSubmitted ? "not-allowed" : "pointer",
-            fontSize: "0.875rem",
-            fontWeight: 500,
-          }}
+          className={shared.button}
         >
           Save Draft
         </button>
@@ -391,18 +323,7 @@ export default function RtecMemberReviewPage() {
           onClick={() => void handleSubmitReview()}
           disabled={isSubmitted || submitting}
           aria-label="Submit Review"
-          style={{
-            minHeight: "44px",
-            padding: "0.5rem 1rem",
-            border: "none",
-            borderRadius: "0.375rem",
-            backgroundColor: "#16a34a",
-            color: "#fff",
-            cursor: isSubmitted || submitting ? "not-allowed" : "pointer",
-            fontSize: "0.875rem",
-            fontWeight: 500,
-            opacity: isSubmitted || submitting ? 0.6 : 1,
-          }}
+          className={shared.buttonPrimary}
         >
           {isSubmitted ? "Review submitted" : submitting ? "Submitting…" : "Submit Review"}
         </button>

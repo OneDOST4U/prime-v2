@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, type ProposalTypeSummary } from "../../lib/api";
+import styles from "../shared.module.css";
 
 export default function ProposalTypePage() {
   const navigate = useNavigate();
@@ -19,29 +20,35 @@ export default function ProposalTypePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return <p style={{ padding: "1rem" }}>Loading proposal types…</p>;
-  }
-
-  if (error) {
-    return (
-      <p role="alert" style={{ padding: "1rem", color: "#dc2626" }}>
-        Error: {error}
-      </p>
-    );
-  }
-
   return (
-    <div style={{ padding: "1rem" }}>
-      <h2 style={{ marginTop: 0, marginBottom: "0.5rem" }}>Select Proposal Type</h2>
-      <p style={{ color: "#6b7280", marginBottom: "1.5rem", marginTop: 0 }}>
+    <div className={styles.card}>
+      <h2 className={styles.panelTitle}>Select Proposal Type</h2>
+      <p className={styles.panelSubtitle} style={{ marginBottom: "1.25rem" }}>
         Choose the type of proposal you want to create.
       </p>
 
-      {types.length === 0 ? (
-        <p style={{ color: "#6b7280" }}>No active proposal types available.</p>
+      {loading ? (
+        <div className={styles.stack} aria-busy="true" aria-label="Loading proposal types">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className={styles.notificationItem}>
+              <div className={styles.skeleton} style={{ width: "35%", marginBottom: "0.6rem" }} />
+              <div className={styles.skeleton} style={{ width: "20%" }} />
+            </div>
+          ))}
+        </div>
+      ) : error ? (
+        <p className={styles.error} role="alert">
+          Couldn't load proposal types: {error}
+        </p>
+      ) : types.length === 0 ? (
+        <div className={styles.emptyState}>
+          <p className={styles.emptyStateTitle}>No proposal types available</p>
+          <p className={styles.emptyStateHint}>
+            Ask an administrator to activate a proposal type before you can create a submission.
+          </p>
+        </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        <div className={`${styles.stack} ${styles.staggerList}`}>
           {types.map((type) => (
             <div
               key={type.id}
@@ -54,28 +61,12 @@ export default function ProposalTypePage() {
                   navigate(`/proposals/new/${type.id}`);
                 }
               }}
-              style={{
-                padding: "1rem 1.25rem",
-                border: "1px solid #e5e7eb",
-                borderRadius: "0.5rem",
-                cursor: "pointer",
-                backgroundColor: "#fff",
-                transition: "border-color 0.15s, box-shadow 0.15s",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = "#2563eb";
-                (e.currentTarget as HTMLDivElement).style.boxShadow =
-                  "0 0 0 3px rgba(37, 99, 235, 0.1)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = "#e5e7eb";
-                (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
-              }}
+              className={`${styles.notificationItem} ${styles.clickRow}`}
             >
-              <p style={{ margin: "0 0 0.25rem 0", fontWeight: 600, fontSize: "1rem" }}>
+              <p style={{ margin: "0 0 0.25rem", fontWeight: 700, fontSize: "1rem", color: "var(--prime-heading)" }}>
                 {type.name}
               </p>
-              <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280" }}>
+              <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--prime-text-muted)" }}>
                 Code: {type.code}
               </p>
             </div>

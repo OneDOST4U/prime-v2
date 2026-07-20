@@ -36,6 +36,11 @@
 }
 
 .button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
   min-height: 44px;
   padding: 0.5rem 1.1rem;
   border-radius: 8px;
@@ -46,7 +51,9 @@
   font-size: 0.88rem;
   cursor: pointer;
   transition: background var(--prime-t), border-color var(--prime-t),
-    color var(--prime-t), box-shadow var(--prime-t);
+    color var(--prime-t), box-shadow var(--prime-t),
+    transform var(--prime-t-fast);
+  touch-action: manipulation;
 }
 
 .button:hover {
@@ -55,12 +62,35 @@
 }
 
 .button:active {
-  transform: translateY(1px);
+  transform: scale(0.97);
 }
 
 .button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+}
+
+/* Loading button: hide label, show centered spinner */
+.buttonLoading {
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.buttonLoading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  color: var(--prime-primary);
+  animation: spin 0.7s linear infinite;
+}
+
+.buttonPrimary.buttonLoading::after {
+  color: #fff;
 }
 
 .buttonPrimary {
@@ -108,6 +138,57 @@
   outline: none;
   border-color: var(--prime-primary);
   box-shadow: 0 0 0 3px rgba(0, 125, 184, 0.15);
+}
+
+.input:hover:not(:focus):not(:disabled),
+.select:hover:not(:focus):not(:disabled),
+.textarea:hover:not(:focus):not(:disabled) {
+  border-color: var(--prime-text-muted);
+}
+
+.input:disabled,
+.select:disabled,
+.textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--prime-bg);
+}
+
+/* Validation states — pair color with icon in markup (color-not-only) */
+.inputValid {
+  border-color: var(--prime-ok);
+}
+
+.inputValid:focus {
+  border-color: var(--prime-ok);
+  box-shadow: 0 0 0 3px rgba(30, 126, 74, 0.15);
+}
+
+.inputInvalid {
+  border-color: var(--prime-danger);
+}
+
+.inputInvalid:focus {
+  border-color: var(--prime-danger);
+  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.15);
+}
+
+.fieldHint {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+  color: var(--prime-text-muted);
+}
+
+.fieldError {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+  color: var(--prime-danger);
+  font-weight: 600;
+  animation: prime-rise-in var(--prime-t) var(--prime-ease-out);
 }
 
 .textarea {
@@ -295,7 +376,19 @@
   border-radius: var(--prime-radius);
   padding: 0.9rem 1rem;
   background: var(--prime-surface);
-  transition: border-color var(--prime-t);
+  transition: border-color var(--prime-t), box-shadow var(--prime-t);
+}
+
+.clickRow.notificationItem:hover,
+.notificationItem.clickRow:hover {
+  border-color: rgba(0, 152, 219, 0.45);
+  box-shadow: var(--prime-shadow-1);
+}
+
+.clickRow.notificationItem:focus-visible,
+.notificationItem.clickRow:focus-visible {
+  outline: 2px solid var(--prime-primary);
+  outline-offset: 2px;
 }
 
 .notificationUnread {
@@ -322,6 +415,170 @@
   font-size: 0.9rem;
 }
 
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--prime-border);
+  overflow-x: auto;
+}
+
+.tab {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.75rem 0.9rem;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--prime-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--prime-t), border-color var(--prime-t);
+}
+
+.tab:hover {
+  color: var(--prime-heading);
+}
+
+.tabActive {
+  composes: tab;
+  color: var(--prime-primary);
+  border-bottom-color: var(--prime-primary);
+}
+
+.card {
+  background: var(--prime-surface);
+  border: 1px solid var(--prime-border);
+  border-radius: var(--prime-radius);
+  box-shadow: var(--prime-shadow-1);
+  padding: 1.25rem 1.5rem;
+  animation: prime-rise-in var(--prime-t-slow) var(--prime-ease-out) both;
+}
+
+/* Opt-in interactive card that lifts on hover */
+.cardInteractive {
+  composes: card;
+  transition: box-shadow var(--prime-t), transform var(--prime-t),
+    border-color var(--prime-t);
+  cursor: pointer;
+}
+
+.cardInteractive:hover {
+  box-shadow: var(--prime-shadow-2);
+  transform: translateY(-2px);
+  border-color: rgba(0, 152, 219, 0.35);
+}
+
+.cardInteractive:focus-visible {
+  outline: 2px solid var(--prime-primary);
+  outline-offset: 2px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--prime-heading);
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--prime-border);
+  margin: 1.25rem 0;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: minmax(120px, 200px) 1fr;
+  gap: 0.6rem 1rem;
+}
+
+.kvLabel {
+  color: var(--prime-text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.kvValue {
+  color: var(--prime-heading);
+  font-size: 0.9rem;
+  word-break: break-word;
+}
+
+.timelineItem {
+  position: relative;
+  padding: 0 0 1.1rem 1.35rem;
+  border-left: 2px solid var(--prime-border);
+}
+
+.timelineItem:last-child {
+  border-left-color: transparent;
+  padding-bottom: 0;
+}
+
+.timelineItem::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 0.2rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--prime-primary);
+  box-shadow: 0 0 0 3px var(--prime-surface);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--prime-text-muted);
+  animation: prime-rise-in var(--prime-t-slow) var(--prime-ease-out);
+}
+
+.emptyStateTitle {
+  margin: 0;
+  font-weight: 700;
+  color: var(--prime-heading);
+  font-size: 1rem;
+}
+
+.emptyStateHint {
+  margin: 0;
+  font-size: 0.85rem;
+  max-width: 32ch;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--prime-border);
+  border-top-color: var(--prime-primary);
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .skeleton {
   height: 12px;
   border-radius: 6px;
@@ -339,4 +596,158 @@
   to {
     background-position: -200% 0;
   }
+}
+
+/* ── Modal / dialog ─────────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(11, 18, 32, 0.45);
+  backdrop-filter: blur(2px);
+  animation: prime-fade-in var(--prime-t) var(--prime-ease-out);
+}
+
+.modal {
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  background: var(--prime-surface);
+  border: 1px solid var(--prime-border);
+  border-radius: var(--prime-radius);
+  box-shadow: var(--prime-shadow-2);
+  padding: 1.5rem;
+  animation: prime-scale-in var(--prime-t-slow) var(--prime-ease-out);
+}
+
+/* On mobile, dock the sheet to the bottom */
+@media (max-width: 560px) {
+  .overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal {
+    max-width: none;
+    border-radius: var(--prime-radius) var(--prime-radius) 0 0;
+    animation: prime-rise-in var(--prime-t-slow) var(--prime-ease-out);
+  }
+}
+
+/* ── Toast ──────────────────────────────────────────────────── */
+.toastWrap {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: min(360px, calc(100vw - 2rem));
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--prime-radius);
+  background: var(--prime-surface);
+  border: 1px solid var(--prime-border);
+  border-left: 3px solid var(--prime-primary);
+  box-shadow: var(--prime-shadow-2);
+  font-size: 0.85rem;
+  color: var(--prime-heading);
+  animation: prime-slide-in-right var(--prime-t-slow) var(--prime-ease-out);
+}
+
+.toastSuccess {
+  composes: toast;
+  border-left-color: var(--prime-ok);
+}
+
+.toastError {
+  composes: toast;
+  border-left-color: var(--prime-danger);
+}
+
+/* ── Sortable table header ──────────────────────────────────── */
+.thSort {
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--prime-t);
+}
+
+.thSort:hover {
+  color: var(--prime-primary);
+}
+
+.thSort::after {
+  content: "↕";
+  margin-left: 0.35rem;
+  opacity: 0.35;
+  font-size: 0.7rem;
+}
+
+.thSortAsc::after {
+  content: "↑";
+  opacity: 1;
+  color: var(--prime-primary);
+}
+
+.thSortDesc::after {
+  content: "↓";
+  opacity: 1;
+  color: var(--prime-primary);
+}
+
+/* ── List entrance stagger ──────────────────────────────────── */
+/* Apply .staggerList to a container; children rise-in in sequence */
+.staggerList > * {
+  animation: prime-rise-in var(--prime-t-slow) var(--prime-ease-out) both;
+}
+
+.staggerList > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.staggerList > *:nth-child(2) {
+  animation-delay: 40ms;
+}
+.staggerList > *:nth-child(3) {
+  animation-delay: 80ms;
+}
+.staggerList > *:nth-child(4) {
+  animation-delay: 120ms;
+}
+.staggerList > *:nth-child(5) {
+  animation-delay: 160ms;
+}
+.staggerList > *:nth-child(6) {
+  animation-delay: 200ms;
+}
+.staggerList > *:nth-child(7) {
+  animation-delay: 240ms;
+}
+.staggerList > *:nth-child(8) {
+  animation-delay: 280ms;
+}
+.staggerList > *:nth-child(n + 9) {
+  animation-delay: 300ms;
+}
+
+/* ── Success check pop ──────────────────────────────────────── */
+.checkPop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: prime-pop var(--prime-t-slow) var(--prime-ease-out);
+}
+
+/* ── Page transition wrapper ────────────────────────────────── */
+.pageEnter {
+  animation: prime-fade-in var(--prime-t-slow) var(--prime-ease-out);
 }

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { phase9Api, type VersionDiff, type ProposalVersionSummary } from "../../lib/api";
+import shared from "../shared.module.css";
+import styles from "./ProposalComparePage.module.css";
 
 export default function ProposalComparePage() {
   const { id } = useParams<{ id: string }>();
@@ -48,58 +50,50 @@ export default function ProposalComparePage() {
   }, [id, versionA, versionB]);
 
   if (loadingVersions) {
-    return <p style={{ padding: "1rem" }}>Loading versions…</p>;
+    return (
+      <div className={styles.page}>
+        <p className={shared.loading}>
+          <span className={shared.spinner} aria-hidden="true" /> Loading versions…
+        </p>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <p role="alert" style={{ padding: "1rem", color: "#dc2626" }}>
-        Error: {error}
-      </p>
+      <div className={styles.page}>
+        <p role="alert" className={shared.error}>
+          Error: {error}
+        </p>
+      </div>
     );
   }
 
   return (
-    <div style={{ padding: "1rem", maxWidth: "860px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem" }}>
+    <div className={styles.page}>
+      <div className={styles.header}>
         <button
           type="button"
           onClick={() => navigate(`/proposals/${id ?? ""}`)}
           aria-label="Back to proposal"
-          style={{
-            padding: "0.375rem 0.75rem",
-            border: "1px solid #d1d5db",
-            borderRadius: "0.375rem",
-            backgroundColor: "#fff",
-            cursor: "pointer",
-            fontSize: "0.8125rem",
-          }}
+          className={shared.button}
         >
           ← Back
         </button>
-        <h2 style={{ margin: 0 }}>Compare Versions</h2>
+        <h2 className={styles.title}>Compare Versions</h2>
       </div>
 
       {/* Version selectors */}
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
-        <div>
-          <label
-            htmlFor="version-a"
-            style={{ display: "block", fontSize: "0.8125rem", fontWeight: 500, marginBottom: "0.25rem" }}
-          >
+      <div className={styles.selectors}>
+        <div className={`${shared.field} ${styles.selectorField}`}>
+          <label htmlFor="version-a" className={shared.label}>
             Version A
           </label>
           <select
             id="version-a"
             value={versionA}
             onChange={(e) => setVersionA(e.target.value)}
-            style={{
-              padding: "0.5rem 0.75rem",
-              border: "1px solid #d1d5db",
-              borderRadius: "0.375rem",
-              fontSize: "0.875rem",
-              minWidth: "180px",
-            }}
+            className={shared.select}
           >
             <option value="">— Select version —</option>
             {versions.map((v) => (
@@ -110,24 +104,15 @@ export default function ProposalComparePage() {
           </select>
         </div>
 
-        <div>
-          <label
-            htmlFor="version-b"
-            style={{ display: "block", fontSize: "0.8125rem", fontWeight: 500, marginBottom: "0.25rem" }}
-          >
+        <div className={`${shared.field} ${styles.selectorField}`}>
+          <label htmlFor="version-b" className={shared.label}>
             Version B
           </label>
           <select
             id="version-b"
             value={versionB}
             onChange={(e) => setVersionB(e.target.value)}
-            style={{
-              padding: "0.5rem 0.75rem",
-              border: "1px solid #d1d5db",
-              borderRadius: "0.375rem",
-              fontSize: "0.875rem",
-              minWidth: "180px",
-            }}
+            className={shared.select}
           >
             <option value="">— Select version —</option>
             {versions.map((v) => (
@@ -139,10 +124,14 @@ export default function ProposalComparePage() {
         </div>
       </div>
 
-      {loadingDiff && <p style={{ color: "#6b7280" }}>Comparing…</p>}
+      {loadingDiff && (
+        <p className={shared.loading}>
+          <span className={shared.spinner} aria-hidden="true" /> Comparing…
+        </p>
+      )}
 
       {diffError && (
-        <p role="alert" style={{ color: "#dc2626", fontSize: "0.875rem", marginBottom: "1rem" }}>
+        <p role="alert" className={shared.error}>
           {diffError}
         </p>
       )}
@@ -150,86 +139,31 @@ export default function ProposalComparePage() {
       {diff !== null && !loadingDiff && (
         <>
           {diff.length === 0 ? (
-            <p style={{ color: "#6b7280" }}>No field differences between these versions.</p>
+            <div className={shared.emptyState}>
+              <p className={shared.emptyStateTitle}>No differences</p>
+              <p className={shared.emptyStateHint}>
+                These two versions have identical field values.
+              </p>
+            </div>
           ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  fontSize: "0.875rem",
-                }}
-              >
+            <div className={shared.tableWrap}>
+              <table className={shared.table}>
                 <thead>
-                  <tr style={{ backgroundColor: "#f9fafb" }}>
-                    <th
-                      style={{
-                        padding: "0.625rem 0.75rem",
-                        textAlign: "left",
-                        border: "1px solid #e5e7eb",
-                        fontWeight: 600,
-                        width: "30%",
-                      }}
-                    >
-                      Field
-                    </th>
-                    <th
-                      style={{
-                        padding: "0.625rem 0.75rem",
-                        textAlign: "left",
-                        border: "1px solid #e5e7eb",
-                        fontWeight: 600,
-                      }}
-                    >
-                      Version A
-                    </th>
-                    <th
-                      style={{
-                        padding: "0.625rem 0.75rem",
-                        textAlign: "left",
-                        border: "1px solid #e5e7eb",
-                        fontWeight: 600,
-                      }}
-                    >
-                      Version B
-                    </th>
+                  <tr>
+                    <th className={styles.fieldHeader}>Field</th>
+                    <th>Version A</th>
+                    <th>Version B</th>
                   </tr>
                 </thead>
                 <tbody>
                   {diff.map((row) => (
-                    <tr
-                      key={row.fieldId}
-                      style={{
-                        backgroundColor: row.changed ? "#fefce8" : "#fff",
-                      }}
-                    >
-                      <td
-                        style={{
-                          padding: "0.5rem 0.75rem",
-                          border: "1px solid #e5e7eb",
-                          fontWeight: 500,
-                          color: "#374151",
-                        }}
-                      >
-                        {row.label}
+                    <tr key={row.fieldId} className={row.changed ? styles.rowChanged : undefined}>
+                      <td className={styles.fieldCell}>{row.label}</td>
+                      <td className={row.changed ? styles.valueBefore : undefined}>
+                        {row.v1Value ?? <span className={styles.valueEmpty}>—</span>}
                       </td>
-                      <td
-                        style={{
-                          padding: "0.5rem 0.75rem",
-                          border: "1px solid #e5e7eb",
-                          color: row.changed ? "#b45309" : "#374151",
-                        }}
-                      >
-                        {row.v1Value ?? <span style={{ color: "#9ca3af" }}>—</span>}
-                      </td>
-                      <td
-                        style={{
-                          padding: "0.5rem 0.75rem",
-                          border: "1px solid #e5e7eb",
-                          color: row.changed ? "#15803d" : "#374151",
-                        }}
-                      >
-                        {row.v2Value ?? <span style={{ color: "#9ca3af" }}>—</span>}
+                      <td className={row.changed ? styles.valueAfter : undefined}>
+                        {row.v2Value ?? <span className={styles.valueEmpty}>—</span>}
                       </td>
                     </tr>
                   ))}

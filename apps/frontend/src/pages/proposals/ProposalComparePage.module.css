@@ -1,0 +1,55 @@
+.page {
+  padding: 1.5rem 1rem;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--prime-heading);
+}
+
+.selectors {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.selectorField {
+  min-width: 200px;
+}
+
+.rowChanged td {
+  background: rgba(154, 98, 0, 0.08);
+}
+
+.valueBefore {
+  color: var(--prime-warn);
+}
+
+.valueAfter {
+  color: var(--prime-ok);
+}
+
+.valueEmpty {
+  color: var(--prime-text-muted);
+}
+
+.fieldCell {
+  font-weight: 600;
+  color: var(--prime-text);
+}
+
+.fieldHeader {
+  width: 30%;
+}

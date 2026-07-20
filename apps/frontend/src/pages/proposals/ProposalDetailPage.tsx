@@ -20,6 +20,9 @@ import {
   type RtecGroupSummary,
 } from "../../lib/api";
 import { useAuth } from "../../hooks/useAuth";
+import StatusBadge from "../../components/ui/StatusBadge";
+import shared from "../shared.module.css";
+import styles from "./ProposalDetailPage.module.css";
 
 const ASSIGNABLE_ROLES = ["PROJECT_FOCAL", "BUDGET_OFFICER", "ACCOUNTANT"];
 
@@ -741,14 +744,24 @@ export default function ProposalDetailPage() {
   const isRd = role === "REGIONAL_DIRECTOR";
 
   if (loading) {
-    return <p style={{ padding: "1rem" }}>Loading proposal…</p>;
+    return (
+      <div className={styles.page}>
+        <div className={shared.stack}>
+          <div className={`${shared.skeleton} ${styles.skeletonTitle}`} />
+          <div className={`${shared.skeleton} ${styles.skeletonWide}`} />
+          <div className={`${shared.skeleton} ${styles.skeletonMedium}`} />
+        </div>
+      </div>
+    );
   }
 
   if (error || !proposal) {
     return (
-      <p role="alert" style={{ padding: "1rem", color: "#dc2626" }}>
-        Error: {error ?? "Proposal not found"}
-      </p>
+      <div className={styles.page}>
+        <p role="alert" className={shared.error}>
+          Error: {error ?? "Proposal not found"}
+        </p>
+      </div>
     );
   }
 
@@ -759,48 +772,13 @@ export default function ProposalDetailPage() {
   const fieldValues = proposal.currentVersion?.fieldValues ?? [];
 
   return (
-    <div style={{ padding: "1rem", maxWidth: "720px" }}>
+    <div className={styles.page}>
       {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          marginBottom: "1.5rem",
-          gap: "1rem",
-        }}
-      >
+      <div className={styles.header}>
         <div>
-          <h2 style={{ margin: "0 0 0.5rem 0" }}>{proposal.title}</h2>
-          <p style={{ margin: "0 0 0.25rem 0", fontSize: "0.875rem", color: "#6b7280" }}>
-            {proposal.proposalType.name}
-          </p>
-          <span
-            style={{
-              display: "inline-block",
-              padding: "0.25rem 0.625rem",
-              borderRadius: "9999px",
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              color: "#fff",
-              backgroundColor:
-                proposal.status === "DRAFT"
-                  ? "#888"
-                  : proposal.status === "SUBMITTED"
-                  ? "#2563eb"
-                  : proposal.status === "UNDER_REVIEW"
-                  ? "#d97706"
-                  : proposal.status === "APPROVED"
-                  ? "#16a34a"
-                  : proposal.status === "REJECTED"
-                  ? "#dc2626"
-                  : proposal.status === "RETURNED"
-                  ? "#7c3aed"
-                  : "#888",
-            }}
-          >
-            {proposal.status.replace(/_/g, " ")}
-          </span>
+          <h2 className={styles.headerTitle}>{proposal.title}</h2>
+          <p className={styles.headerSubtitle}>{proposal.proposalType.name}</p>
+          <StatusBadge status={proposal.status} />
         </div>
 
         {proposal.status === "DRAFT" && (
@@ -808,17 +786,7 @@ export default function ProposalDetailPage() {
             type="button"
             onClick={() => navigate(`/proposals/new/${proposal.proposalType.id}`)}
             aria-label="Edit draft proposal"
-            style={{
-              padding: "0.5rem 1rem",
-              border: "1px solid #d1d5db",
-              borderRadius: "0.375rem",
-              backgroundColor: "#fff",
-              cursor: "pointer",
-              fontSize: "0.875rem",
-              fontWeight: 500,
-              whiteSpace: "nowrap",
-              flexShrink: 0,
-            }}
+            className={`${shared.button} ${styles.noShrink}`}
           >
             Edit Draft
           </button>
@@ -826,19 +794,12 @@ export default function ProposalDetailPage() {
       </div>
 
       {/* Phase 9 action buttons */}
-      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+      <div className={`${shared.toolbar} ${styles.toolbarRow}`}>
         <button
           type="button"
           onClick={() => navigate(`/proposals/${id}/history`)}
           aria-label="View change history"
-          style={{
-            padding: "0.375rem 0.75rem",
-            border: "1px solid #d1d5db",
-            borderRadius: "0.375rem",
-            backgroundColor: "#fff",
-            cursor: "pointer",
-            fontSize: "0.8125rem",
-          }}
+          className={shared.button}
         >
           View Change History
         </button>
@@ -848,14 +809,7 @@ export default function ProposalDetailPage() {
             type="button"
             onClick={() => navigate(`/proposals/${id}/compare`)}
             aria-label="Compare versions"
-            style={{
-              padding: "0.375rem 0.75rem",
-              border: "1px solid #d1d5db",
-              borderRadius: "0.375rem",
-              backgroundColor: "#fff",
-              cursor: "pointer",
-              fontSize: "0.8125rem",
-            }}
+            className={shared.button}
           >
             Compare Versions
           </button>
@@ -866,16 +820,7 @@ export default function ProposalDetailPage() {
             type="button"
             onClick={() => setShowResubmitConfirm(true)}
             aria-label="Resubmit proposal"
-            style={{
-              padding: "0.375rem 0.75rem",
-              border: "none",
-              borderRadius: "0.375rem",
-              backgroundColor: "#7c3aed",
-              color: "#fff",
-              cursor: "pointer",
-              fontSize: "0.8125rem",
-              fontWeight: 500,
-            }}
+            className={styles.buttonAccent}
           >
             Resubmit
           </button>
@@ -883,54 +828,32 @@ export default function ProposalDetailPage() {
       </div>
 
       {resubmitError && (
-        <p role="alert" style={{ color: "#dc2626", fontSize: "0.875rem", marginBottom: "1rem" }}>
+        <p role="alert" className={shared.error}>
           {resubmitError}
         </p>
       )}
 
       {/* Focal workflow actions */}
       {isFocal && (
-        <section
-          aria-label="Focal workflow actions"
-          style={{ marginBottom: "2rem", border: "1px solid #e5e7eb", borderRadius: "0.5rem", padding: "1rem" }}
-        >
-          <h3
-            style={{
-              margin: "0 0 0.75rem 0",
-              fontSize: "1rem",
-              fontWeight: 600,
-              borderBottom: "1px solid #e5e7eb",
-              paddingBottom: "0.5rem",
-            }}
-          >
+        <section aria-label="Focal workflow actions" className={`${shared.card} ${styles.actionSection}`}>
+          <h3 className={styles.sectionHeading}>
             Focal Actions
           </h3>
 
           {focalActionError && (
-            <p role="alert" style={{ color: "#dc2626", fontSize: "0.875rem", marginBottom: "0.75rem" }}>
+            <p role="alert" className={shared.error}>
               {focalActionError}
             </p>
           )}
 
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <div className={styles.buttonRow}>
             {(proposal.status === "SUBMITTED_TO_FOCAL" || proposal.status === "RESUBMITTED_TO_FOCAL") && (
               <button
                 type="button"
                 onClick={() => void handleAcknowledge()}
                 disabled={focalActioning}
                 aria-label="Acknowledge proposal"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#2563eb",
-                  color: "#fff",
-                  cursor: focalActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: focalActioning ? 0.6 : 1,
-                }}
+                className={shared.buttonPrimary}
               >
                 {focalActioning ? "Processing…" : "Acknowledge"}
               </button>
@@ -942,17 +865,7 @@ export default function ProposalDetailPage() {
                 onClick={() => setShowReturnModal(true)}
                 disabled={focalActioning}
                 aria-label="Return proposal to applicant"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#fff",
-                  cursor: focalActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: focalActioning ? 0.6 : 1,
-                }}
+                className={shared.button}
               >
                 Return to Applicant
               </button>
@@ -964,18 +877,7 @@ export default function ProposalDetailPage() {
                 onClick={() => setShowEndorseRtecModal(true)}
                 disabled={focalActioning}
                 aria-label="Endorse proposal to RTEC"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#16a34a",
-                  color: "#fff",
-                  cursor: focalActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: focalActioning ? 0.6 : 1,
-                }}
+                className={styles.buttonSuccess}
               >
                 Endorse to RTEC
               </button>
@@ -987,18 +889,7 @@ export default function ProposalDetailPage() {
                 onClick={() => setShowEndorseBudgetModal(true)}
                 disabled={focalActioning}
                 aria-label="Endorse proposal to budget"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#16a34a",
-                  color: "#fff",
-                  cursor: focalActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: focalActioning ? 0.6 : 1,
-                }}
+                className={styles.buttonSuccess}
               >
                 Endorse to Budget
               </button>
@@ -1010,17 +901,7 @@ export default function ProposalDetailPage() {
                 onClick={() => setShowReturnRtecModal(true)}
                 disabled={focalActioning}
                 aria-label="Return proposal to RTEC"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#fff",
-                  cursor: focalActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: focalActioning ? 0.6 : 1,
-                }}
+                className={shared.button}
               >
                 Return to RTEC
               </button>
@@ -1032,17 +913,7 @@ export default function ProposalDetailPage() {
                 onClick={() => setShowFocalRerouteModal(true)}
                 disabled={focalActioning}
                 aria-label="Re-route for Focal Review"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#fff",
-                  cursor: focalActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: focalActioning ? 0.6 : 1,
-                }}
+                className={shared.button}
               >
                 Re-route for Focal Review
               </button>
@@ -1053,47 +924,25 @@ export default function ProposalDetailPage() {
 
       {/* Budget Officer workflow actions */}
       {isBudgetOfficer && (
-        <section
-          aria-label="Budget Officer workflow actions"
-          style={{ marginBottom: "2rem", border: "1px solid #e5e7eb", borderRadius: "0.5rem", padding: "1rem" }}
-        >
-          <h3
-            style={{
-              margin: "0 0 0.75rem 0",
-              fontSize: "1rem",
-              fontWeight: 600,
-              borderBottom: "1px solid #e5e7eb",
-              paddingBottom: "0.5rem",
-            }}
-          >
+        <section aria-label="Budget Officer workflow actions" className={`${shared.card} ${styles.actionSection}`}>
+          <h3 className={styles.sectionHeading}>
             Budget Actions
           </h3>
 
           {budgetActionError && (
-            <p role="alert" style={{ color: "#dc2626", fontSize: "0.875rem", marginBottom: "0.75rem" }}>
+            <p role="alert" className={shared.error}>
               {budgetActionError}
             </p>
           )}
 
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <div className={styles.buttonRow}>
             {proposal.status === "ENDORSED_TO_BUDGET" && (
               <button
                 type="button"
                 onClick={() => void handleBudgetOpen()}
                 disabled={budgetActioning}
                 aria-label="Open for Review"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#2563eb",
-                  color: "#fff",
-                  cursor: budgetActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: budgetActioning ? 0.6 : 1,
-                }}
+                className={shared.buttonPrimary}
               >
                 {budgetActioning ? "Processing…" : "Open for Review"}
               </button>
@@ -1105,17 +954,7 @@ export default function ProposalDetailPage() {
                 onClick={() => setShowBudgetReturnModal(true)}
                 disabled={budgetActioning}
                 aria-label="Return to Focal"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#fff",
-                  cursor: budgetActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: budgetActioning ? 0.6 : 1,
-                }}
+                className={shared.button}
               >
                 Return to Focal
               </button>
@@ -1127,18 +966,7 @@ export default function ProposalDetailPage() {
                 onClick={() => setShowBudgetEndorseModal(true)}
                 disabled={budgetActioning}
                 aria-label="Endorse to Accounting"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#16a34a",
-                  color: "#fff",
-                  cursor: budgetActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: budgetActioning ? 0.6 : 1,
-                }}
+                className={styles.buttonSuccess}
               >
                 Endorse to Accounting
               </button>
@@ -1150,18 +978,7 @@ export default function ProposalDetailPage() {
                 onClick={() => setShowBudgetReEndorseModal(true)}
                 disabled={budgetActioning}
                 aria-label="Re-endorse to Accounting"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#16a34a",
-                  color: "#fff",
-                  cursor: budgetActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: budgetActioning ? 0.6 : 1,
-                }}
+                className={styles.buttonSuccess}
               >
                 Re-endorse to Accounting
               </button>
@@ -1172,47 +989,25 @@ export default function ProposalDetailPage() {
 
       {/* Accountant workflow actions */}
       {isAccountant && (
-        <section
-          aria-label="Accountant workflow actions"
-          style={{ marginBottom: "2rem", border: "1px solid #e5e7eb", borderRadius: "0.5rem", padding: "1rem" }}
-        >
-          <h3
-            style={{
-              margin: "0 0 0.75rem 0",
-              fontSize: "1rem",
-              fontWeight: 600,
-              borderBottom: "1px solid #e5e7eb",
-              paddingBottom: "0.5rem",
-            }}
-          >
+        <section aria-label="Accountant workflow actions" className={`${shared.card} ${styles.actionSection}`}>
+          <h3 className={styles.sectionHeading}>
             Accounting Actions
           </h3>
 
           {accountingActionError && (
-            <p role="alert" style={{ color: "#dc2626", fontSize: "0.875rem", marginBottom: "0.75rem" }}>
+            <p role="alert" className={shared.error}>
               {accountingActionError}
             </p>
           )}
 
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <div className={styles.buttonRow}>
             {proposal.status === "ENDORSED_TO_ACCOUNTING" && (
               <button
                 type="button"
                 onClick={() => void handleAccountingOpen()}
                 disabled={accountingActioning}
                 aria-label="Open for Review"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#2563eb",
-                  color: "#fff",
-                  cursor: accountingActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: accountingActioning ? 0.6 : 1,
-                }}
+                className={shared.buttonPrimary}
               >
                 {accountingActioning ? "Processing…" : "Open for Review"}
               </button>
@@ -1224,17 +1019,7 @@ export default function ProposalDetailPage() {
                 onClick={() => setShowAcctReturnBudgetModal(true)}
                 disabled={accountingActioning}
                 aria-label="Return to Budget"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#fff",
-                  cursor: accountingActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: accountingActioning ? 0.6 : 1,
-                }}
+                className={shared.button}
               >
                 Return to Budget
               </button>
@@ -1246,17 +1031,7 @@ export default function ProposalDetailPage() {
                 onClick={() => setShowAcctReturnFocalModal(true)}
                 disabled={accountingActioning}
                 aria-label="Return to Focal"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#fff",
-                  cursor: accountingActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: accountingActioning ? 0.6 : 1,
-                }}
+                className={shared.button}
               >
                 Return to Focal
               </button>
@@ -1268,18 +1043,7 @@ export default function ProposalDetailPage() {
                 onClick={() => setShowAcctEndorseRdModal(true)}
                 disabled={accountingActioning}
                 aria-label="Endorse to RD"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#16a34a",
-                  color: "#fff",
-                  cursor: accountingActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: accountingActioning ? 0.6 : 1,
-                }}
+                className={styles.buttonSuccess}
               >
                 Endorse to RD
               </button>
@@ -1290,47 +1054,25 @@ export default function ProposalDetailPage() {
 
       {/* Regional Director workflow actions */}
       {isRd && (
-        <section
-          aria-label="Regional Director workflow actions"
-          style={{ marginBottom: "2rem", border: "1px solid #e5e7eb", borderRadius: "0.5rem", padding: "1rem" }}
-        >
-          <h3
-            style={{
-              margin: "0 0 0.75rem 0",
-              fontSize: "1rem",
-              fontWeight: 600,
-              borderBottom: "1px solid #e5e7eb",
-              paddingBottom: "0.5rem",
-            }}
-          >
+        <section aria-label="Regional Director workflow actions" className={`${shared.card} ${styles.actionSection}`}>
+          <h3 className={styles.sectionHeading}>
             Regional Director Actions
           </h3>
 
           {rdActionError && (
-            <p role="alert" style={{ color: "#dc2626", fontSize: "0.875rem", marginBottom: "0.75rem" }}>
+            <p role="alert" className={shared.error}>
               {rdActionError}
             </p>
           )}
 
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <div className={styles.buttonRow}>
             {proposal.status === "ENDORSED_TO_RD" && (
               <button
                 type="button"
                 onClick={() => void handleRdOpen()}
                 disabled={rdActioning}
                 aria-label="Open for Review"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#2563eb",
-                  color: "#fff",
-                  cursor: rdActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: rdActioning ? 0.6 : 1,
-                }}
+                className={shared.buttonPrimary}
               >
                 {rdActioning ? "Processing…" : "Open for Review"}
               </button>
@@ -1342,18 +1084,7 @@ export default function ProposalDetailPage() {
                 onClick={() => setShowRdApproveModal(true)}
                 disabled={rdActioning}
                 aria-label="Approve"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#16a34a",
-                  color: "#fff",
-                  cursor: rdActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: rdActioning ? 0.6 : 1,
-                }}
+                className={styles.buttonSuccess}
               >
                 Approve
               </button>
@@ -1365,18 +1096,7 @@ export default function ProposalDetailPage() {
                 onClick={() => setShowRdRejectModal(true)}
                 disabled={rdActioning}
                 aria-label="Reject"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#dc2626",
-                  color: "#fff",
-                  cursor: rdActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: rdActioning ? 0.6 : 1,
-                }}
+                className={shared.buttonDanger}
               >
                 Reject
               </button>
@@ -1388,17 +1108,7 @@ export default function ProposalDetailPage() {
                 onClick={() => setShowRdDeferModal(true)}
                 disabled={rdActioning}
                 aria-label="Defer"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#fff",
-                  cursor: rdActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: rdActioning ? 0.6 : 1,
-                }}
+                className={shared.button}
               >
                 Defer
               </button>
@@ -1410,17 +1120,7 @@ export default function ProposalDetailPage() {
                 onClick={() => setShowRdReturnModal(true)}
                 disabled={rdActioning}
                 aria-label="Return to Applicant"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#fff",
-                  cursor: rdActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: rdActioning ? 0.6 : 1,
-                }}
+                className={shared.button}
               >
                 Return to Applicant
               </button>
@@ -1432,18 +1132,7 @@ export default function ProposalDetailPage() {
                 onClick={() => void handleRdResume()}
                 disabled={rdActioning}
                 aria-label="Resume Review"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#2563eb",
-                  color: "#fff",
-                  cursor: rdActioning ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  opacity: rdActioning ? 0.6 : 1,
-                }}
+                className={shared.buttonPrimary}
               >
                 {rdActioning ? "Processing…" : "Resume Review"}
               </button>
@@ -1454,67 +1143,30 @@ export default function ProposalDetailPage() {
 
       {/* Admin: staff assignment panel */}
       {isAdmin && (
-        <section
-          aria-label="Staff assignments"
-          style={{ marginBottom: "2rem", border: "1px solid #e5e7eb", borderRadius: "0.5rem", padding: "1rem" }}
-        >
-          <h3
-            style={{
-              margin: "0 0 0.75rem 0",
-              fontSize: "1rem",
-              fontWeight: 600,
-              borderBottom: "1px solid #e5e7eb",
-              paddingBottom: "0.5rem",
-            }}
-          >
+        <section aria-label="Staff assignments" className={`${shared.card} ${styles.actionSection}`}>
+          <h3 className={styles.sectionHeading}>
             Staff Assignments
           </h3>
 
           {assignments.length === 0 ? (
-            <p style={{ color: "#6b7280", fontSize: "0.875rem", marginBottom: "1rem" }}>
-              No staff assigned to this proposal yet.
-            </p>
+            <p className={styles.mutedText}>No staff assigned to this proposal yet.</p>
           ) : (
-            <ul style={{ listStyle: "none", margin: "0 0 1rem 0", padding: 0 }}>
+            <ul className={styles.listReset}>
               {assignments.map((a) => (
-                <li
-                  key={a.id}
-                  role="listitem"
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "0.75rem",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "0.375rem",
-                    marginBottom: "0.5rem",
-                    gap: "1rem",
-                  }}
-                >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ margin: "0 0 0.125rem 0", fontWeight: 500, fontSize: "0.875rem" }}>
+                <li key={a.id} role="listitem" className={styles.rowItem}>
+                  <div className={styles.rowItemBody}>
+                    <p className={styles.rowItemTitle}>
                       {a.user.firstName} {a.user.lastName}{" "}
-                      <span style={{ fontWeight: 400, color: "#6b7280" }}>({a.user.email})</span>
+                      <span className={styles.rowItemMutedInline}>({a.user.email})</span>
                     </p>
-                    <p style={{ margin: 0, fontSize: "0.75rem", color: "#9ca3af" }}>{a.roleCode}</p>
+                    <p className={styles.rowItemMeta}>{a.roleCode}</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => void handleUnassign(a.id)}
                     disabled={unassigningId === a.id}
                     aria-label={`Unassign ${a.user.firstName} ${a.user.lastName}`}
-                    style={{
-                      minHeight: "44px",
-                      padding: "0.5rem 1rem",
-                      border: "1px solid #d1d5db",
-                      borderRadius: "0.375rem",
-                      backgroundColor: "#fff",
-                      cursor: unassigningId === a.id ? "not-allowed" : "pointer",
-                      fontSize: "0.8125rem",
-                      fontWeight: 500,
-                      whiteSpace: "nowrap",
-                      flexShrink: 0,
-                    }}
+                    className={`${shared.button} ${styles.noShrink}`}
                   >
                     {unassigningId === a.id ? "Removing…" : "Unassign"}
                   </button>
@@ -1523,22 +1175,9 @@ export default function ProposalDetailPage() {
             </ul>
           )}
 
-          <div
-            style={{
-              display: "flex",
-              gap: "0.5rem",
-              flexWrap: "wrap",
-              alignItems: "flex-end",
-              border: "1px solid #e5e7eb",
-              borderRadius: "0.375rem",
-              padding: "0.75rem",
-            }}
-          >
-            <div style={{ flex: "1 1 200px" }}>
-              <label
-                htmlFor="assign-user"
-                style={{ display: "block", marginBottom: "0.25rem", fontWeight: 500, fontSize: "0.8125rem" }}
-              >
+          <div className={styles.assignForm}>
+            <div className={styles.assignFieldGrow}>
+              <label htmlFor="assign-user" className={shared.label}>
                 Staff member
               </label>
               <select
@@ -1546,14 +1185,7 @@ export default function ProposalDetailPage() {
                 aria-label="Select staff member to assign"
                 value={assignUserId}
                 onChange={(e) => setAssignUserId(e.target.value)}
-                style={{
-                  width: "100%",
-                  minHeight: "44px",
-                  padding: "0.5rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.375rem",
-                  fontSize: "0.875rem",
-                }}
+                className={shared.select}
               >
                 <option value="">— Select staff —</option>
                 {assignableUsers.map((u) => (
@@ -1564,11 +1196,8 @@ export default function ProposalDetailPage() {
               </select>
             </div>
 
-            <div style={{ flex: "0 1 180px" }}>
-              <label
-                htmlFor="assign-role"
-                style={{ display: "block", marginBottom: "0.25rem", fontWeight: 500, fontSize: "0.8125rem" }}
-              >
+            <div className={styles.assignFieldFixed}>
+              <label htmlFor="assign-role" className={shared.label}>
                 Role
               </label>
               <select
@@ -1576,14 +1205,7 @@ export default function ProposalDetailPage() {
                 aria-label="Select role for assignment"
                 value={assignRoleCode}
                 onChange={(e) => setAssignRoleCode(e.target.value)}
-                style={{
-                  width: "100%",
-                  minHeight: "44px",
-                  padding: "0.5rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.375rem",
-                  fontSize: "0.875rem",
-                }}
+                className={shared.select}
               >
                 {ASSIGNABLE_ROLES.map((r) => (
                   <option key={r} value={r}>
@@ -1598,25 +1220,14 @@ export default function ProposalDetailPage() {
               onClick={() => void handleAssign()}
               disabled={assigning || !assignUserId}
               aria-label="Assign staff to proposal"
-              style={{
-                minHeight: "44px",
-                padding: "0.5rem 1rem",
-                border: "none",
-                borderRadius: "0.375rem",
-                backgroundColor: "#2563eb",
-                color: "#fff",
-                cursor: assigning || !assignUserId ? "not-allowed" : "pointer",
-                fontSize: "0.875rem",
-                fontWeight: 500,
-                opacity: assigning || !assignUserId ? 0.6 : 1,
-              }}
+              className={shared.buttonPrimary}
             >
               {assigning ? "Assigning…" : "Assign"}
             </button>
           </div>
 
           {assignError && (
-            <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0.75rem 0 0 0" }}>
+            <p role="alert" className={shared.error}>
               {assignError}
             </p>
           )}
@@ -1625,41 +1236,15 @@ export default function ProposalDetailPage() {
 
       {/* Field values */}
       {fieldValues.length > 0 && (
-        <section style={{ marginBottom: "2rem" }}>
-          <h3
-            style={{
-              margin: "0 0 0.75rem 0",
-              fontSize: "1rem",
-              fontWeight: 600,
-              borderBottom: "1px solid #e5e7eb",
-              paddingBottom: "0.5rem",
-            }}
-          >
+        <section className={styles.section}>
+          <h3 className={styles.sectionHeading}>
             Form Responses
           </h3>
-          <dl style={{ margin: 0 }}>
+          <dl className={styles.fieldList}>
             {fieldValues.map(({ formFieldId, value }) => (
-              <div
-                key={formFieldId}
-                style={{ marginBottom: "0.75rem" }}
-              >
-                <dt
-                  style={{
-                    fontSize: "0.8125rem",
-                    fontWeight: 500,
-                    color: "#6b7280",
-                    marginBottom: "0.125rem",
-                  }}
-                >
-                  {formFieldId}
-                </dt>
-                <dd
-                  style={{
-                    margin: 0,
-                    fontSize: "0.9375rem",
-                    color: value ? "#111827" : "#9ca3af",
-                  }}
-                >
+              <div key={formFieldId} className={styles.fieldGroup}>
+                <dt className={styles.fieldTerm}>{formFieldId}</dt>
+                <dd className={`${styles.fieldValue} ${!value ? styles.fieldValueEmpty : ""}`}>
                   {value ?? "—"}
                 </dd>
               </div>
@@ -1669,58 +1254,26 @@ export default function ProposalDetailPage() {
       )}
 
       {/* Attachments */}
-      <section style={{ marginBottom: "2rem" }}>
-        <h3
-          style={{
-            margin: "0 0 0.75rem 0",
-            fontSize: "1rem",
-            fontWeight: 600,
-            borderBottom: "1px solid #e5e7eb",
-            paddingBottom: "0.5rem",
-          }}
-        >
+      <section className={styles.section}>
+        <h3 className={styles.sectionHeading}>
           Attachments
         </h3>
 
         {downloadError && (
-          <p role="alert" style={{ color: "#dc2626", fontSize: "0.875rem", marginBottom: "0.75rem" }}>
+          <p role="alert" className={shared.error}>
             {downloadError}
           </p>
         )}
 
         {attachments.length === 0 ? (
-          <p style={{ color: "#6b7280", fontSize: "0.875rem" }}>No attachments uploaded.</p>
+          <p className={styles.mutedText}>No attachments uploaded.</p>
         ) : (
-          <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+          <ul className={styles.listReset}>
             {attachments.map((attachment) => (
-              <li
-                key={attachment.id}
-                role="listitem"
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "0.75rem",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "0.375rem",
-                  marginBottom: "0.5rem",
-                  gap: "1rem",
-                }}
-              >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p
-                    style={{
-                      margin: "0 0 0.125rem 0",
-                      fontWeight: 500,
-                      fontSize: "0.875rem",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {attachment.originalFilename}
-                  </p>
-                  <p style={{ margin: 0, fontSize: "0.75rem", color: "#9ca3af" }}>
+              <li key={attachment.id} role="listitem" className={styles.rowItem}>
+                <div className={styles.rowItemBody}>
+                  <p className={styles.rowItemTitle}>{attachment.originalFilename}</p>
+                  <p className={styles.rowItemMeta}>
                     {attachment.contentType} &middot;{" "}
                     {(attachment.sizeBytes / 1024).toFixed(1)} KB
                   </p>
@@ -1729,17 +1282,7 @@ export default function ProposalDetailPage() {
                   type="button"
                   onClick={() => void handleDownload(attachment.id)}
                   aria-label={`Download ${attachment.originalFilename}`}
-                  style={{
-                    padding: "0.375rem 0.75rem",
-                    border: "1px solid #d1d5db",
-                    borderRadius: "0.375rem",
-                    backgroundColor: "#fff",
-                    cursor: "pointer",
-                    fontSize: "0.8125rem",
-                    fontWeight: 500,
-                    whiteSpace: "nowrap",
-                    flexShrink: 0,
-                  }}
+                  className={`${shared.button} ${styles.noShrink}`}
                 >
                   Download
                 </button>
@@ -1750,66 +1293,43 @@ export default function ProposalDetailPage() {
       </section>
 
       {/* Comments */}
-      <section style={{ marginBottom: "2rem" }}>
-        <h3
-          style={{
-            margin: "0 0 0.75rem 0",
-            fontSize: "1rem",
-            fontWeight: 600,
-            borderBottom: "1px solid #e5e7eb",
-            paddingBottom: "0.5rem",
-          }}
-        >
+      <section className={styles.section}>
+        <h3 className={styles.sectionHeading}>
           Comments
         </h3>
 
         {visibleComments.length === 0 ? (
-          <p style={{ color: "#6b7280", fontSize: "0.875rem", marginBottom: "1rem" }}>
-            No comments yet.
-          </p>
+          <p className={styles.mutedText}>No comments yet.</p>
         ) : (
-          <ul style={{ listStyle: "none", margin: "0 0 1rem 0", padding: 0 }}>
+          <ul className={styles.listReset}>
             {visibleComments.map((comment) => (
               <li
                 key={comment.id}
                 role="listitem"
-                style={{
-                  padding: "0.75rem",
-                  border: `1px solid ${comment.visibility === "INTERNAL" ? "#fde68a" : "#e5e7eb"}`,
-                  borderRadius: "0.375rem",
-                  marginBottom: "0.5rem",
-                  backgroundColor: comment.isResolved ? "#f9fafb" : "#fff",
-                }}
+                className={`${styles.blockItem} ${
+                  comment.visibility === "INTERNAL" ? styles.blockItemInternal : ""
+                } ${comment.isResolved ? styles.blockItemResolved : ""}`}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem" }}>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ margin: "0 0 0.25rem 0", fontSize: "0.875rem" }}>{comment.body}</p>
-                    <p style={{ margin: 0, fontSize: "0.75rem", color: "#9ca3af" }}>
+                <div className={styles.blockItemHead}>
+                  <div className={styles.blockItemBody}>
+                    <p className={styles.commentBody}>{comment.body}</p>
+                    <p className={styles.commentMeta}>
                       {comment.commentType}
                       {comment.visibility === "INTERNAL" && (
-                        <span style={{ marginLeft: "0.5rem", color: "#d97706", fontWeight: 600 }}>INTERNAL</span>
+                        <span className={styles.internalFlag}>INTERNAL</span>
                       )}
                       {" · "}
                       {new Date(comment.createdAt).toLocaleDateString()}
-                      {comment.isResolved && (
-                        <span style={{ marginLeft: "0.5rem", color: "#16a34a" }}> · Resolved</span>
-                      )}
+                      {comment.isResolved && <span className={styles.resolvedFlag}> · Resolved</span>}
                     </p>
                   </div>
-                  <div style={{ display: "flex", gap: "0.375rem", flexShrink: 0 }}>
+                  <div className={styles.blockItemActions}>
                     {!comment.isResolved && (isAdmin || comment.authorUserId === "current") && (
                       <button
                         type="button"
                         onClick={() => void handleResolveComment(comment.id)}
                         aria-label="Resolve comment"
-                        style={{
-                          padding: "0.25rem 0.5rem",
-                          border: "1px solid #d1d5db",
-                          borderRadius: "0.25rem",
-                          backgroundColor: "#fff",
-                          cursor: "pointer",
-                          fontSize: "0.75rem",
-                        }}
+                        className={styles.smallButton}
                       >
                         Resolve
                       </button>
@@ -1819,14 +1339,7 @@ export default function ProposalDetailPage() {
                         type="button"
                         onClick={() => void handleReopenComment(comment.id)}
                         aria-label="Reopen comment"
-                        style={{
-                          padding: "0.25rem 0.5rem",
-                          border: "1px solid #d1d5db",
-                          borderRadius: "0.25rem",
-                          backgroundColor: "#fff",
-                          cursor: "pointer",
-                          fontSize: "0.75rem",
-                        }}
+                        className={styles.smallButton}
                       >
                         Reopen
                       </button>
@@ -1839,16 +1352,16 @@ export default function ProposalDetailPage() {
         )}
 
         {/* Add comment form */}
-        <div style={{ border: "1px solid #e5e7eb", borderRadius: "0.375rem", padding: "0.75rem" }}>
-          <div style={{ marginBottom: "0.5rem" }}>
-            <label htmlFor="comment-type" style={{ fontSize: "0.8125rem", fontWeight: 500, marginRight: "0.5rem" }}>
+        <div className={styles.commentForm}>
+          <div className={styles.commentTypeRow}>
+            <label htmlFor="comment-type" className={styles.commentTypeLabel}>
               Type:
             </label>
             <select
               id="comment-type"
               value={commentType}
               onChange={(e) => setCommentType(e.target.value as "GENERAL" | "FIELD" | "SECTION")}
-              style={{ fontSize: "0.8125rem", padding: "0.25rem 0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem" }}
+              className={styles.commentTypeSelect}
             >
               <option value="GENERAL">General</option>
               <option value="FIELD">Field</option>
@@ -1861,19 +1374,10 @@ export default function ProposalDetailPage() {
             placeholder="Add a comment…"
             rows={3}
             aria-label="Comment text"
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              border: "1px solid #d1d5db",
-              borderRadius: "0.25rem",
-              fontSize: "0.875rem",
-              resize: "vertical",
-              boxSizing: "border-box",
-              marginBottom: "0.5rem",
-            }}
+            className={styles.commentTextarea}
           />
           {commentError && (
-            <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>
+            <p role="alert" className={shared.error}>
               {commentError}
             </p>
           )}
@@ -1882,16 +1386,7 @@ export default function ProposalDetailPage() {
             onClick={() => void handleAddComment()}
             disabled={addingComment || !commentBody.trim()}
             aria-label="Submit comment"
-            style={{
-              padding: "0.375rem 0.75rem",
-              border: "none",
-              borderRadius: "0.25rem",
-              backgroundColor: "#2563eb",
-              color: "#fff",
-              cursor: addingComment || !commentBody.trim() ? "not-allowed" : "pointer",
-              fontSize: "0.8125rem",
-              opacity: addingComment || !commentBody.trim() ? 0.6 : 1,
-            }}
+            className={shared.buttonPrimary}
           >
             {addingComment ? "Adding…" : "Add Comment"}
           </button>
@@ -1899,46 +1394,26 @@ export default function ProposalDetailPage() {
       </section>
 
       {/* Workflow History */}
-      <section style={{ marginBottom: "2rem" }}>
-        <h3
-          style={{
-            margin: "0 0 0.75rem 0",
-            fontSize: "1rem",
-            fontWeight: 600,
-            borderBottom: "1px solid #e5e7eb",
-            paddingBottom: "0.5rem",
-          }}
-        >
+      <section className={styles.section}>
+        <h3 className={styles.sectionHeading}>
           Workflow History
         </h3>
 
         {historyLoading ? (
-          <p style={{ color: "#6b7280", fontSize: "0.875rem" }}>Loading history…</p>
+          <p className={styles.hintText}>Loading history…</p>
         ) : workflowHistory.length === 0 ? (
-          <p style={{ color: "#6b7280", fontSize: "0.875rem" }}>No workflow history yet.</p>
+          <p className={styles.hintText}>No workflow history yet.</p>
         ) : (
-          <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+          <ul className={styles.listReset}>
             {[...workflowHistory].reverse().map((entry) => (
-              <li
-                key={entry.id}
-                style={{
-                  padding: "0.75rem",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "0.375rem",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                <p style={{ margin: "0 0 0.25rem 0", fontWeight: 500, fontSize: "0.875rem" }}>
-                  {workflowActionLabel(entry.workflowAction)}
-                </p>
-                <p style={{ margin: "0 0 0.25rem 0", fontSize: "0.75rem", color: "#6b7280" }}>
+              <li key={entry.id} className={styles.blockItem}>
+                <p className={styles.historyTitle}>{workflowActionLabel(entry.workflowAction)}</p>
+                <p className={styles.historyMeta}>
                   {entry.actorRole} · {entry.fromStatus.replace(/_/g, " ")} → {entry.toStatus.replace(/_/g, " ")}
                   {" · "}
                   {new Date(entry.transitionedAt).toLocaleString()}
                 </p>
-                {entry.comment && (
-                  <p style={{ margin: 0, fontSize: "0.8125rem", color: "#374151" }}>{entry.comment}</p>
-                )}
+                {entry.comment && <p className={styles.historyComment}>{entry.comment}</p>}
               </li>
             ))}
           </ul>
@@ -1946,56 +1421,35 @@ export default function ProposalDetailPage() {
       </section>
 
       {/* Document Export */}
-      <section style={{ marginBottom: "2rem" }}>
-        <h3
-          style={{
-            margin: "0 0 0.75rem 0",
-            fontSize: "1rem",
-            fontWeight: 600,
-            borderBottom: "1px solid #e5e7eb",
-            paddingBottom: "0.5rem",
-          }}
-        >
+      <section className={styles.section}>
+        <h3 className={styles.sectionHeading}>
           Document Export
         </h3>
 
         {proposal.status !== "APPROVED" && (
-          <p style={{ color: "#6b7280", fontSize: "0.875rem", marginBottom: "0.75rem" }}>
-            Export is available once the proposal is approved.
-          </p>
+          <p className={styles.mutedText}>Export is available once the proposal is approved.</p>
         )}
 
         {exportError && (
-          <p role="alert" style={{ color: "#dc2626", fontSize: "0.875rem", marginBottom: "0.75rem" }}>
+          <p role="alert" className={shared.error}>
             {exportError}
           </p>
         )}
 
         {proposal.status === "APPROVED" && (
-          <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center" }}>
+          <div className={styles.buttonRowCenter}>
             <button
               type="button"
               onClick={() => void handleExport()}
               disabled={exporting}
               aria-label="Generate and download proposal export"
-              style={{
-                minHeight: "44px",
-                padding: "0.5rem 1rem",
-                border: "none",
-                borderRadius: "0.375rem",
-                backgroundColor: "#2563eb",
-                color: "#fff",
-                cursor: exporting ? "not-allowed" : "pointer",
-                fontSize: "0.875rem",
-                fontWeight: 500,
-                opacity: exporting ? 0.7 : 1,
-              }}
+              className={shared.buttonPrimary}
             >
               {exporting ? "Generating…" : "Download Export"}
             </button>
 
             {lastExport && (
-              <p style={{ fontSize: "0.8125rem", color: "#6b7280", margin: 0 }}>
+              <p className={styles.hintText}>
                 Last generated:{" "}
                 {new Date(lastExport.generatedAt).toLocaleString(undefined, {
                   dateStyle: "medium",
@@ -2006,15 +1460,7 @@ export default function ProposalDetailPage() {
                   type="button"
                   onClick={() => window.open(lastExport.url, "_blank", "noopener,noreferrer")}
                   aria-label="Re-download last export"
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "#2563eb",
-                    cursor: "pointer",
-                    fontSize: "0.8125rem",
-                    padding: 0,
-                    textDecoration: "underline",
-                  }}
+                  className={styles.linkButton}
                 >
                   Re-download
                 </button>
@@ -2026,22 +1472,9 @@ export default function ProposalDetailPage() {
 
       {/* Return to Applicant modal */}
       {showReturnModal && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="return-modal-title"
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 50,
-          }}
-        >
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="return-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>
+        <div role="dialog" aria-modal="true" aria-labelledby="return-modal-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="return-modal-title" className={styles.modalTitle}>
               Return to Applicant
             </h3>
             <textarea
@@ -2050,9 +1483,9 @@ export default function ProposalDetailPage() {
               placeholder="Comment (required)…"
               rows={4}
               aria-label="Return to applicant comment"
-              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "1rem" }}
+              className={styles.modalTextarea}
             />
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+            <div className={styles.modalActions}>
               <button
                 type="button"
                 onClick={() => {
@@ -2060,7 +1493,7 @@ export default function ProposalDetailPage() {
                   setReturnComment("");
                 }}
                 aria-label="Cancel return to applicant"
-                style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}
+                className={shared.button}
               >
                 Cancel
               </button>
@@ -2069,7 +1502,7 @@ export default function ProposalDetailPage() {
                 onClick={() => void handleReturnToApplicant()}
                 disabled={focalActioning}
                 aria-label="Confirm return to applicant"
-                style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#7c3aed", color: "#fff", cursor: focalActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: focalActioning ? 0.7 : 1 }}
+                className={styles.buttonAccent}
               >
                 {focalActioning ? "Processing…" : "Confirm"}
               </button>
@@ -2080,25 +1513,12 @@ export default function ProposalDetailPage() {
 
       {/* Endorse to RTEC modal */}
       {showEndorseRtecModal && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="endorse-rtec-modal-title"
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 50,
-          }}
-        >
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="endorse-rtec-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>
+        <div role="dialog" aria-modal="true" aria-labelledby="endorse-rtec-modal-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="endorse-rtec-modal-title" className={styles.modalTitle}>
               Endorse to RTEC
             </h3>
-            <label htmlFor="rtec-group-select" style={{ display: "block", marginBottom: "0.25rem", fontWeight: 500, fontSize: "0.8125rem" }}>
+            <label htmlFor="rtec-group-select" className={styles.modalLabel}>
               RTEC Group
             </label>
             <select
@@ -2106,7 +1526,7 @@ export default function ProposalDetailPage() {
               aria-label="Select RTEC group"
               value={selectedRtecGroupId}
               onChange={(e) => setSelectedRtecGroupId(e.target.value)}
-              style={{ width: "100%", minHeight: "44px", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", fontSize: "0.875rem", marginBottom: "0.75rem" }}
+              className={styles.modalSelect}
             >
               <option value="">— Select RTEC group —</option>
               {rtecGroups.map((g) => (
@@ -2121,9 +1541,9 @@ export default function ProposalDetailPage() {
               placeholder="Comment (optional)…"
               rows={3}
               aria-label="Endorse to RTEC comment"
-              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "1rem" }}
+              className={styles.modalTextarea}
             />
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+            <div className={styles.modalActions}>
               <button
                 type="button"
                 onClick={() => {
@@ -2132,7 +1552,7 @@ export default function ProposalDetailPage() {
                   setSelectedRtecGroupId("");
                 }}
                 aria-label="Cancel endorse to RTEC"
-                style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}
+                className={shared.button}
               >
                 Cancel
               </button>
@@ -2141,7 +1561,7 @@ export default function ProposalDetailPage() {
                 onClick={() => void handleEndorseToRtec()}
                 disabled={focalActioning}
                 aria-label="Confirm endorse to RTEC"
-                style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#16a34a", color: "#fff", cursor: focalActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: focalActioning ? 0.7 : 1 }}
+                className={styles.buttonSuccess}
               >
                 {focalActioning ? "Processing…" : "Confirm"}
               </button>
@@ -2152,22 +1572,9 @@ export default function ProposalDetailPage() {
 
       {/* Endorse to Budget modal */}
       {showEndorseBudgetModal && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="endorse-budget-modal-title"
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 50,
-          }}
-        >
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="endorse-budget-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>
+        <div role="dialog" aria-modal="true" aria-labelledby="endorse-budget-modal-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="endorse-budget-modal-title" className={styles.modalTitle}>
               Endorse to Budget
             </h3>
             <textarea
@@ -2176,9 +1583,9 @@ export default function ProposalDetailPage() {
               placeholder="Comment (optional)…"
               rows={3}
               aria-label="Endorse to budget comment"
-              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "1rem" }}
+              className={styles.modalTextarea}
             />
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+            <div className={styles.modalActions}>
               <button
                 type="button"
                 onClick={() => {
@@ -2186,7 +1593,7 @@ export default function ProposalDetailPage() {
                   setEndorseBudgetComment("");
                 }}
                 aria-label="Cancel endorse to budget"
-                style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}
+                className={shared.button}
               >
                 Cancel
               </button>
@@ -2195,7 +1602,7 @@ export default function ProposalDetailPage() {
                 onClick={() => void handleEndorseToBudget()}
                 disabled={focalActioning}
                 aria-label="Confirm endorse to budget"
-                style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#16a34a", color: "#fff", cursor: focalActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: focalActioning ? 0.7 : 1 }}
+                className={styles.buttonSuccess}
               >
                 {focalActioning ? "Processing…" : "Confirm"}
               </button>
@@ -2206,22 +1613,9 @@ export default function ProposalDetailPage() {
 
       {/* Return to RTEC modal */}
       {showReturnRtecModal && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="return-rtec-modal-title"
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 50,
-          }}
-        >
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="return-rtec-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>
+        <div role="dialog" aria-modal="true" aria-labelledby="return-rtec-modal-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="return-rtec-modal-title" className={styles.modalTitle}>
               Return to RTEC
             </h3>
             <textarea
@@ -2230,9 +1624,9 @@ export default function ProposalDetailPage() {
               placeholder="Comment (required)…"
               rows={4}
               aria-label="Return to RTEC comment"
-              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "1rem" }}
+              className={styles.modalTextarea}
             />
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+            <div className={styles.modalActions}>
               <button
                 type="button"
                 onClick={() => {
@@ -2240,7 +1634,7 @@ export default function ProposalDetailPage() {
                   setReturnRtecComment("");
                 }}
                 aria-label="Cancel return to RTEC"
-                style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}
+                className={shared.button}
               >
                 Cancel
               </button>
@@ -2249,7 +1643,7 @@ export default function ProposalDetailPage() {
                 onClick={() => void handleReturnToRtec()}
                 disabled={focalActioning}
                 aria-label="Confirm return to RTEC"
-                style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#7c3aed", color: "#fff", cursor: focalActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: focalActioning ? 0.7 : 1 }}
+                className={styles.buttonAccent}
               >
                 {focalActioning ? "Processing…" : "Confirm"}
               </button>
@@ -2260,9 +1654,9 @@ export default function ProposalDetailPage() {
 
       {/* Focal re-route modal */}
       {showFocalRerouteModal && (
-        <div role="dialog" aria-modal="true" aria-labelledby="focal-reroute-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="focal-reroute-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>
+        <div role="dialog" aria-modal="true" aria-labelledby="focal-reroute-modal-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="focal-reroute-modal-title" className={styles.modalTitle}>
               Re-route for Focal Review
             </h3>
             <textarea
@@ -2271,14 +1665,14 @@ export default function ProposalDetailPage() {
               placeholder="Comment (required)…"
               rows={4}
               aria-label="Re-route comment"
-              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+              className={styles.modalTextarea}
             />
             {!focalRerouteComment.trim() && focalActionError && (
-              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+              <p role="alert" className={shared.error}>This field is required.</p>
             )}
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
-              <button type="button" onClick={() => { setShowFocalRerouteModal(false); setFocalRerouteComment(""); }} aria-label="Cancel re-route" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
-              <button type="button" onClick={() => void handleFocalReroute()} disabled={focalActioning} aria-label="Confirm re-route" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#7c3aed", color: "#fff", cursor: focalActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: focalActioning ? 0.7 : 1 }}>
+            <div className={styles.modalActions}>
+              <button type="button" onClick={() => { setShowFocalRerouteModal(false); setFocalRerouteComment(""); }} aria-label="Cancel re-route" className={shared.button}>Cancel</button>
+              <button type="button" onClick={() => void handleFocalReroute()} disabled={focalActioning} aria-label="Confirm re-route" className={styles.buttonAccent}>
                 {focalActioning ? "Processing…" : "Confirm"}
               </button>
             </div>
@@ -2288,23 +1682,23 @@ export default function ProposalDetailPage() {
 
       {/* Budget: Return to Focal modal */}
       {showBudgetReturnModal && (
-        <div role="dialog" aria-modal="true" aria-labelledby="budget-return-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="budget-return-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Return to Focal</h3>
+        <div role="dialog" aria-modal="true" aria-labelledby="budget-return-modal-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="budget-return-modal-title" className={styles.modalTitle}>Return to Focal</h3>
             <textarea
               value={budgetReturnComment}
               onChange={(e) => setBudgetReturnComment(e.target.value)}
               placeholder="Comment (required)…"
               rows={4}
               aria-label="Budget return to focal comment"
-              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+              className={styles.modalTextarea}
             />
             {!budgetReturnComment.trim() && budgetActionError && (
-              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+              <p role="alert" className={shared.error}>This field is required.</p>
             )}
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
-              <button type="button" onClick={() => { setShowBudgetReturnModal(false); setBudgetReturnComment(""); }} aria-label="Cancel return to focal" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
-              <button type="button" onClick={() => void handleBudgetReturn()} disabled={budgetActioning} aria-label="Confirm return to focal" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#7c3aed", color: "#fff", cursor: budgetActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: budgetActioning ? 0.7 : 1 }}>
+            <div className={styles.modalActions}>
+              <button type="button" onClick={() => { setShowBudgetReturnModal(false); setBudgetReturnComment(""); }} aria-label="Cancel return to focal" className={shared.button}>Cancel</button>
+              <button type="button" onClick={() => void handleBudgetReturn()} disabled={budgetActioning} aria-label="Confirm return to focal" className={styles.buttonAccent}>
                 {budgetActioning ? "Processing…" : "Confirm"}
               </button>
             </div>
@@ -2314,20 +1708,20 @@ export default function ProposalDetailPage() {
 
       {/* Budget: Endorse to Accounting modal */}
       {showBudgetEndorseModal && (
-        <div role="dialog" aria-modal="true" aria-labelledby="budget-endorse-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="budget-endorse-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Endorse to Accounting</h3>
+        <div role="dialog" aria-modal="true" aria-labelledby="budget-endorse-modal-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="budget-endorse-modal-title" className={styles.modalTitle}>Endorse to Accounting</h3>
             <textarea
               value={budgetEndorseComment}
               onChange={(e) => setBudgetEndorseComment(e.target.value)}
               placeholder="Comment (optional)…"
               rows={3}
               aria-label="Budget endorse to accounting comment"
-              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "1rem" }}
+              className={styles.modalTextarea}
             />
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
-              <button type="button" onClick={() => { setShowBudgetEndorseModal(false); setBudgetEndorseComment(""); }} aria-label="Cancel endorse to accounting" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
-              <button type="button" onClick={() => void handleBudgetEndorse()} disabled={budgetActioning} aria-label="Confirm endorse to accounting" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#16a34a", color: "#fff", cursor: budgetActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: budgetActioning ? 0.7 : 1 }}>
+            <div className={styles.modalActions}>
+              <button type="button" onClick={() => { setShowBudgetEndorseModal(false); setBudgetEndorseComment(""); }} aria-label="Cancel endorse to accounting" className={shared.button}>Cancel</button>
+              <button type="button" onClick={() => void handleBudgetEndorse()} disabled={budgetActioning} aria-label="Confirm endorse to accounting" className={styles.buttonSuccess}>
                 {budgetActioning ? "Processing…" : "Confirm"}
               </button>
             </div>
@@ -2337,20 +1731,20 @@ export default function ProposalDetailPage() {
 
       {/* Budget: Re-endorse to Accounting modal */}
       {showBudgetReEndorseModal && (
-        <div role="dialog" aria-modal="true" aria-labelledby="budget-reendorse-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="budget-reendorse-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Re-endorse to Accounting</h3>
+        <div role="dialog" aria-modal="true" aria-labelledby="budget-reendorse-modal-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="budget-reendorse-modal-title" className={styles.modalTitle}>Re-endorse to Accounting</h3>
             <textarea
               value={budgetReEndorseComment}
               onChange={(e) => setBudgetReEndorseComment(e.target.value)}
               placeholder="Comment (optional)…"
               rows={3}
               aria-label="Budget re-endorse to accounting comment"
-              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "1rem" }}
+              className={styles.modalTextarea}
             />
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
-              <button type="button" onClick={() => { setShowBudgetReEndorseModal(false); setBudgetReEndorseComment(""); }} aria-label="Cancel re-endorse to accounting" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
-              <button type="button" onClick={() => void handleBudgetReEndorse()} disabled={budgetActioning} aria-label="Confirm re-endorse to accounting" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#16a34a", color: "#fff", cursor: budgetActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: budgetActioning ? 0.7 : 1 }}>
+            <div className={styles.modalActions}>
+              <button type="button" onClick={() => { setShowBudgetReEndorseModal(false); setBudgetReEndorseComment(""); }} aria-label="Cancel re-endorse to accounting" className={shared.button}>Cancel</button>
+              <button type="button" onClick={() => void handleBudgetReEndorse()} disabled={budgetActioning} aria-label="Confirm re-endorse to accounting" className={styles.buttonSuccess}>
                 {budgetActioning ? "Processing…" : "Confirm"}
               </button>
             </div>
@@ -2360,23 +1754,23 @@ export default function ProposalDetailPage() {
 
       {/* Accounting: Return to Budget modal */}
       {showAcctReturnBudgetModal && (
-        <div role="dialog" aria-modal="true" aria-labelledby="acct-return-budget-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="acct-return-budget-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Return to Budget</h3>
+        <div role="dialog" aria-modal="true" aria-labelledby="acct-return-budget-modal-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="acct-return-budget-modal-title" className={styles.modalTitle}>Return to Budget</h3>
             <textarea
               value={acctReturnBudgetComment}
               onChange={(e) => setAcctReturnBudgetComment(e.target.value)}
               placeholder="Comment (required)…"
               rows={4}
               aria-label="Accounting return to budget comment"
-              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+              className={styles.modalTextarea}
             />
             {!acctReturnBudgetComment.trim() && accountingActionError && (
-              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+              <p role="alert" className={shared.error}>This field is required.</p>
             )}
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
-              <button type="button" onClick={() => { setShowAcctReturnBudgetModal(false); setAcctReturnBudgetComment(""); }} aria-label="Cancel return to budget" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
-              <button type="button" onClick={() => void handleAccountingReturnToBudget()} disabled={accountingActioning} aria-label="Confirm return to budget" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#7c3aed", color: "#fff", cursor: accountingActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: accountingActioning ? 0.7 : 1 }}>
+            <div className={styles.modalActions}>
+              <button type="button" onClick={() => { setShowAcctReturnBudgetModal(false); setAcctReturnBudgetComment(""); }} aria-label="Cancel return to budget" className={shared.button}>Cancel</button>
+              <button type="button" onClick={() => void handleAccountingReturnToBudget()} disabled={accountingActioning} aria-label="Confirm return to budget" className={styles.buttonAccent}>
                 {accountingActioning ? "Processing…" : "Confirm"}
               </button>
             </div>
@@ -2386,23 +1780,23 @@ export default function ProposalDetailPage() {
 
       {/* Accounting: Return to Focal modal */}
       {showAcctReturnFocalModal && (
-        <div role="dialog" aria-modal="true" aria-labelledby="acct-return-focal-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="acct-return-focal-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Return to Focal</h3>
+        <div role="dialog" aria-modal="true" aria-labelledby="acct-return-focal-modal-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="acct-return-focal-modal-title" className={styles.modalTitle}>Return to Focal</h3>
             <textarea
               value={acctReturnFocalComment}
               onChange={(e) => setAcctReturnFocalComment(e.target.value)}
               placeholder="Comment (required)…"
               rows={4}
               aria-label="Accounting return to focal comment"
-              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+              className={styles.modalTextarea}
             />
             {!acctReturnFocalComment.trim() && accountingActionError && (
-              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+              <p role="alert" className={shared.error}>This field is required.</p>
             )}
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
-              <button type="button" onClick={() => { setShowAcctReturnFocalModal(false); setAcctReturnFocalComment(""); }} aria-label="Cancel return to focal" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
-              <button type="button" onClick={() => void handleAccountingReturnToFocal()} disabled={accountingActioning} aria-label="Confirm return to focal" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#7c3aed", color: "#fff", cursor: accountingActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: accountingActioning ? 0.7 : 1 }}>
+            <div className={styles.modalActions}>
+              <button type="button" onClick={() => { setShowAcctReturnFocalModal(false); setAcctReturnFocalComment(""); }} aria-label="Cancel return to focal" className={shared.button}>Cancel</button>
+              <button type="button" onClick={() => void handleAccountingReturnToFocal()} disabled={accountingActioning} aria-label="Confirm return to focal" className={styles.buttonAccent}>
                 {accountingActioning ? "Processing…" : "Confirm"}
               </button>
             </div>
@@ -2412,20 +1806,20 @@ export default function ProposalDetailPage() {
 
       {/* Accounting: Endorse to RD modal */}
       {showAcctEndorseRdModal && (
-        <div role="dialog" aria-modal="true" aria-labelledby="acct-endorse-rd-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="acct-endorse-rd-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Endorse to RD</h3>
+        <div role="dialog" aria-modal="true" aria-labelledby="acct-endorse-rd-modal-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="acct-endorse-rd-modal-title" className={styles.modalTitle}>Endorse to RD</h3>
             <textarea
               value={acctEndorseRdComment}
               onChange={(e) => setAcctEndorseRdComment(e.target.value)}
               placeholder="Comment (optional)…"
               rows={3}
               aria-label="Accounting endorse to RD comment"
-              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "1rem" }}
+              className={styles.modalTextarea}
             />
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
-              <button type="button" onClick={() => { setShowAcctEndorseRdModal(false); setAcctEndorseRdComment(""); }} aria-label="Cancel endorse to RD" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
-              <button type="button" onClick={() => void handleAccountingEndorseToRd()} disabled={accountingActioning} aria-label="Confirm endorse to RD" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#16a34a", color: "#fff", cursor: accountingActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: accountingActioning ? 0.7 : 1 }}>
+            <div className={styles.modalActions}>
+              <button type="button" onClick={() => { setShowAcctEndorseRdModal(false); setAcctEndorseRdComment(""); }} aria-label="Cancel endorse to RD" className={shared.button}>Cancel</button>
+              <button type="button" onClick={() => void handleAccountingEndorseToRd()} disabled={accountingActioning} aria-label="Confirm endorse to RD" className={styles.buttonSuccess}>
                 {accountingActioning ? "Processing…" : "Confirm"}
               </button>
             </div>
@@ -2435,23 +1829,23 @@ export default function ProposalDetailPage() {
 
       {/* RD: Approve modal */}
       {showRdApproveModal && (
-        <div role="dialog" aria-modal="true" aria-labelledby="rd-approve-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="rd-approve-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Approve Proposal</h3>
+        <div role="dialog" aria-modal="true" aria-labelledby="rd-approve-modal-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="rd-approve-modal-title" className={styles.modalTitle}>Approve Proposal</h3>
             <textarea
               value={rdApproveComment}
               onChange={(e) => setRdApproveComment(e.target.value)}
               placeholder="Comment (required)…"
               rows={4}
               aria-label="RD approve comment"
-              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+              className={styles.modalTextarea}
             />
             {!rdApproveComment.trim() && rdActionError && (
-              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+              <p role="alert" className={shared.error}>This field is required.</p>
             )}
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
-              <button type="button" onClick={() => { setShowRdApproveModal(false); setRdApproveComment(""); }} aria-label="Cancel approval" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
-              <button type="button" onClick={() => void handleRdApprove()} disabled={rdActioning} aria-label="Confirm approval" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#16a34a", color: "#fff", cursor: rdActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: rdActioning ? 0.7 : 1 }}>
+            <div className={styles.modalActions}>
+              <button type="button" onClick={() => { setShowRdApproveModal(false); setRdApproveComment(""); }} aria-label="Cancel approval" className={shared.button}>Cancel</button>
+              <button type="button" onClick={() => void handleRdApprove()} disabled={rdActioning} aria-label="Confirm approval" className={styles.buttonSuccess}>
                 {rdActioning ? "Processing…" : "Confirm"}
               </button>
             </div>
@@ -2461,23 +1855,23 @@ export default function ProposalDetailPage() {
 
       {/* RD: Reject modal */}
       {showRdRejectModal && (
-        <div role="dialog" aria-modal="true" aria-labelledby="rd-reject-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="rd-reject-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Reject Proposal</h3>
+        <div role="dialog" aria-modal="true" aria-labelledby="rd-reject-modal-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="rd-reject-modal-title" className={styles.modalTitle}>Reject Proposal</h3>
             <textarea
               value={rdRejectComment}
               onChange={(e) => setRdRejectComment(e.target.value)}
               placeholder="Comment (required)…"
               rows={4}
               aria-label="RD reject comment"
-              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+              className={styles.modalTextarea}
             />
             {!rdRejectComment.trim() && rdActionError && (
-              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+              <p role="alert" className={shared.error}>This field is required.</p>
             )}
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
-              <button type="button" onClick={() => { setShowRdRejectModal(false); setRdRejectComment(""); }} aria-label="Cancel rejection" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
-              <button type="button" onClick={() => void handleRdReject()} disabled={rdActioning} aria-label="Confirm rejection" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#dc2626", color: "#fff", cursor: rdActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: rdActioning ? 0.7 : 1 }}>
+            <div className={styles.modalActions}>
+              <button type="button" onClick={() => { setShowRdRejectModal(false); setRdRejectComment(""); }} aria-label="Cancel rejection" className={shared.button}>Cancel</button>
+              <button type="button" onClick={() => void handleRdReject()} disabled={rdActioning} aria-label="Confirm rejection" className={shared.buttonDanger}>
                 {rdActioning ? "Processing…" : "Confirm"}
               </button>
             </div>
@@ -2487,23 +1881,23 @@ export default function ProposalDetailPage() {
 
       {/* RD: Defer modal */}
       {showRdDeferModal && (
-        <div role="dialog" aria-modal="true" aria-labelledby="rd-defer-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="rd-defer-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Defer Proposal</h3>
+        <div role="dialog" aria-modal="true" aria-labelledby="rd-defer-modal-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="rd-defer-modal-title" className={styles.modalTitle}>Defer Proposal</h3>
             <textarea
               value={rdDeferReason}
               onChange={(e) => setRdDeferReason(e.target.value)}
               placeholder="Reason (required)…"
               rows={4}
               aria-label="RD defer reason"
-              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+              className={styles.modalTextarea}
             />
             {!rdDeferReason.trim() && rdActionError && (
-              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+              <p role="alert" className={shared.error}>This field is required.</p>
             )}
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
-              <button type="button" onClick={() => { setShowRdDeferModal(false); setRdDeferReason(""); }} aria-label="Cancel defer" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
-              <button type="button" onClick={() => void handleRdDefer()} disabled={rdActioning} aria-label="Confirm defer" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#7c3aed", color: "#fff", cursor: rdActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: rdActioning ? 0.7 : 1 }}>
+            <div className={styles.modalActions}>
+              <button type="button" onClick={() => { setShowRdDeferModal(false); setRdDeferReason(""); }} aria-label="Cancel defer" className={shared.button}>Cancel</button>
+              <button type="button" onClick={() => void handleRdDefer()} disabled={rdActioning} aria-label="Confirm defer" className={styles.buttonAccent}>
                 {rdActioning ? "Processing…" : "Confirm"}
               </button>
             </div>
@@ -2513,23 +1907,23 @@ export default function ProposalDetailPage() {
 
       {/* RD: Return to Applicant modal */}
       {showRdReturnModal && (
-        <div role="dialog" aria-modal="true" aria-labelledby="rd-return-modal-title" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="rd-return-modal-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>Return to Applicant</h3>
+        <div role="dialog" aria-modal="true" aria-labelledby="rd-return-modal-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="rd-return-modal-title" className={styles.modalTitle}>Return to Applicant</h3>
             <textarea
               value={rdReturnComment}
               onChange={(e) => setRdReturnComment(e.target.value)}
               placeholder="Comment (required)…"
               rows={4}
               aria-label="RD return to applicant comment"
-              style={{ width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.25rem", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box", marginBottom: "0.5rem" }}
+              className={styles.modalTextarea}
             />
             {!rdReturnComment.trim() && rdActionError && (
-              <p role="alert" style={{ color: "#dc2626", fontSize: "0.8125rem", margin: "0 0 0.5rem 0" }}>This field is required.</p>
+              <p role="alert" className={shared.error}>This field is required.</p>
             )}
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
-              <button type="button" onClick={() => { setShowRdReturnModal(false); setRdReturnComment(""); }} aria-label="Cancel return to applicant" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}>Cancel</button>
-              <button type="button" onClick={() => void handleRdReturn()} disabled={rdActioning} aria-label="Confirm return to applicant" style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "none", borderRadius: "0.375rem", backgroundColor: "#7c3aed", color: "#fff", cursor: rdActioning ? "not-allowed" : "pointer", fontSize: "0.875rem", opacity: rdActioning ? 0.7 : 1 }}>
+            <div className={styles.modalActions}>
+              <button type="button" onClick={() => { setShowRdReturnModal(false); setRdReturnComment(""); }} aria-label="Cancel return to applicant" className={shared.button}>Cancel</button>
+              <button type="button" onClick={() => void handleRdReturn()} disabled={rdActioning} aria-label="Confirm return to applicant" className={styles.buttonAccent}>
                 {rdActioning ? "Processing…" : "Confirm"}
               </button>
             </div>
@@ -2539,49 +1933,20 @@ export default function ProposalDetailPage() {
 
       {/* Resubmit confirmation dialog */}
       {showResubmitConfirm && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="resubmit-confirm-title"
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 50,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: "0.5rem",
-              padding: "1.5rem",
-              maxWidth: "400px",
-              width: "90%",
-              boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)",
-            }}
-          >
-            <h3 id="resubmit-confirm-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>
+        <div role="dialog" aria-modal="true" aria-labelledby="resubmit-confirm-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="resubmit-confirm-title" className={styles.modalTitle}>
               Resubmit Proposal
             </h3>
-            <p style={{ margin: "0 0 1.25rem 0", fontSize: "0.875rem", color: "#374151" }}>
+            <p className={styles.modalBodyText}>
               Resubmitting will create a new version.
             </p>
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+            <div className={styles.modalActions}>
               <button
                 type="button"
                 onClick={() => setShowResubmitConfirm(false)}
                 aria-label="Cancel resubmission"
-                style={{
-                  padding: "0.5rem 1rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#fff",
-                  cursor: "pointer",
-                  fontSize: "0.875rem",
-                }}
+                className={shared.button}
               >
                 Cancel
               </button>
@@ -2590,16 +1955,7 @@ export default function ProposalDetailPage() {
                 onClick={() => void handleResubmit()}
                 disabled={resubmitting}
                 aria-label="Confirm resubmission"
-                style={{
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#7c3aed",
-                  color: "#fff",
-                  cursor: resubmitting ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  opacity: resubmitting ? 0.7 : 1,
-                }}
+                className={styles.buttonAccent}
               >
                 {resubmitting ? "Resubmitting…" : "Confirm Resubmit"}
               </button>

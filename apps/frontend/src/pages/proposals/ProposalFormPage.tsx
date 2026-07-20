@@ -12,6 +12,8 @@ import {
   type AttachmentMeta,
   type ProposalRequiredForm,
 } from "../../lib/api";
+import shared from "../shared.module.css";
+import styles from "./ProposalFormPage.module.css";
 
 type SaveStatus = "idle" | "saving" | "saved" | "failed";
 
@@ -320,14 +322,22 @@ export default function ProposalFormPage() {
   }
 
   if (loading) {
-    return <p style={{ padding: "1rem" }}>Preparing your form…</p>;
+    return (
+      <div className={styles.page}>
+        <p className={shared.loading}>
+          <span className={shared.spinner} aria-hidden="true" /> Preparing your form…
+        </p>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <p role="alert" style={{ padding: "1rem", color: "#dc2626" }}>
-        Error: {error}
-      </p>
+      <div className={styles.page}>
+        <p role="alert" className={shared.error}>
+          Error: {error}
+        </p>
+      </div>
     );
   }
 
@@ -340,32 +350,19 @@ export default function ProposalFormPage() {
       ? "Save failed"
       : "";
 
-  const saveStatusColor =
-    saveStatus === "failed" ? "#dc2626" : saveStatus === "saved" ? "#16a34a" : "#6b7280";
-
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "0.5rem 0.75rem",
-    border: "1px solid #d1d5db",
-    borderRadius: "0.375rem",
-    fontSize: "0.875rem",
-    boxSizing: "border-box" as const,
-  };
+  const saveStatusClassName =
+    saveStatus === "failed"
+      ? `${styles.saveStatus} ${styles.saveStatusFailed}`
+      : saveStatus === "saved"
+      ? `${styles.saveStatus} ${styles.saveStatusSaved}`
+      : styles.saveStatus;
 
   return (
-    <div style={{ padding: "1rem", maxWidth: "720px" }}>
-      <h2 style={{ marginTop: 0 }}>New Proposal</h2>
+    <div className={styles.page}>
+      <h2 className={styles.title}>New Proposal</h2>
 
-      <div style={{ marginBottom: "1rem" }}>
-        <label
-          htmlFor="proposal-title"
-          style={{
-            display: "block",
-            marginBottom: "0.25rem",
-            fontWeight: 500,
-            fontSize: "0.875rem",
-          }}
-        >
+      <div className={shared.field}>
+        <label htmlFor="proposal-title" className={shared.label}>
           Proposal title
         </label>
         <input
@@ -379,32 +376,21 @@ export default function ProposalFormPage() {
               void api.patch(`/api/proposals/${proposalId}`, { title: value.trim() });
             }
           }}
-          style={inputStyle}
+          className={shared.input}
           required
         />
       </div>
 
       {(currentFormTemplateId || requiredForms.length > 0) && (
-        <div
-          style={{
-            marginBottom: "1rem",
-            padding: "0.75rem 1rem",
-            border: "1px solid #e5e7eb",
-            borderRadius: "0.375rem",
-            backgroundColor: "#f9fafb",
-          }}
-        >
-          <label
-            htmlFor="required-form-select"
-            style={{ display: "block", marginBottom: "0.5rem", fontWeight: 500, fontSize: "0.875rem" }}
-          >
+        <div className={styles.requiredFormsPanel}>
+          <label htmlFor="required-form-select" className={shared.label}>
             Forms required for this proposal
           </label>
           <select
             id="required-form-select"
             value={selectedFormId}
             onChange={(e) => setSelectedFormId(e.target.value)}
-            style={inputStyle}
+            className={shared.select}
           >
             {currentFormTemplateId && (
               <option value={currentFormTemplateId}>
@@ -419,7 +405,7 @@ export default function ProposalFormPage() {
             ))}
           </select>
           {selectedFormId && selectedFormId !== currentFormTemplateId && (
-            <p style={{ margin: "0.5rem 0 0", fontSize: "0.8125rem", color: "#6b7280" }}>
+            <p className={styles.requiredFormsHint}>
               This form isn't available to fill online yet.
             </p>
           )}
@@ -427,49 +413,20 @@ export default function ProposalFormPage() {
       )}
 
       {/* Save status */}
-      <div
-        aria-live="polite"
-        aria-atomic="true"
-        style={{
-          fontSize: "0.8125rem",
-          color: saveStatusColor,
-          minHeight: "1.25rem",
-          marginBottom: "1rem",
-        }}
-      >
+      <div aria-live="polite" aria-atomic="true" className={saveStatusClassName}>
         {saveStatusLabel}
       </div>
 
       {sections.map((section) => (
-        <fieldset
-          key={section.id}
-          style={{
-            border: "1px solid #e5e7eb",
-            borderRadius: "0.5rem",
-            padding: "1rem",
-            marginBottom: "1.5rem",
-          }}
-        >
-          <legend
-            style={{ fontWeight: 600, fontSize: "1rem", padding: "0 0.5rem" }}
-          >
-            {section.title}
-          </legend>
+        <fieldset key={section.id} className={styles.section}>
+          <legend className={styles.sectionLegend}>{section.title}</legend>
 
           {section.fields.map((field) => (
-            <div key={field.id} style={{ marginBottom: "1rem" }}>
-              <label
-                htmlFor={field.id}
-                style={{
-                  display: "block",
-                  marginBottom: "0.25rem",
-                  fontWeight: 500,
-                  fontSize: "0.875rem",
-                }}
-              >
+            <div key={field.id} className={shared.field}>
+              <label htmlFor={field.id} className={shared.label}>
                 {field.label}
                 {field.isRequired && (
-                  <span style={{ color: "#dc2626", marginLeft: "0.25rem" }} aria-hidden="true">
+                  <span className={styles.requiredMark} aria-hidden="true">
                     *
                   </span>
                 )}
@@ -482,7 +439,7 @@ export default function ProposalFormPage() {
                   required={field.isRequired}
                   value={fieldValues[field.id] ?? ""}
                   onChange={(e) => handleFieldChange(field.id, e.target.value, field.label)}
-                  style={inputStyle}
+                  className={shared.input}
                 />
               )}
 
@@ -493,7 +450,7 @@ export default function ProposalFormPage() {
                   value={fieldValues[field.id] ?? ""}
                   onChange={(e) => handleFieldChange(field.id, e.target.value, field.label)}
                   rows={4}
-                  style={{ ...inputStyle, resize: "vertical" }}
+                  className={shared.textarea}
                 />
               )}
 
@@ -504,7 +461,7 @@ export default function ProposalFormPage() {
                   required={field.isRequired}
                   value={fieldValues[field.id] ?? ""}
                   onChange={(e) => handleFieldChange(field.id, e.target.value, field.label)}
-                  style={inputStyle}
+                  className={shared.input}
                 />
               )}
 
@@ -515,7 +472,7 @@ export default function ProposalFormPage() {
                   required={field.isRequired}
                   value={fieldValues[field.id] ?? ""}
                   onChange={(e) => handleFieldChange(field.id, e.target.value, field.label)}
-                  style={inputStyle}
+                  className={shared.input}
                 />
               )}
 
@@ -525,7 +482,7 @@ export default function ProposalFormPage() {
                   required={field.isRequired}
                   value={fieldValues[field.id] ?? ""}
                   onChange={(e) => handleFieldChange(field.id, e.target.value, field.label)}
-                  style={inputStyle}
+                  className={shared.select}
                 >
                   <option value="">— Select —</option>
                   {field.validationRules
@@ -547,7 +504,7 @@ export default function ProposalFormPage() {
                   onChange={(e) =>
                     handleFieldChange(field.id, e.target.checked ? "true" : "false")
                   }
-                  style={{ width: "1.125rem", height: "1.125rem" }}
+                  className={styles.checkboxInput}
                 />
               )}
 
@@ -560,7 +517,7 @@ export default function ProposalFormPage() {
                   onChange={(e) =>
                     handleFieldChange(field.id, e.target.checked ? "true" : "false")
                   }
-                  style={{ width: "1.125rem", height: "1.125rem" }}
+                  className={styles.checkboxInput}
                 />
               )}
 
@@ -572,7 +529,7 @@ export default function ProposalFormPage() {
                   onChange={(e) =>
                     void handleFileChange(field.id, e.target.files?.[0] ?? null)
                   }
-                  style={{ fontSize: "0.875rem" }}
+                  className={styles.fileInput}
                 />
               )}
 
@@ -581,31 +538,21 @@ export default function ProposalFormPage() {
                 const rows = parseTableRows(fieldValues[field.id]);
                 const displayRows = rows.length > 0 ? rows : [Object.fromEntries(columns.map((c) => [c.key, ""]))];
                 return (
-                  <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
+                  <div className={shared.tableWrap}>
+                    <table className={shared.table}>
                       <thead>
                         <tr>
                           {columns.map((col) => (
-                            <th
-                              key={col.key}
-                              style={{
-                                textAlign: "left",
-                                padding: "0.5rem",
-                                borderBottom: "2px solid #e5e7eb",
-                                fontWeight: 600,
-                              }}
-                            >
-                              {col.label}
-                            </th>
+                            <th key={col.key}>{col.label}</th>
                           ))}
-                          <th style={{ borderBottom: "2px solid #e5e7eb", padding: "0.5rem" }} />
+                          <th />
                         </tr>
                       </thead>
                       <tbody>
                         {displayRows.map((row, rowIndex) => (
                           <tr key={rowIndex}>
                             {columns.map((col) => (
-                              <td key={col.key} style={{ padding: "0.5rem", borderBottom: "1px solid #f3f4f6" }}>
+                              <td key={col.key}>
                                 <input
                                   type="text"
                                   aria-label={`${col.label}, row ${rowIndex + 1}`}
@@ -613,24 +560,17 @@ export default function ProposalFormPage() {
                                   onChange={(e) =>
                                     handleTableRowChange(field, rowIndex, col.key, e.target.value)
                                   }
-                                  style={inputStyle}
+                                  className={shared.input}
                                 />
                               </td>
                             ))}
-                            <td style={{ padding: "0.5rem", borderBottom: "1px solid #f3f4f6" }}>
+                            <td>
                               <button
                                 type="button"
                                 onClick={() => handleRemoveTableRow(field, rowIndex)}
                                 disabled={displayRows.length <= 1}
                                 aria-label={`Remove row ${rowIndex + 1}`}
-                                style={{
-                                  border: "1px solid #d1d5db",
-                                  borderRadius: "0.375rem",
-                                  backgroundColor: "#fff",
-                                  cursor: displayRows.length <= 1 ? "not-allowed" : "pointer",
-                                  opacity: displayRows.length <= 1 ? 0.5 : 1,
-                                  padding: "0.25rem 0.5rem",
-                                }}
+                                className={`${shared.button} ${styles.removeRowButton}`}
                               >
                                 ×
                               </button>
@@ -643,15 +583,7 @@ export default function ProposalFormPage() {
                       type="button"
                       onClick={() => handleAddTableRow(field)}
                       aria-label={`Add row to ${field.label}`}
-                      style={{
-                        marginTop: "0.5rem",
-                        padding: "0.375rem 0.75rem",
-                        border: "1px solid #d1d5db",
-                        borderRadius: "0.375rem",
-                        backgroundColor: "#fff",
-                        cursor: "pointer",
-                        fontSize: "0.8125rem",
-                      }}
+                      className={`${shared.button} ${styles.addRowButton}`}
                     >
                       + Add Row
                     </button>
@@ -660,7 +592,7 @@ export default function ProposalFormPage() {
               })()}
 
               {fieldErrors[field.id] && (
-                <p role="alert" style={{ color: "#dc2626", fontSize: "0.75rem", marginTop: "0.25rem" }}>
+                <p role="alert" className={styles.fieldErrorText}>
                   This field is required.
                 </p>
               )}
@@ -670,32 +602,16 @@ export default function ProposalFormPage() {
       ))}
 
       {submitError && (
-        <p
-          role="alert"
-          style={{
-            color: "#dc2626",
-            fontSize: "0.875rem",
-            marginBottom: "0.75rem",
-            fontWeight: 500,
-          }}
-        >
+        <p role="alert" className={`${shared.error} ${styles.submitError}`}>
           {submitError}
         </p>
       )}
 
-      <div style={{ display: "flex", gap: "0.75rem", marginTop: "1rem", flexWrap: "wrap" }}>
+      <div className={styles.actions}>
         <button
           type="button"
           onClick={handleSaveNow}
-          style={{
-            padding: "0.5rem 1rem",
-            border: "1px solid #d1d5db",
-            borderRadius: "0.375rem",
-            backgroundColor: "#fff",
-            cursor: "pointer",
-            fontSize: "0.875rem",
-            fontWeight: 500,
-          }}
+          className={shared.button}
           aria-label="Save as draft"
         >
           Save as Draft
@@ -708,16 +624,7 @@ export default function ProposalFormPage() {
               navigate(`/proposals/${proposalId}`);
             }
           }}
-          style={{
-            padding: "0.5rem 1rem",
-            border: "none",
-            borderRadius: "0.375rem",
-            backgroundColor: "#2563eb",
-            color: "#fff",
-            cursor: "pointer",
-            fontSize: "0.875rem",
-            fontWeight: 500,
-          }}
+          className={shared.buttonPrimary}
           aria-label="Go to review"
         >
           Next: Review
@@ -727,16 +634,7 @@ export default function ProposalFormPage() {
           <button
             type="button"
             onClick={() => setShowSubmitConfirm(true)}
-            style={{
-              padding: "0.5rem 1rem",
-              border: "none",
-              borderRadius: "0.375rem",
-              backgroundColor: "#16a34a",
-              color: "#fff",
-              cursor: "pointer",
-              fontSize: "0.875rem",
-              fontWeight: 500,
-            }}
+            className={shared.buttonPrimary}
             aria-label="Submit proposal"
           >
             Submit Proposal
@@ -750,44 +648,20 @@ export default function ProposalFormPage() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="submit-confirm-title"
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 50,
-          }}
+          className={styles.modalOverlay}
         >
-          <div
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: "0.5rem",
-              padding: "1.5rem",
-              maxWidth: "400px",
-              width: "90%",
-              boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)",
-            }}
-          >
-            <h3 id="submit-confirm-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>
+          <div className={styles.modalCard}>
+            <h3 id="submit-confirm-title" className={styles.modalTitle}>
               Submit Proposal
             </h3>
-            <p style={{ margin: "0 0 1.25rem 0", fontSize: "0.875rem", color: "#374151" }}>
+            <p className={styles.modalBody}>
               Once submitted, this version cannot be edited.
             </p>
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+            <div className={styles.modalActions}>
               <button
                 type="button"
                 onClick={() => setShowSubmitConfirm(false)}
-                style={{
-                  padding: "0.5rem 1rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#fff",
-                  cursor: "pointer",
-                  fontSize: "0.875rem",
-                }}
+                className={shared.button}
                 aria-label="Cancel submission"
               >
                 Cancel
@@ -796,16 +670,7 @@ export default function ProposalFormPage() {
                 type="button"
                 onClick={() => void handleSubmitProposal()}
                 disabled={submitting}
-                style={{
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#16a34a",
-                  color: "#fff",
-                  cursor: submitting ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  opacity: submitting ? 0.7 : 1,
-                }}
+                className={shared.buttonPrimary}
                 aria-label="Confirm submission"
               >
                 {submitting ? "Submitting…" : "Confirm Submit"}
