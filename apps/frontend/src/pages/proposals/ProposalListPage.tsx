@@ -67,7 +67,7 @@ export default function ProposalListPage() {
           </button>
         </div>
       ) : (
-        <div className={styles.stack}>
+        <div className={`${styles.stack} ${styles.staggerList}`}>
           {proposals.map((proposal) => (
             <div
               key={proposal.id}
@@ -79,7 +79,7 @@ export default function ProposalListPage() {
               }}
               role="button"
               tabIndex={0}
-              className={`${styles.notificationItem} ${styles.clickRow}`}
+              className={styles.cardInteractive}
               style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem" }}
             >
               <div style={{ flex: 1, minWidth: 0 }}>

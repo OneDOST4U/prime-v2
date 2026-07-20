@@ -670,7 +670,7 @@ export default function ProposalFormPage() {
                 type="button"
                 onClick={() => void handleSubmitProposal()}
                 disabled={submitting}
-                className={shared.buttonPrimary}
+                className={`${shared.buttonPrimary} ${submitting ? shared.buttonLoading : ""}`}
                 aria-label="Confirm submission"
               >
                 {submitting ? "Submitting…" : "Confirm Submit"}

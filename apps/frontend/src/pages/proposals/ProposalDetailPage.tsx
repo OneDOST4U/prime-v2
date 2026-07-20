@@ -1955,7 +1955,7 @@ export default function ProposalDetailPage() {
                 onClick={() => void handleResubmit()}
                 disabled={resubmitting}
                 aria-label="Confirm resubmission"
-                className={styles.buttonAccent}
+                className={`${styles.buttonAccent} ${resubmitting ? styles.buttonAccentLoading : ""}`}
               >
                 {resubmitting ? "Resubmitting…" : "Confirm Resubmit"}
               </button>

@@ -230,7 +230,7 @@ export default function ProfilePage() {
             </>
           )}
 
-          <button type="submit" className={styles.buttonPrimary} disabled={saving}>
+          <button type="submit" className={`${styles.buttonPrimary} ${saving ? styles.buttonLoading : ""}`} disabled={saving}>
             {saving ? "Saving…" : "Save profile"}
           </button>
         </form>
