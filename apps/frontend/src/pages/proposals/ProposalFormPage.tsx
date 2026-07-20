@@ -143,7 +143,7 @@ export default function ProposalFormPage() {
         // until the rest are wired up). A failure here shouldn't block the
         // main form.
         try {
-          const forms = await proposalTypesApi.requiredForms(typeId);
+          const forms = await proposalTypesApi.requiredForms(typeId!);
           setRequiredForms(forms);
         } catch {
           setRequiredForms([]);
