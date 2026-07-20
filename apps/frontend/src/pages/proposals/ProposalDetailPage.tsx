@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { motion, useReducedMotion, useScroll, useMotionValueEvent } from "framer-motion";
 import {
   api,
   phase9Api,
@@ -52,6 +53,20 @@ export default function ProposalDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { role } = useAuth();
+
+  // Motion: respect reduced-motion, elevate sticky bar on scroll
+  const prefersReducedMotion = useReducedMotion();
+  const [scrolled, setScrolled] = useState(false);
+  const { scrollY } = useScroll();
+  useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 8));
+
+  const sectionMotion = prefersReducedMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 8 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] as const },
+      };
 
   const [proposal, setProposal] = useState<ProposalDetail | null>(null);
   const [attachments, setAttachments] = useState<AttachmentMeta[]>([]);
@@ -773,65 +788,68 @@ export default function ProposalDetailPage() {
 
   return (
     <div className={styles.page}>
-      {/* Header */}
-      <div className={styles.header}>
-        <div>
-          <h2 className={styles.headerTitle}>{proposal.title}</h2>
-          <p className={styles.headerSubtitle}>{proposal.proposalType.name}</p>
+      {/* Sticky sub-header */}
+      <div className={`${styles.stickyBar} ${scrolled ? styles.stickyBarScrolled : ""}`}>
+        <h1 className={styles.stickyBarTitle}>{proposal.title}</h1>
+        <div className={styles.stickyBarActions}>
           <StatusBadge status={proposal.status} />
-        </div>
-
-        {proposal.status === "DRAFT" && (
           <button
             type="button"
-            onClick={() => navigate(`/proposals/new/${proposal.proposalType.id}`)}
-            aria-label="Edit draft proposal"
-            className={`${shared.button} ${styles.noShrink}`}
-          >
-            Edit Draft
-          </button>
-        )}
-      </div>
-
-      {/* Phase 9 action buttons */}
-      <div className={`${shared.toolbar} ${styles.toolbarRow}`}>
-        <button
-          type="button"
-          onClick={() => navigate(`/proposals/${id}/history`)}
-          aria-label="View change history"
-          className={shared.button}
-        >
-          View Change History
-        </button>
-
-        {versions.length > 1 && (
-          <button
-            type="button"
-            onClick={() => navigate(`/proposals/${id}/compare`)}
-            aria-label="Compare versions"
+            onClick={() => navigate(`/proposals/${id}/history`)}
+            aria-label="View change history"
             className={shared.button}
           >
-            Compare Versions
+            History
           </button>
-        )}
-
-        {proposal.status === "RETURNED_TO_APPLICANT" && isApplicant && (
-          <button
-            type="button"
-            onClick={() => setShowResubmitConfirm(true)}
-            aria-label="Resubmit proposal"
-            className={styles.buttonAccent}
-          >
-            Resubmit
-          </button>
-        )}
+          {versions.length > 1 && (
+            <button
+              type="button"
+              onClick={() => navigate(`/proposals/${id}/compare`)}
+              aria-label="Compare versions"
+              className={shared.button}
+            >
+              Compare
+            </button>
+          )}
+          {proposal.status === "DRAFT" && (
+            <button
+              type="button"
+              onClick={() => navigate(`/proposals/new/${proposal.proposalType.id}`)}
+              aria-label="Edit draft proposal"
+              className={shared.button}
+            >
+              Edit Draft
+            </button>
+          )}
+          {proposal.status === "RETURNED_TO_APPLICANT" && isApplicant && (
+            <button
+              type="button"
+              onClick={() => setShowResubmitConfirm(true)}
+              aria-label="Resubmit proposal"
+              className={styles.buttonAccent}
+            >
+              Resubmit
+            </button>
+          )}
+        </div>
       </div>
 
-      {resubmitError && (
-        <p role="alert" className={shared.error}>
-          {resubmitError}
-        </p>
-      )}
+      <div className={styles.grid}>
+        <motion.main
+          className={styles.mainCol}
+          {...(prefersReducedMotion
+            ? {}
+            : {
+                initial: { opacity: 0, y: 10 },
+                animate: { opacity: 1, y: 0 },
+                transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] },
+              })}
+        >
+          {resubmitError && (
+            <p role="alert" className={shared.error}>
+              {resubmitError}
+            </p>
+          )}
 
       {/* Focal workflow actions */}
       {isFocal && (
@@ -1236,7 +1254,7 @@ export default function ProposalDetailPage() {
 
       {/* Field values */}
       {fieldValues.length > 0 && (
-        <section className={styles.section}>
+        <motion.section className={styles.section} {...sectionMotion}>
           <h3 className={styles.sectionHeading}>
             Form Responses
           </h3>
@@ -1250,11 +1268,11 @@ export default function ProposalDetailPage() {
               </div>
             ))}
           </dl>
-        </section>
+        </motion.section>
       )}
 
       {/* Attachments */}
-      <section className={styles.section}>
+      <motion.section className={styles.section} {...sectionMotion}>
         <h3 className={styles.sectionHeading}>
           Attachments
         </h3>
@@ -1270,7 +1288,12 @@ export default function ProposalDetailPage() {
         ) : (
           <ul className={styles.listReset}>
             {attachments.map((attachment) => (
-              <li key={attachment.id} role="listitem" className={styles.rowItem}>
+              <motion.li
+                key={attachment.id}
+                role="listitem"
+                className={styles.rowItem}
+                whileHover={prefersReducedMotion ? undefined : { backgroundColor: "rgba(0,125,184,0.05)" }}
+              >
                 <div className={styles.rowItemBody}>
                   <p className={styles.rowItemTitle}>{attachment.originalFilename}</p>
                   <p className={styles.rowItemMeta}>
@@ -1286,14 +1309,14 @@ export default function ProposalDetailPage() {
                 >
                   Download
                 </button>
-              </li>
+              </motion.li>
             ))}
           </ul>
         )}
-      </section>
+      </motion.section>
 
       {/* Comments */}
-      <section className={styles.section}>
+      <motion.section className={styles.section} {...sectionMotion}>
         <h3 className={styles.sectionHeading}>
           Comments
         </h3>
@@ -1391,10 +1414,10 @@ export default function ProposalDetailPage() {
             {addingComment ? "Adding…" : "Add Comment"}
           </button>
         </div>
-      </section>
+      </motion.section>
 
       {/* Workflow History */}
-      <section className={styles.section}>
+      <motion.section className={styles.section} {...sectionMotion}>
         <h3 className={styles.sectionHeading}>
           Workflow History
         </h3>
@@ -1418,10 +1441,10 @@ export default function ProposalDetailPage() {
             ))}
           </ul>
         )}
-      </section>
+      </motion.section>
 
       {/* Document Export */}
-      <section className={styles.section}>
+      <motion.section className={styles.section} {...sectionMotion}>
         <h3 className={styles.sectionHeading}>
           Document Export
         </h3>
@@ -1468,7 +1491,61 @@ export default function ProposalDetailPage() {
             )}
           </div>
         )}
-      </section>
+      </motion.section>
+        </motion.main>
+
+        <motion.aside
+          className={styles.sidebar}
+          {...(prefersReducedMotion
+            ? {}
+            : {
+                initial: { opacity: 0, x: 12 },
+                animate: { opacity: 1, x: 0 },
+                transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
+              })}
+        >
+          <div className={styles.metaCard}>
+            <div className={styles.metaHero}>
+              <p className={styles.metaType}>{proposal.proposalType.name}</p>
+              <p className={styles.metaTitle}>{proposal.title}</p>
+              <StatusBadge status={proposal.status} />
+            </div>
+            <hr className={styles.metaDivider} />
+            <dl className={styles.metaList}>
+              <div className={styles.metaRow}>
+                <dt className={styles.metaLabel}>Submitted</dt>
+                <dd className={styles.metaValue}>
+                  {new Date(proposal.createdAt).toLocaleDateString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </dd>
+              </div>
+              <div className={styles.metaRow}>
+                <dt className={styles.metaLabel}>Last Updated</dt>
+                <dd className={styles.metaValue}>
+                  {new Date(proposal.updatedAt).toLocaleDateString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </dd>
+              </div>
+              {proposal.currentVersion && (
+                <div className={styles.metaRow}>
+                  <dt className={styles.metaLabel}>Version</dt>
+                  <dd className={styles.metaValue}>v{proposal.currentVersion.versionNumber}</dd>
+                </div>
+              )}
+              <div className={styles.metaRow}>
+                <dt className={styles.metaLabel}>Proposal ID</dt>
+                <dd className={`${styles.metaValue} ${styles.metaMono}`}>{proposal.id}</dd>
+              </div>
+            </dl>
+          </div>
+        </motion.aside>
+      </div>
 
       {/* Return to Applicant modal */}
       {showReturnModal && (
