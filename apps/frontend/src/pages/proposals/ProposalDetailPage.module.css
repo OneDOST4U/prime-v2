@@ -127,23 +127,21 @@
   font-weight: 600;
   font-size: 0.88rem;
   cursor: pointer;
-  transition: background var(--prime-t), box-shadow var(--prime-t), transform var(--prime-t-fast);
+  transition: background var(--prime-t), box-shadow var(--prime-t), opacity var(--prime-t-fast);
   touch-action: manipulation;
 }
 
 .buttonAccent:hover:not(:disabled) {
   background: #6928d9;
-  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35);
 }
 
 .buttonAccent:active:not(:disabled) {
-  transform: scale(0.97);
+  opacity: 0.85;
 }
 
 .buttonAccent:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
 }
 
 .buttonAccentLoading {

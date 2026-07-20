@@ -4,7 +4,7 @@
   --prime-surface: #ffffff;
   --prime-border: #dde3ea;
   --prime-text: #1c2733;
-  --prime-text-muted: #5a6b7c;
+  --prime-text-muted: #4c5b6b;
   --prime-heading: #0b1220;
   --prime-navy: #123a5f;
   --prime-navy-sidebar: #0e2c49;
@@ -26,7 +26,7 @@
   --prime-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --prime-ease-in: cubic-bezier(0.4, 0, 1, 1);
   font-family: "Public Sans", system-ui, "Segoe UI", Roboto, sans-serif;
-  line-height: 1.55;
+  line-height: 1.5;
   font-weight: 400;
   color: var(--prime-text);
   background: var(--prime-bg);
@@ -72,6 +72,12 @@ input {
 
 a {
   color: var(--prime-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 :focus-visible {
@@ -118,20 +124,6 @@ a {
   to {
     opacity: 1;
     transform: translateX(0);
-  }
-}
-
-@keyframes prime-pop {
-  0% {
-    transform: scale(0.6);
-    opacity: 0;
-  }
-  60% {
-    transform: scale(1.08);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
   }
 }
 

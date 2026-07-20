@@ -17,8 +17,9 @@
 
 .panelTitle {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: 1.375rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--prime-heading);
 }
 
@@ -52,7 +53,7 @@
   cursor: pointer;
   transition: background var(--prime-t), border-color var(--prime-t),
     color var(--prime-t), box-shadow var(--prime-t),
-    transform var(--prime-t-fast);
+    opacity var(--prime-t-fast);
   touch-action: manipulation;
 }
 
@@ -62,13 +63,12 @@
 }
 
 .button:active {
-  transform: scale(0.97);
+  opacity: 0.85;
 }
 
 .button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
 }
 
 /* Loading button: hide label, show centered spinner */
@@ -335,7 +335,6 @@
 
 .statCard:hover {
   box-shadow: var(--prime-shadow-2);
-  transform: translateY(-2px);
 }
 
 .statCard::before {
@@ -381,14 +380,14 @@
 
 .clickRow.notificationItem:hover,
 .notificationItem.clickRow:hover {
-  border-color: rgba(0, 152, 219, 0.45);
-  box-shadow: var(--prime-shadow-1);
+  border-color: var(--prime-primary);
 }
 
 .clickRow.notificationItem:focus-visible,
 .notificationItem.clickRow:focus-visible {
   outline: 2px solid var(--prime-primary);
   outline-offset: 2px;
+  background: rgba(0, 125, 184, 0.05);
 }
 
 .notificationUnread {
@@ -453,26 +452,24 @@
   border-radius: var(--prime-radius);
   box-shadow: var(--prime-shadow-1);
   padding: 1.25rem 1.5rem;
-  animation: prime-rise-in var(--prime-t-slow) var(--prime-ease-out) both;
+  animation: prime-fade-in var(--prime-t) var(--prime-ease-out);
 }
 
-/* Opt-in interactive card that lifts on hover */
+/* Opt-in interactive card: border accent on hover, no lift/shadow */
 .cardInteractive {
   composes: card;
-  transition: box-shadow var(--prime-t), transform var(--prime-t),
-    border-color var(--prime-t);
+  transition: border-color var(--prime-t), background var(--prime-t);
   cursor: pointer;
 }
 
 .cardInteractive:hover {
-  box-shadow: var(--prime-shadow-2);
-  transform: translateY(-2px);
-  border-color: rgba(0, 152, 219, 0.35);
+  border-color: var(--prime-primary);
 }
 
 .cardInteractive:focus-visible {
   outline: 2px solid var(--prime-primary);
   outline-offset: 2px;
+  background: rgba(0, 125, 184, 0.05);
 }
 
 .cardHeader {
@@ -547,7 +544,7 @@
   padding: 3rem 1.5rem;
   text-align: center;
   color: var(--prime-text-muted);
-  animation: prime-rise-in var(--prime-t-slow) var(--prime-ease-out);
+  animation: prime-fade-in var(--prime-t) var(--prime-ease-out);
 }
 
 .emptyStateTitle {
@@ -576,6 +573,35 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Indeterminate progress bar for long operations (calmer than spinner) */
+.progress {
+  position: relative;
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--prime-border);
+  overflow: hidden;
+}
+
+.progress::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: 2px;
+  background: var(--prime-primary);
+  animation: prime-progress 1.2s ease-in-out infinite;
+}
+
+@keyframes prime-progress {
+  0% {
+    left: -40%;
+  }
+  100% {
+    left: 100%;
   }
 }
 
@@ -705,49 +731,33 @@
   color: var(--prime-primary);
 }
 
-/* ── List entrance stagger ──────────────────────────────────── */
-/* Apply .staggerList to a container; children rise-in in sequence */
-.staggerList > * {
-  animation: prime-rise-in var(--prime-t-slow) var(--prime-ease-out) both;
+/* ── List entrance ──────────────────────────────────────────── */
+/* Single clean fade for the whole list — no per-item cascade. */
+.staggerList {
+  animation: prime-fade-in var(--prime-t) var(--prime-ease-out);
 }
 
-.staggerList > *:nth-child(1) {
-  animation-delay: 0ms;
-}
-.staggerList > *:nth-child(2) {
-  animation-delay: 40ms;
-}
-.staggerList > *:nth-child(3) {
-  animation-delay: 80ms;
-}
-.staggerList > *:nth-child(4) {
-  animation-delay: 120ms;
-}
-.staggerList > *:nth-child(5) {
-  animation-delay: 160ms;
-}
-.staggerList > *:nth-child(6) {
-  animation-delay: 200ms;
-}
-.staggerList > *:nth-child(7) {
-  animation-delay: 240ms;
-}
-.staggerList > *:nth-child(8) {
-  animation-delay: 280ms;
-}
-.staggerList > *:nth-child(n + 9) {
-  animation-delay: 300ms;
-}
-
-/* ── Success check pop ──────────────────────────────────────── */
+/* ── Success check ──────────────────────────────────────────── */
 .checkPop {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  animation: prime-pop var(--prime-t-slow) var(--prime-ease-out);
+  animation: prime-fade-in var(--prime-t) var(--prime-ease-out);
 }
 
 /* ── Page transition wrapper ────────────────────────────────── */
 .pageEnter {
-  animation: prime-fade-in var(--prime-t-slow) var(--prime-ease-out);
+  animation: prime-fade-in var(--prime-t) var(--prime-ease-out);
+}
+
+/* Calm things further on small screens: drop entrance animations,
+   keep focus/hover feedback intact. */
+@media (max-width: 640px) {
+  .card,
+  .cardInteractive,
+  .emptyState,
+  .staggerList,
+  .pageEnter {
+    animation: none;
+  }
 }
