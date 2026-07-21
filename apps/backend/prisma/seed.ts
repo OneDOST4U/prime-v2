@@ -729,7 +729,7 @@ async function main() {
         applicantUserId: applicantUser.id,
         proposalTypeId: giaProposalType.id,
         status: "SUBMITTED_TO_FOCAL",
-        title: "Seeded GIA Proposal — Focal Demo",
+        title: "Coastal Erosion Monitoring System for Regional Ports",
         submittedAt: new Date(),
       },
     });
@@ -824,7 +824,7 @@ async function main() {
         applicantUserId: applicantUser.id,
         proposalTypeId: giaProposalType.id,
         status: "UNDER_RTEC_REVIEW",
-        title: "Seeded GIA Proposal — RTEC Demo",
+        title: "AI-Assisted Crop Disease Detection for Smallholder Farms",
         submittedAt: new Date(),
       },
     });
@@ -955,7 +955,7 @@ async function main() {
   }
 
   await seedPhase12DemoProposal(
-    "Seeded Budget Proposal — Budget Demo",
+    "Community Water Quality Testing Program",
     "ENDORSED_TO_BUDGET",
     [
       { userId: budgetOfficerUser.id, roleCode: "BUDGET_OFFICER" },
@@ -965,7 +965,7 @@ async function main() {
   );
 
   await seedPhase12DemoProposal(
-    "Seeded Accounting Proposal — Accounting Demo",
+    "Digital Skills Training Center Modernization",
     "ENDORSED_TO_ACCOUNTING",
     [
       { userId: accountantUser.id, roleCode: "ACCOUNTANT" },
@@ -976,7 +976,7 @@ async function main() {
   );
 
   await seedPhase12DemoProposal(
-    "Seeded RD Proposal — RD Demo",
+    "Renewable Microgrid Feasibility Study for Off-Grid Barangays",
     "ENDORSED_TO_RD",
     [
       { userId: rdUser.id, roleCode: "REGIONAL_DIRECTOR" },
@@ -986,7 +986,7 @@ async function main() {
   );
 
   // ── Phase 13: APPROVED demo proposal for export testing ───────────────────────
-  const EXPORT_DEMO_TITLE = "Seeded Approved Proposal — Export Demo";
+  const EXPORT_DEMO_TITLE = "Low-Cost Water Filtration System for Rural Health Units";
   let exportDemoProposal = await prisma.proposal.findFirst({ where: { title: EXPORT_DEMO_TITLE } });
 
   if (!exportDemoProposal) {
