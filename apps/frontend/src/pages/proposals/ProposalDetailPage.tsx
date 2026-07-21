@@ -1539,8 +1539,13 @@ export default function ProposalDetailPage() {
                 </div>
               )}
               <div className={styles.metaRow}>
-                <dt className={styles.metaLabel}>Proposal ID</dt>
-                <dd className={`${styles.metaValue} ${styles.metaMono}`}>{proposal.id}</dd>
+                <dt className={styles.metaLabel}>Reference No.</dt>
+                <dd
+                  className={`${styles.metaValue} ${styles.metaMono}`}
+                  title={proposal.id}
+                >
+                  {proposal.id.slice(0, 8).toUpperCase()}
+                </dd>
               </div>
             </dl>
           </div>

@@ -547,6 +547,12 @@
   animation: prime-fade-in var(--prime-t) var(--prime-ease-out);
 }
 
+.emptyStateIcon {
+  color: var(--prime-text-muted);
+  opacity: 0.5;
+  margin-bottom: 0.25rem;
+}
+
 .emptyStateTitle {
   margin: 0;
   font-weight: 700;

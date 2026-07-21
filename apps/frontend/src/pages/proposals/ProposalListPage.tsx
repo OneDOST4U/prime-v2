@@ -54,6 +54,24 @@ export default function ProposalListPage() {
         </p>
       ) : proposals.length === 0 ? (
         <div className={styles.emptyState}>
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            aria-hidden="true"
+            className={styles.emptyStateIcon}
+          >
+            <path
+              d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path d="M14 2v6h6" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M9 13h6M9 17h6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
           <p className={styles.emptyStateTitle}>No proposals yet</p>
           <p className={styles.emptyStateHint}>
             Start your first submission — it only takes a few minutes to save a draft.
