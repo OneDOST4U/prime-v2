@@ -1,4 +1,4 @@
-import Fastify from "fastify";
+import Fastify, { type FastifyError } from "fastify";
 import fastifyEnv from "@fastify/env";
 import fastifyHelmet from "@fastify/helmet";
 import fastifyCors from "@fastify/cors";
@@ -38,12 +38,32 @@ import { logger, setLogLevel } from "./utils/logger.js";
 const SESSION_SLIDING_MAX_AGE_MS = 30 * 60 * 1000;
 
 export async function buildApp() {
-  const app = Fastify({ logger });
+  const app = Fastify({ loggerInstance: logger });
 
   // 1. Env validation first — app must crash before any other plugin
   //    registers if a required var is missing or invalid.
   await app.register(fastifyEnv, envPluginOptions);
   setLogLevel(app.config.NODE_ENV === "development" ? "debug" : "info");
+
+  // 1b. Dev-account safety check (production only).
+  //     If any user with a @dev.local email exists while NODE_ENV=production,
+  //     the seed script was run against a real database. Refuse to boot rather
+  //     than silently serve a system that may have working dev credentials.
+  if (app.config.NODE_ENV === "production") {
+    const { prisma } = await import("./db/client.js");
+    const devAccountCount = await prisma.user.count({
+      where: { email: { endsWith: "@dev.local" } },
+    });
+    if (devAccountCount > 0) {
+      app.log.fatal(
+        { devAccountCount },
+        "FATAL: dev test accounts (@dev.local) found in a production database. " +
+        "The seed script must not be run against production. " +
+        "Remove these accounts before restarting.",
+      );
+      process.exit(1);
+    }
+  }
 
   // 2. Security headers before any routes.
   await app.register(fastifyHelmet);
@@ -135,7 +155,7 @@ export async function buildApp() {
   await app.register(adminRoutes);
 
   // 8. Error handlers
-  app.setErrorHandler((error, _request, reply) => {
+  app.setErrorHandler<FastifyError>((error, _request, reply) => {
     app.log.error(error);
     if (error.validation || error.name === "ZodError") {
       return reply.status(400).send({ error: "Bad Request", statusCode: 400 });

@@ -120,8 +120,38 @@ async function cleanupTestData() {
         await db.proposalFieldValue.deleteMany({
           where: { proposalVersionId: { in: versionIds } },
         });
+        await db.proposalAttachment.deleteMany({
+          where: { proposalVersionId: { in: versionIds } },
+        });
+        await db.rtecReview.deleteMany({
+          where: { proposalVersionId: { in: versionIds } },
+        });
+        await db.rtecConsolidation.deleteMany({
+          where: { proposalVersionId: { in: versionIds } },
+        });
+        await db.budgetReview.deleteMany({
+          where: { proposalVersionId: { in: versionIds } },
+        });
+        await db.accountingReview.deleteMany({
+          where: { proposalVersionId: { in: versionIds } },
+        });
+        await db.rdDecision.deleteMany({
+          where: { proposalVersionId: { in: versionIds } },
+        });
+        await db.proposalExport.deleteMany({
+          where: { proposalVersionId: { in: versionIds } },
+        });
       }
 
+      await db.proposalAssignment.deleteMany({
+        where: { proposalId: { in: proposalIds } },
+      });
+      await db.notification.deleteMany({
+        where: { proposalId: { in: proposalIds } },
+      });
+      await db.proposalWorkflowHistory.deleteMany({
+        where: { proposalId: { in: proposalIds } },
+      });
       await db.proposal.updateMany({
         where: { id: { in: proposalIds } },
         data: { currentVersionId: null },

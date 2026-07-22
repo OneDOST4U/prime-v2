@@ -74,10 +74,12 @@ export default function LoginPage() {
             >
               Staff Login
             </button>
-            <p className={styles.hint}>
-              Applicants use Google in production. In local dev, use Staff Login with
-              any <code>@dev.local</code> account (see DEV-TEST-ACCOUNTS.md).
-            </p>
+            {import.meta.env.DEV && (
+              <p className={styles.hint}>
+                Applicants use Google in production. In local dev, use Staff Login with
+                any <code>@dev.local</code> account (see DEV-TEST-ACCOUNTS.md).
+              </p>
+            )}
           </div>
         ) : (
           <>
@@ -132,13 +134,15 @@ export default function LoginPage() {
               ← Back to login options
             </button>
 
-            <p className={styles.hint}>
-              <strong>Dev test logins</strong> (Staff Login):<br />
-              Admin: admin@dev.local / DevAdminPassw0rd!123<br />
-              Applicant: applicant@dev.local / DevTestPassw0rd!123<br />
-              Focal: focal@dev.local · RTEC: rtec.member@dev.local · Budget: budget@dev.local<br />
-              Others: *@dev.local / DevTestPassw0rd!123 — see docs/deployment/DEV-TEST-ACCOUNTS.md
-            </p>
+            {import.meta.env.DEV && (
+              <p className={styles.hint}>
+                <strong>Dev test logins</strong> (Staff Login):<br />
+                Admin: admin@dev.local / DevAdminPassw0rd!123<br />
+                Applicant: applicant@dev.local / DevTestPassw0rd!123<br />
+                Focal: focal@dev.local · RTEC: rtec.member@dev.local · Budget: budget@dev.local<br />
+                Others: *@dev.local / DevTestPassw0rd!123 — see docs/deployment/DEV-TEST-ACCOUNTS.md
+              </p>
+            )}
           </>
         )}
       </div>

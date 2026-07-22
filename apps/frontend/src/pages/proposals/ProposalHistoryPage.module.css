@@ -1,0 +1,38 @@
+.page {
+  padding: 1.5rem 1rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--prime-heading);
+}
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.entryAction {
+  margin: 0 0 0.15rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--prime-heading);
+}
+
+.entryMeta {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--prime-text-muted);
+}

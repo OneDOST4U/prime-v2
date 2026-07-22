@@ -13,6 +13,11 @@
 }
 
 .header {
+  --app-header-h: 65px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: var(--app-header-h);
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -20,6 +25,7 @@
   border-bottom: 1px solid var(--prime-border);
   background: var(--prime-surface);
   box-shadow: var(--prime-shadow-1);
+  box-sizing: border-box;
 }
 
 .headerText {
@@ -360,6 +366,8 @@
   .shell {
     grid-template-columns: 280px 1fr;
     grid-template-rows: 1fr;
+    height: 100vh;
+    overflow: hidden;
   }
 
   .menuButton {
@@ -370,11 +378,14 @@
     display: block;
     grid-column: 1;
     grid-row: 1;
+    height: 100vh;
   }
 
   .mainArea {
     grid-column: 2;
     grid-row: 1;
+    height: 100vh;
+    overflow-y: auto;
   }
 }
 

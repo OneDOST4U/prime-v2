@@ -9,6 +9,9 @@ import {
   type RtecConsolidation,
 } from "../../lib/api";
 import { useAuth } from "../../hooks/useAuth";
+import StatusBadge from "../../components/ui/StatusBadge";
+import shared from "../shared.module.css";
+import styles from "./RtecHeadConsolidationPage.module.css";
 
 type SaveStatus = "idle" | "saving" | "saved" | "failed";
 type Recommendation = "FOR_APPROVAL" | "FOR_REVISION" | "NOT_RECOMMENDED";
@@ -17,15 +20,6 @@ const RECOMMENDATION_LABELS: Record<Recommendation, string> = {
   FOR_APPROVAL: "Recommend for Approval",
   FOR_REVISION: "Return for Revision",
   NOT_RECOMMENDED: "Not Recommended",
-};
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "0.5rem 0.75rem",
-  border: "1px solid #d1d5db",
-  borderRadius: "0.375rem",
-  fontSize: "0.875rem",
-  boxSizing: "border-box",
 };
 
 export default function RtecHeadConsolidationPage() {
@@ -204,12 +198,17 @@ export default function RtecHeadConsolidationPage() {
   }
 
   if (loading) {
-    return <p style={{ padding: "1rem" }}>Loading consolidation…</p>;
+    return (
+      <div className={styles.loadingState}>
+        <span className={shared.spinner} aria-hidden="true" />
+        Loading consolidation…
+      </div>
+    );
   }
 
   if (notAssigned) {
     return (
-      <p role="alert" style={{ padding: "1rem", color: "#dc2626" }}>
+      <p role="alert" className={`${shared.error} ${styles.pageError}`}>
         You are not assigned as RTEC Head for this proposal.
       </p>
     );
@@ -217,7 +216,7 @@ export default function RtecHeadConsolidationPage() {
 
   if (error || !proposal) {
     return (
-      <p role="alert" style={{ padding: "1rem", color: "#dc2626" }}>
+      <p role="alert" className={`${shared.error} ${styles.pageError}`}>
         Error: {error ?? "Proposal not found"}
       </p>
     );
@@ -225,31 +224,24 @@ export default function RtecHeadConsolidationPage() {
 
   const saveStatusLabel =
     saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "Saved" : saveStatus === "failed" ? "Save failed" : "";
-  const saveStatusColor = saveStatus === "failed" ? "#dc2626" : saveStatus === "saved" ? "#16a34a" : "#6b7280";
+  const saveStatusClass =
+    saveStatus === "failed"
+      ? styles.saveStatusFailed
+      : saveStatus === "saved"
+        ? styles.saveStatusSaved
+        : styles.saveStatusMuted;
 
   return (
-    <div style={{ padding: "1rem", maxWidth: "760px" }}>
-      <div style={{ marginBottom: "1.5rem" }}>
-        <h2 style={{ margin: "0 0 0.5rem 0" }}>{proposal.title}</h2>
-        <span
-          style={{
-            display: "inline-block",
-            padding: "0.25rem 0.625rem",
-            borderRadius: "9999px",
-            fontSize: "0.75rem",
-            fontWeight: 600,
-            color: "#fff",
-            backgroundColor: "#d97706",
-          }}
-        >
-          {proposal.status.replace(/_/g, " ")}
-        </span>
+    <div className={styles.page}>
+      <div className={styles.header}>
+        <h2 className={styles.title}>{proposal.title}</h2>
+        <StatusBadge status={proposal.status} />
       </div>
 
       {proposal.status === "RTEC_MEMBER_REVIEWS_COMPLETE" && (
-        <div style={{ marginBottom: "1.5rem" }}>
+        <div className={styles.beginSection}>
           {beginError && (
-            <p role="alert" style={{ color: "#dc2626", fontSize: "0.875rem", marginBottom: "0.5rem" }}>
+            <p role="alert" className={`${shared.error} ${styles.inlineError}`}>
               {beginError}
             </p>
           )}
@@ -258,18 +250,7 @@ export default function RtecHeadConsolidationPage() {
             onClick={() => void handleBeginConsolidation()}
             disabled={beginning}
             aria-label="Begin Consolidation"
-            style={{
-              minHeight: "44px",
-              padding: "0.5rem 1rem",
-              border: "none",
-              borderRadius: "0.375rem",
-              backgroundColor: "#2563eb",
-              color: "#fff",
-              cursor: beginning ? "not-allowed" : "pointer",
-              fontSize: "0.875rem",
-              fontWeight: 500,
-              opacity: beginning ? 0.6 : 1,
-            }}
+            className={shared.buttonPrimary}
           >
             {beginning ? "Starting…" : "Begin Consolidation"}
           </button>
@@ -277,19 +258,15 @@ export default function RtecHeadConsolidationPage() {
       )}
 
       {proposal.status === "UNDER_RTEC_HEAD_CONSOLIDATION" && (
-        <section style={{ marginBottom: "1.5rem", border: "1px solid #e5e7eb", borderRadius: "0.5rem", padding: "1rem" }}>
-          <h3 style={{ margin: "0 0 0.75rem 0", fontSize: "1rem", fontWeight: 600 }}>Consolidation</h3>
+        <section className={styles.section}>
+          <h3 className={styles.sectionHeading}>Consolidation</h3>
 
-          <div
-            aria-live="polite"
-            aria-atomic="true"
-            style={{ fontSize: "0.8125rem", color: saveStatusColor, minHeight: "1.25rem", marginBottom: "0.5rem" }}
-          >
+          <div aria-live="polite" aria-atomic="true" className={`${styles.saveStatus} ${saveStatusClass}`}>
             {saveStatusLabel}
           </div>
 
-          <div style={{ marginBottom: "0.75rem" }}>
-            <label htmlFor="recommendation-select" style={{ display: "block", marginBottom: "0.25rem", fontWeight: 500, fontSize: "0.875rem" }}>
+          <div className={shared.field}>
+            <label htmlFor="recommendation-select" className={shared.label}>
               Recommendation
             </label>
             <select
@@ -297,7 +274,7 @@ export default function RtecHeadConsolidationPage() {
               aria-label="Recommendation"
               value={recommendation}
               onChange={(e) => handleRecommendationChange(e.target.value as Recommendation)}
-              style={inputStyle}
+              className={shared.select}
             >
               {(Object.keys(RECOMMENDATION_LABELS) as Recommendation[]).map((key) => (
                 <option key={key} value={key}>
@@ -307,9 +284,12 @@ export default function RtecHeadConsolidationPage() {
             </select>
           </div>
 
-          <div style={{ marginBottom: "1rem" }}>
-            <label htmlFor="consolidated-remarks" style={{ display: "block", marginBottom: "0.25rem", fontWeight: 500, fontSize: "0.875rem" }}>
-              Consolidated Remarks<span style={{ color: "#dc2626", marginLeft: "0.25rem" }} aria-hidden="true">*</span>
+          <div className={shared.field}>
+            <label htmlFor="consolidated-remarks" className={shared.label}>
+              Consolidated Remarks
+              <span className={styles.requiredMark} aria-hidden="true">
+                *
+              </span>
             </label>
             <textarea
               id="consolidated-remarks"
@@ -317,32 +297,18 @@ export default function RtecHeadConsolidationPage() {
               value={consolidatedRemarks}
               onChange={(e) => handleRemarksChange(e.target.value)}
               rows={5}
-              style={{ ...inputStyle, resize: "vertical" }}
+              className={shared.textarea}
             />
           </div>
 
           {submitError && (
-            <p role="alert" style={{ color: "#dc2626", fontSize: "0.875rem", marginBottom: "0.75rem" }}>
+            <p role="alert" className={`${shared.error} ${styles.inlineError}`}>
               {submitError}
             </p>
           )}
 
-          <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-            <button
-              type="button"
-              onClick={handleSaveNow}
-              aria-label="Save Draft"
-              style={{
-                minHeight: "44px",
-                padding: "0.5rem 1rem",
-                border: "1px solid #d1d5db",
-                borderRadius: "0.375rem",
-                backgroundColor: "#fff",
-                cursor: "pointer",
-                fontSize: "0.875rem",
-                fontWeight: 500,
-              }}
-            >
+          <div className={styles.actions}>
+            <button type="button" onClick={handleSaveNow} aria-label="Save Draft" className={shared.button}>
               Save Draft
             </button>
 
@@ -351,18 +317,7 @@ export default function RtecHeadConsolidationPage() {
               onClick={() => setShowSubmitConfirm(true)}
               disabled={submitting}
               aria-label="Submit Recommendation"
-              style={{
-                minHeight: "44px",
-                padding: "0.5rem 1rem",
-                border: "none",
-                borderRadius: "0.375rem",
-                backgroundColor: "#16a34a",
-                color: "#fff",
-                cursor: submitting ? "not-allowed" : "pointer",
-                fontSize: "0.875rem",
-                fontWeight: 500,
-                opacity: submitting ? 0.6 : 1,
-              }}
+              className={shared.buttonPrimary}
             >
               Submit Recommendation
             </button>
@@ -371,53 +326,34 @@ export default function RtecHeadConsolidationPage() {
       )}
 
       {proposal.status === "RETURNED_TO_FOCAL_BY_RTEC" && consolidation && (
-        <section style={{ marginBottom: "1.5rem", border: "1px solid #e5e7eb", borderRadius: "0.5rem", padding: "1rem" }}>
-          <p style={{ margin: "0 0 0.75rem 0", color: "#16a34a", fontWeight: 500, fontSize: "0.875rem" }}>
-            Recommendation submitted
-          </p>
-          <p style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem" }}>
+        <section className={styles.section}>
+          <p className={styles.submittedNotice}>Recommendation submitted</p>
+          <p className={styles.submittedRow}>
             <strong>Recommendation:</strong> {RECOMMENDATION_LABELS[consolidation.recommendation]}
           </p>
-          <p style={{ margin: 0, fontSize: "0.875rem", whiteSpace: "pre-wrap" }}>{consolidation.consolidatedRemarks}</p>
+          <p className={styles.submittedRemarks}>{consolidation.consolidatedRemarks}</p>
         </section>
       )}
 
       <section>
-        <h3 style={{ margin: "0 0 0.75rem 0", fontSize: "1rem", fontWeight: 600, borderBottom: "1px solid #e5e7eb", paddingBottom: "0.5rem" }}>
-          Member Reviews
-        </h3>
+        <h3 className={styles.sectionHeadingBordered}>Member Reviews</h3>
         {reviews.length === 0 ? (
-          <p style={{ color: "#6b7280", fontSize: "0.875rem" }}>No reviews yet.</p>
+          <p className={shared.empty}>No reviews yet.</p>
         ) : (
-          <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+          <ul className={styles.reviewList}>
             {reviews.map((r) => (
-              <li key={r.id} style={{ border: "1px solid #e5e7eb", borderRadius: "0.375rem", padding: "0.75rem", marginBottom: "0.5rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem" }}>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ margin: "0 0 0.25rem 0", fontWeight: 500, fontSize: "0.875rem" }}>{r.reviewerUserId}</p>
-                    <span
-                      style={{
-                        display: "inline-block",
-                        padding: "0.125rem 0.5rem",
-                        borderRadius: "9999px",
-                        fontSize: "0.6875rem",
-                        fontWeight: 600,
-                        color: "#fff",
-                        backgroundColor: r.isSubmitted ? "#16a34a" : "#6b7280",
-                        marginBottom: "0.5rem",
-                      }}
-                    >
+              <li key={r.id} className={styles.reviewItem}>
+                <div className={styles.reviewItemRow}>
+                  <div className={styles.reviewContent}>
+                    <p className={styles.reviewerName}>{r.reviewerUserId}</p>
+                    <span className={r.isSubmitted ? shared.badgeGreen : shared.badgeGray}>
                       {r.isSubmitted ? "SUBMITTED" : "DRAFT"}
                     </span>
-                    {r.overallRemarks && (
-                      <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.8125rem", whiteSpace: "pre-wrap" }}>{r.overallRemarks}</p>
-                    )}
+                    {r.overallRemarks && <p className={styles.reviewRemarks}>{r.overallRemarks}</p>}
                     {r.items.length > 0 && (
-                      <ul style={{ margin: "0.5rem 0 0 0", paddingLeft: "1.25rem" }}>
+                      <ul className={styles.reviewItemsList}>
                         {r.items.map((item) => (
-                          <li key={item.id} style={{ fontSize: "0.8125rem", marginBottom: "0.25rem" }}>
-                            {item.remarks}
-                          </li>
+                          <li key={item.id}>{item.remarks}</li>
                         ))}
                       </ul>
                     )}
@@ -428,18 +364,7 @@ export default function RtecHeadConsolidationPage() {
                       onClick={() => void handleReopen(r.id)}
                       disabled={reopeningId === r.id}
                       aria-label={`Reopen review ${r.id}`}
-                      style={{
-                        minHeight: "44px",
-                        padding: "0.375rem 0.75rem",
-                        border: "1px solid #d1d5db",
-                        borderRadius: "0.375rem",
-                        backgroundColor: "#fff",
-                        cursor: reopeningId === r.id ? "not-allowed" : "pointer",
-                        fontSize: "0.8125rem",
-                        fontWeight: 500,
-                        whiteSpace: "nowrap",
-                        flexShrink: 0,
-                      }}
+                      className={`${shared.button} ${styles.reopenButton}`}
                     >
                       {reopeningId === r.id ? "Reopening…" : "Reopen"}
                     </button>
@@ -452,33 +377,18 @@ export default function RtecHeadConsolidationPage() {
       </section>
 
       {showSubmitConfirm && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="submit-consolidation-title"
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 50,
-          }}
-        >
-          <div style={{ backgroundColor: "#fff", borderRadius: "0.5rem", padding: "1.5rem", maxWidth: "420px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <h3 id="submit-consolidation-title" style={{ margin: "0 0 0.75rem 0", fontSize: "1rem" }}>
+        <div role="dialog" aria-modal="true" aria-labelledby="submit-consolidation-title" className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h3 id="submit-consolidation-title" className={styles.modalTitle}>
               Submit Recommendation
             </h3>
-            <p style={{ margin: "0 0 1.25rem 0", fontSize: "0.875rem", color: "#374151" }}>
-              Once submitted, this recommendation cannot be changed.
-            </p>
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+            <p className={styles.modalText}>Once submitted, this recommendation cannot be changed.</p>
+            <div className={styles.modalActions}>
               <button
                 type="button"
                 onClick={() => setShowSubmitConfirm(false)}
                 aria-label="Cancel submission"
-                style={{ minHeight: "44px", padding: "0.5rem 1rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff", cursor: "pointer", fontSize: "0.875rem" }}
+                className={shared.button}
               >
                 Cancel
               </button>
@@ -487,17 +397,7 @@ export default function RtecHeadConsolidationPage() {
                 onClick={() => void handleSubmitRecommendation()}
                 disabled={submitting}
                 aria-label="Confirm submit recommendation"
-                style={{
-                  minHeight: "44px",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#16a34a",
-                  color: "#fff",
-                  cursor: submitting ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  opacity: submitting ? 0.7 : 1,
-                }}
+                className={shared.buttonPrimary}
               >
                 {submitting ? "Submitting…" : "Confirm Submit"}
               </button>

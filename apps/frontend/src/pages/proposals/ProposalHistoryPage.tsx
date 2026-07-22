@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { phase9Api, type HistoryEntry } from "../../lib/api";
+import shared from "../shared.module.css";
+import styles from "./ProposalHistoryPage.module.css";
 
 const ACTION_LABELS: Record<string, string> = {
   PROPOSAL_SUBMITTED: "Proposal Submitted",
@@ -38,81 +40,55 @@ export default function ProposalHistoryPage() {
   }, [id]);
 
   if (loading) {
-    return <p style={{ padding: "1rem" }}>Loading history…</p>;
+    return (
+      <div className={styles.page}>
+        <p className={shared.loading}>
+          <span className={shared.spinner} aria-hidden="true" /> Loading history…
+        </p>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <p role="alert" style={{ padding: "1rem", color: "#dc2626" }}>
-        Error: {error}
-      </p>
+      <div className={styles.page}>
+        <p role="alert" className={shared.error}>
+          Error: {error}
+        </p>
+      </div>
     );
   }
 
   return (
-    <div style={{ padding: "1rem", maxWidth: "720px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem" }}>
+    <div className={styles.page}>
+      <div className={styles.header}>
         <button
           type="button"
           onClick={() => navigate(`/proposals/${id ?? ""}`)}
           aria-label="Back to proposal"
-          style={{
-            padding: "0.375rem 0.75rem",
-            border: "1px solid #d1d5db",
-            borderRadius: "0.375rem",
-            backgroundColor: "#fff",
-            cursor: "pointer",
-            fontSize: "0.8125rem",
-          }}
+          className={shared.button}
         >
           ← Back
         </button>
-        <h2 style={{ margin: 0 }}>Change History</h2>
+        <h2 className={styles.title}>Change History</h2>
       </div>
 
       {history.length === 0 ? (
-        <p style={{ color: "#6b7280" }}>No history entries yet.</p>
+        <div className={shared.emptyState}>
+          <p className={shared.emptyStateTitle}>No history yet</p>
+          <p className={shared.emptyStateHint}>
+            Changes to this proposal will appear here once they happen.
+          </p>
+        </div>
       ) : (
-        <ol style={{ listStyle: "none", margin: 0, padding: 0 }}>
+        <ol className={styles.timeline}>
           {history.map((entry, index) => (
-            <li
-              key={index}
-              role="listitem"
-              style={{
-                display: "flex",
-                gap: "1rem",
-                marginBottom: "1.25rem",
-              }}
-            >
-              {/* Timeline dot */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <div
-                  style={{
-                    width: "0.75rem",
-                    height: "0.75rem",
-                    borderRadius: "9999px",
-                    backgroundColor: "#2563eb",
-                    flexShrink: 0,
-                    marginTop: "0.25rem",
-                  }}
-                />
-                {index < history.length - 1 && (
-                  <div style={{ width: "2px", flex: 1, backgroundColor: "#e5e7eb", marginTop: "0.25rem" }} />
-                )}
-              </div>
-
-              {/* Entry content */}
-              <div style={{ flex: 1, paddingBottom: "0.5rem" }}>
-                <p style={{ margin: "0 0 0.125rem 0", fontWeight: 600, fontSize: "0.9375rem" }}>
-                  {humanizeAction(entry.action)}
-                </p>
-                <p style={{ margin: "0 0 0.25rem 0", fontSize: "0.8125rem", color: "#6b7280" }}>
-                  {new Date(entry.createdAt).toLocaleString()}
-                  {entry.actorUserId && (
-                    <span style={{ marginLeft: "0.5rem" }}>· by {entry.actorUserId}</span>
-                  )}
-                </p>
-              </div>
+            <li key={index} role="listitem" className={shared.timelineItem}>
+              <p className={styles.entryAction}>{humanizeAction(entry.action)}</p>
+              <p className={styles.entryMeta}>
+                {new Date(entry.createdAt).toLocaleString()}
+                {entry.actorUserId && <span> · by {entry.actorUserId}</span>}
+              </p>
             </li>
           ))}
         </ol>

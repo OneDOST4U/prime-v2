@@ -1,0 +1,187 @@
+.page {
+  padding: 1.5rem 1rem 3rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.pageError {
+  margin: 1rem;
+}
+
+.inlineError {
+  margin-bottom: 0.75rem;
+}
+
+.loadingState {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.5rem 1rem;
+  color: var(--prime-text-muted);
+  font-size: 0.9rem;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  margin: 0 0 0.6rem;
+  font-size: 1.35rem;
+}
+
+.saveStatus {
+  font-size: 0.8125rem;
+  min-height: 1.25rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  transition: color var(--prime-t);
+}
+
+.saveStatusMuted {
+  color: var(--prime-text-muted);
+}
+
+.saveStatusSaved {
+  color: var(--prime-ok);
+}
+
+.saveStatusFailed {
+  color: var(--prime-danger);
+}
+
+.submittedNotice {
+  margin: 0 0 1rem;
+  color: var(--prime-ok);
+  font-weight: 700;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.submittedNotice::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--prime-ok);
+}
+
+.section {
+  margin-bottom: 1.5rem;
+}
+
+.sectionHeading {
+  margin: 0 0 0.9rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--prime-heading);
+  border-bottom: 1px solid var(--prime-border);
+  padding-bottom: 0.6rem;
+}
+
+.fieldList {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.fieldRow {
+  border: 1px solid var(--prime-border);
+  border-radius: var(--prime-radius);
+  padding: 0.75rem 1rem;
+  background: var(--prime-surface);
+}
+
+.fieldLabel {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--prime-text-muted);
+  margin: 0 0 0.3rem;
+}
+
+.fieldValue {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--prime-heading);
+}
+
+.fieldValueEmpty {
+  color: var(--prime-text-muted);
+  font-style: italic;
+}
+
+.requiredMark {
+  color: var(--prime-danger);
+  margin-left: 0.25rem;
+}
+
+.itemsHeading {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  margin: 0 0 0.6rem;
+  color: var(--prime-heading);
+}
+
+.itemCard {
+  border: 1px solid var(--prime-border);
+  border-radius: var(--prime-radius);
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.75rem;
+  background: var(--prime-surface);
+  transition: box-shadow var(--prime-t), border-color var(--prime-t);
+}
+
+.itemCard:hover {
+  box-shadow: var(--prime-shadow-1);
+}
+
+.itemHeaderRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  align-items: center;
+}
+
+.itemLabelInput {
+  flex: 1;
+}
+
+.removeButton {
+  min-height: 44px;
+  min-width: 44px;
+  border: 1px solid var(--prime-border);
+  border-radius: 8px;
+  background: var(--prime-surface);
+  color: var(--prime-text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color var(--prime-t), color var(--prime-t), background var(--prime-t);
+}
+
+.removeButton:hover:not(:disabled) {
+  border-color: var(--prime-danger);
+  color: var(--prime-danger);
+  background: var(--prime-danger-bg);
+}
+
+.removeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.addButton {
+  min-height: 44px;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
